@@ -1,0 +1,92 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <script src="jspm_packages/system.js"></script>
+  <script src="jspm.config.js"></script>
+  <!--<script src="example-bundle.js"></script> -->
+  <style>
+    body {
+      background-color: #fbfbfb;
+      width: 980px;
+      margin: auto;
+      padding: 2em;
+    }
+    #container {
+      border: 1px solid #DDD;
+      border-radius: 15px;
+      padding: 1em 2em;
+    }
+
+    #source {
+      margin-top: 10px;
+    }
+
+    #menu {
+      list-style-type: none;
+    }
+    #menu > li {
+      display: inline;
+      border: 1px solid #DDD;
+      border-radius: 5px;
+      margin-right: 5px;
+      padding: 5px;
+    }
+
+    #menu > li > a.active {
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .CodeMirror {
+      margin-top: 1em;
+      border: 1px solid #DDD;
+      border-radius: 15px;
+      padding: 5px;
+    }
+
+    p {
+      margin-left: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h2>react-jsonapi</h2>
+    <p>
+      Declarative <a href="http://jsonapi.org/">JSON API</a> data loading for <a href="https://facebook.github.io/react/">React</a>
+      and <a href="https://github.com/ReactTraining/react-router">React Router</a>.
+
+
+      Based on <a href="http://backbonerelational.org/">Backbone-Relational</a> and <a href="http://backbonejs.org">Backbone</a>.
+    </p>
+    <p>
+      An alternative to Facebook's <a href="http://facebook.github.io/relay/">Relay</a> that doesn't depend on GraphQL.
+    </p>
+    <h3>Usage</h3>
+    <p>
+      <a href="http://github.com/appmagine/react-jsonapi">Link</a>.
+    </p>
+    <h3>Demo</h3>
+    <p>
+      Demonstrates fragments, vars, errors, and loading status.
+    </p>
+    <div id="container">
+      Loading modules...
+    </div>
+
+    <h3>Source</h3>
+    <ul id="menu" style="list-style-type: none; margin: 0; padding: 0">
+      <li><a id="default" href="#">main.js</a></li>
+      <li><a href="#">components.js</a></li>
+      <li><a href="#">models.js</a></li>
+      <li><a href="#">data.js</a></li>
+    </ul>
+
+      <textarea id="codemirror" style="display:none">
+        </textarea>
+  </div>
+  <script>
+
+    SystemJS.import('examples/index');
+  </script>
+</body>
