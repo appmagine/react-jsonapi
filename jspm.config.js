@@ -1,8 +1,8 @@
 SystemJS.config({
+  production: true,
   paths: {
     "npm:": "jspm_packages/npm/",
     "github:": "jspm_packages/github/",
-    "react-jsonapi": "src/",
     "react-jsonapi/": "src/"
   },
   browserConfig: {
@@ -13,14 +13,20 @@ SystemJS.config({
       "loader": "css"
     }
   },
+  map: {
+      "codemirror": "npm:codemirror@5.23.0",
+      "react-dom": "npm:react-dom@15.4.2",
+      "plugin-babel": "npm:systemjs-plugin-babel@0.0.21",
+  
+          "loose-envify": "npm:loose-envify@1.3.1",
+          "object-assign": "npm:object-assign@4.1.1",
+          "fbjs": "npm:fbjs@0.8.9"
+  },
   devConfig: {
     "map": {
-      "plugin-babel": "npm:systemjs-plugin-babel@0.0.21",
       "babel-plugin-transform-react-jsx": "npm:babel-plugin-transform-react-jsx@6.22.0",
       "core-js": "npm:core-js@2.4.1",
-      "codemirror": "npm:codemirror@5.23.0",
       "css": "github:systemjs/plugin-css@0.1.32",
-      "react-dom": "npm:react-dom@15.4.2"
     },
     "packages": {
       "npm:babel-plugin-transform-react-jsx@6.22.0": {
