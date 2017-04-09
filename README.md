@@ -104,7 +104,7 @@ const TacoItem = APIComponent(React.createClass({
     }
 }));
 
-const TacoList = React.createClass({
+const TacoList = APIComponent(React.createClass({
     statics: {
         getInitialVars() {
             return {
@@ -145,7 +145,7 @@ const TacoList = React.createClass({
         })
     
     }
-});
+}));
 
 ReactDOM.render((
     <Router
