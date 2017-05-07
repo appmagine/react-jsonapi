@@ -57,10 +57,10 @@ const Taco = Backbone.RelationalModel.extend({
     ]
 });
 
-const TacoCollection = Backbone.RelationalModel.extend({
+const TacoCollection = Backbone.Collection.extend({
     model: Taco,
     urlRoot: '/tacos'
-})
+});
 
 
 const TacoItem = APIComponent(React.createClass({
@@ -129,7 +129,7 @@ const TacoList = APIComponent(React.createClass({
         }
     },
     render() {
-        const {tacos, queries} = this.props;this.props.
+        const {tacos, queries} = this.props;
 
         if (queries.loading) {
             return <div>Loading...</div>
