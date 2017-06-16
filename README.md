@@ -135,15 +135,15 @@ const TacoList = APIComponent(React.createClass({
             return <div>Loading...</div>
         }
 
-        return tacos.map((taco) => {
-            return <div key={taco.id}>
-                Name: {taco.get('name')},
-                Description: {queries.vars.includeDescription ? taco.get('description') : ''}
-                <TacoItem taco={taco} />
-            </div>;
-        
-        })
-    
+        return <div>
+            {tacos.map((taco) => {
+                return <div key={taco.id}>
+                    Name: {taco.get('name')},
+                    Description: {queries.vars.includeDescription ? taco.get('description') : ''}
+                    <TacoItem taco={taco} />
+                </div>;
+            })}
+        </div>;    
     }
 }));
 
