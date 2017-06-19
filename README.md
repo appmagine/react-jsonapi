@@ -9,7 +9,7 @@ An alternative to [Relay](http://facebook.github.io/relay/) that doesn't depend 
 
 ## Features
 
-- Collects fragments defined on child components to construct a single query for
+- Collects query fragments defined on child components to construct a single query for
   each top-level component.
 
 - Automatically builds model and collection URLs with appropriate JSON-API
