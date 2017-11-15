@@ -22,6 +22,7 @@ $("#menu a").click(function (e) {
     var $a = $(e.target);
     var file = $a[0].innerHTML;
     $a.addClass('active');
+    $a.blur();
     active = $a;
     if (!texts[file]) {
         $.ajax({

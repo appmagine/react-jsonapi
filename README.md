@@ -1,23 +1,26 @@
-# react-jsonapi
+# React JSON API
 
-Declarative [JSON API](http://jsonapi.org) data loading for [React](https://facebook.github.io/react/) and [React Router](https://github.com/ReactTraining/react-router) (v3).
+React JSON API is a library for [React](https://facebook.github.io/react/) that
+provides declarative data loading from [JSON APIs](http://jsonapi.org) on route
+transition when used with 
+[React Router](https://github.com/ReactTraining/react-router) (v3).
 
+It is a direct alternative to [Relay](http://facebook.github.io/relay/) that uses REST
+instead of GraphQL by virtue of being based on [Backbone](http://backbonejs.org)
+models and [Backbone-Relational](http://backbonerelational.org) (a comprehensive 
+solution for managing nested Backbone models).
 
-Based on [Backbone](http://backbonejs.org) and [Backbone-Relational](http://backbonerelational.org) (a comprehensive solution for managing nested Backbone models).
+It works by modifying `Backbone.sync()` to use JSON API URLs generated based on
+queries specified on components as a function of the route params and query,
+as well as query 
+"[variables](https://facebook.github.io/relay/docs/guides-containers.html#requesting-different-data)"
+(query-level state).
 
-An alternative to [Relay](http://facebook.github.io/relay/) that doesn't depend on GraphQL.
-
-## Features
-
-- Collects query fragments defined on child components to construct a single query for
-  each top-level component.
-
-- Automatically builds model and collection URLs with appropriate JSON-API
-  parameters.
-
-- Manages event handlers connecting the models and components, so you can
-  create new models in a collection and trigger saves and fetches and have the
-  appropriate components immediately re-render.
+In order to keep the view reflecting the state of your collections and models,
+all relevant Backbone events are subscribed to, so instead of requiring a custom
+layer for defining "[mutations](https://facebook.github.io/relay/docs/mutations.html)"
+like Relay, you can simply use the standard Backbone methods as normal 
+(`new Model()`, `model.set`, `model.save`, `collection.add` and `collection.sync`).
 
 ## Example
 
@@ -159,27 +162,25 @@ ReactDOM.render((
 
 ## API
 
-### Backbone.RelationalModel.extend()
+### Exports
 
-This factory function is monkey-patched to add model classes to a global
-registry if `defaults.type` is defined.  The value of this property is used
-where a type is expected in JSON-API URLs.
-
-### AsyncProps
+#### AsyncProps
 
 A middleware for React Router that handles loading query results before the
 initial render of a route transition.  You must pass this as the render prop of
 `<Router>` as seen above.
 
-### APIComponent
 
-A higher-order component that manages queries.  Accepts the static properties
-`queries` and `fragments`.
+#### APIComponent
 
-- `queries`: an object mapping prop names to functions of the signature
-  `(params, query, vars)` where `params` are the route params (`props.params`),
-  `query` is the route query (`props.location.query`), and `vars` are the query
-  variables.
+A higher-order component that manages queries.  It accepts the static properties
+`queries` and `fragments` defined on the wrapped component, where:
+
+- `queries` is an object mapping prop names to functions of the signature
+  `(params, query, vars) => data_definition_object` where `params` are the route
+  params (`props.params`), `query` is the route query (`props.location.query`), 
+  and `vars` are the query variables.  `data_definition_object` can contain the 
+  following fields:
 
   * `model` - the collection or model to fetch.  Optional for fragments since
     the model is defined by what the relation is.
@@ -195,33 +196,39 @@ A higher-order component that manages queries.  Accepts the static properties
   * `id` - for model queries only (not collection queries), the id of the
     model to fetch
 
-- `fragments`: an object mapping prop names to objects of the same type as
+- `fragments` is an object mapping prop names to objects of the same type as
   returned by the functions in `queries` above (excluding the `fragments`
   property)
 
-### props.queries
+The router middleware causes an additional prop `queries` to be passed to 
+top-level `APIComponent`s, which is a container for all query results (Backbone
+Collections and Models) belonging to that component.  This prop an be explicitly
+passed down the component hierarchy in order to access parent collections or 
+models in a child component, or to use one of the following special attributes
+on `queries`:
 
-A container for all queries belonging to a top-level component that is passed by
-the router middleware as a prop to that component.  Can be explicitly passed
-down the component hierarchy in order to access properties or call `setVars()`
-in event handlers.
-
-Attributes:
-
-- `vars` - the variables for the currently loaded model or collection
+- `vars` - the variables for the currently loaded model or collection (these 
+   work exactly the same as in Relay, so see the 
+   [Relay documentation](https://facebook.github.io/relay/docs/guides-containers.html#requesting-different-data)
+   for an explanation)
 - `pendingVars` - the variables used to fetch the pending model or collection
-- `setVars(vars)` - merge `vars` with the current vars and trigger a refetch
+- `setVars(vars)` - merge `vars` with the current variables and trigger a refetch
 - `fetching` - whether the queries are currently being fetched
 - `hasErrors` - whether any of this set of models and collections had an error
   response on the last request
+  
+### Changes to Backbone behavior
 
-### Backbone.Model/Backbone.Collection
-
-Added attributes:
+The following convenience attributes are added to each instance of `Model` 
+and `Collection`:
 
 - `syncing` - whether a pending sync is ongoing
 - `error` - the error returned by the latest request, or null
 
+The factory function `Backbone.RelationalModel.extend()` is monkey-patched 
+to add model classes to a global registry if `defaults.type` is defined 
+(see example).  The value of this property is used where a type is expected 
+in JSON-API URLs.
 
 ## Testing
 

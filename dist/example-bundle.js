@@ -626,10 +626,10 @@ System.registerDynamic('npm:codemirror@5.23.0/lib/codemirror.js', [], true, func
     // handling this'.
     var Pass = { toString: function () {
         return "CodeMirror.Pass";
-      } };
+      }
 
-    // Reused option objects for setSelection & friends
-    var sel_dontScroll = { scroll: false };
+      // Reused option objects for setSelection & friends
+    };var sel_dontScroll = { scroll: false };
     var sel_mouse = { origin: "*mouse" };
     var sel_move = { origin: "+move" };
     // The inverse of countColumn -- find the offset that corresponds to
@@ -2319,13 +2319,12 @@ System.registerDynamic('npm:codemirror@5.23.0/lib/codemirror.js', [], true, func
           this.lineStart -= n;
         }
       }
-    };
 
-    // Compute a style array (an array starting with a mode generation
-    // -- for invalidation -- followed by pairs of end positions and
-    // style strings), which is used to highlight the tokens on the
-    // line.
-    function highlightLine(cm, line, state, forceToEnd) {
+      // Compute a style array (an array starting with a mode generation
+      // -- for invalidation -- followed by pairs of end positions and
+      // style strings), which is used to highlight the tokens on the
+      // line.
+    };function highlightLine(cm, line, state, forceToEnd) {
       // A styles array always starts with a number identifying the
       // mode/overlays that it is based on (for easy invalidation).
       var st = [cm.state.modeGen],
@@ -2652,9 +2651,9 @@ System.registerDynamic('npm:codemirror@5.23.0/lib/codemirror.js', [], true, func
       var builder = { pre: elt("pre", [content], "CodeMirror-line"), content: content,
         col: 0, pos: 0, cm: cm,
         trailingSpace: false,
-        splitSpaces: (ie || webkit) && cm.getOption("lineWrapping") };
-      // hide from accessibility tree
-      content.setAttribute("role", "presentation");
+        splitSpaces: (ie || webkit) && cm.getOption("lineWrapping")
+        // hide from accessibility tree
+      };content.setAttribute("role", "presentation");
       builder.pre.setAttribute("role", "presentation");
       lineView.measure = {};
 
@@ -5835,12 +5834,11 @@ System.registerDynamic('npm:codemirror@5.23.0/lib/codemirror.js', [], true, func
       empty: function () {
         return this.head.line == this.anchor.line && this.head.ch == this.anchor.ch;
       }
-    };
 
-    // Take an unsorted, potentially overlapping set of ranges, and
-    // build a selection out of it. 'Consumes' ranges array (modifying
-    // it).
-    function normalizeSelection(ranges, primIndex) {
+      // Take an unsorted, potentially overlapping set of ranges, and
+      // build a selection out of it. 'Consumes' ranges array (modifying
+      // it).
+    };function normalizeSelection(ranges, primIndex) {
       var prim = ranges[primIndex];
       ranges.sort(function (a, b) {
         return cmp(a.from(), b.from());
@@ -7141,11 +7139,10 @@ System.registerDynamic('npm:codemirror@5.23.0/lib/codemirror.js', [], true, func
           }
         }
       }
-    };
 
-    // Line widgets are block elements displayed above or below a line.
+      // Line widgets are block elements displayed above or below a line.
 
-    function LineWidget(doc, node, options) {
+    };function LineWidget(doc, node, options) {
       var this$1 = this;
 
       if (options) {
@@ -8357,10 +8354,9 @@ System.registerDynamic('npm:codemirror@5.23.0/lib/codemirror.js', [], true, func
       173: "-", 186: ";", 187: "=", 188: ",", 189: "-", 190: ".", 191: "/", 192: "`", 219: "[", 220: "\\",
       221: "]", 222: "'", 63232: "Up", 63233: "Down", 63234: "Left", 63235: "Right", 63272: "Delete",
       63273: "Home", 63275: "End", 63276: "PageUp", 63277: "PageDown", 63302: "Insert"
-    };
 
-    // Number keys
-    for (var i = 0; i < 10; i++) {
+      // Number keys
+    };for (var i = 0; i < 10; i++) {
       keyNames[i + 48] = keyNames[i + 96] = String(i);
     }
     // Alphabetic keys
@@ -8381,11 +8377,10 @@ System.registerDynamic('npm:codemirror@5.23.0/lib/codemirror.js', [], true, func
       "Tab": "defaultTab", "Shift-Tab": "indentAuto",
       "Enter": "newlineAndIndent", "Insert": "toggleOverwrite",
       "Esc": "singleSelection"
-    };
-    // Note that the save and find-related commands aren't defined by
-    // default. User code or addons can define them. Unknown commands
-    // are simply ignored.
-    keyMap.pcDefault = {
+      // Note that the save and find-related commands aren't defined by
+      // default. User code or addons can define them. Unknown commands
+      // are simply ignored.
+    };keyMap.pcDefault = {
       "Ctrl-A": "selectAll", "Ctrl-D": "deleteLine", "Ctrl-Z": "undo", "Shift-Ctrl-Z": "redo", "Ctrl-Y": "redo",
       "Ctrl-Home": "goDocStart", "Ctrl-End": "goDocEnd", "Ctrl-Up": "goLineUp", "Ctrl-Down": "goLineDown",
       "Ctrl-Left": "goGroupLeft", "Ctrl-Right": "goGroupRight", "Alt-Left": "goLineStart", "Alt-Right": "goLineEnd",
@@ -8394,9 +8389,8 @@ System.registerDynamic('npm:codemirror@5.23.0/lib/codemirror.js', [], true, func
       "Ctrl-[": "indentLess", "Ctrl-]": "indentMore",
       "Ctrl-U": "undoSelection", "Shift-Ctrl-U": "redoSelection", "Alt-U": "redoSelection",
       fallthrough: "basic"
-    };
-    // Very basic readline/emacs-style bindings, which are standard on Mac.
-    keyMap.emacsy = {
+      // Very basic readline/emacs-style bindings, which are standard on Mac.
+    };keyMap.emacsy = {
       "Ctrl-F": "goCharRight", "Ctrl-B": "goCharLeft", "Ctrl-P": "goLineUp", "Ctrl-N": "goLineDown",
       "Alt-F": "goWordRight", "Alt-B": "goWordLeft", "Ctrl-A": "goLineStart", "Ctrl-E": "goLineEnd",
       "Ctrl-V": "goPageDown", "Shift-Ctrl-V": "goPageUp", "Ctrl-D": "delCharAfter", "Ctrl-H": "delCharBefore",
@@ -11986,14 +11980,14 @@ System.registerDynamic('npm:codemirror@5.23.0/lib/codemirror.js', [], true, func
 
     // INPUT HANDLING
 
-    CodeMirror.inputStyles = { "textarea": TextareaInput, "contenteditable": ContentEditableInput };
+    CodeMirror.inputStyles = { "textarea": TextareaInput, "contenteditable": ContentEditableInput
 
-    // MODE DEFINITION AND QUERYING
+      // MODE DEFINITION AND QUERYING
 
-    // Extra arguments are stored as the mode's dependencies, which is
-    // used by (legacy) mechanisms like loadmode.js to automatically
-    // load a mode. (Preferred mechanism is the require/define calls.)
-    CodeMirror.defineMode = function (name /*, mode, …*/) {
+      // Extra arguments are stored as the mode's dependencies, which is
+      // used by (legacy) mechanisms like loadmode.js to automatically
+      // load a mode. (Preferred mechanism is the require/define calls.)
+    };CodeMirror.defineMode = function (name /*, mode, …*/) {
       if (!CodeMirror.defaults.mode && name != "null") {
         CodeMirror.defaults.mode = name;
       }
@@ -58510,6 +58504,7 @@ System.register('examples/index.js', ['jquery', 'codemirror', 'codemirror/mode/j
                 var $a = $(e.target);
                 var file = $a[0].innerHTML;
                 $a.addClass('active');
+                $a.blur();
                 active = $a;
                 if (!texts[file]) {
                     $.ajax({
