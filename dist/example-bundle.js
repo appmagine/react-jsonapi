@@ -58508,7 +58508,7 @@ System.register('examples/index.js', ['jquery', 'codemirror', 'codemirror/mode/j
                 active = $a;
                 if (!texts[file]) {
                     $.ajax({
-                        url: "/examples/" + file,
+                        url: "./examples/" + file,
                         dataType: 'text'
                     }).done(function (data) {
                         texts[file] = data;
