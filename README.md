@@ -22,6 +22,8 @@ layer for defining "[mutations](https://facebook.github.io/relay/docs/mutations.
 like Relay, you can simply use the standard Backbone methods as normal 
 (`new Model()`, `model.set`, `model.save`, `collection.add` and `collection.sync`).
 
+You can see a demo at https://appmagine.github.io/react-jsonapi/.
+
 ## Example
 
 ```js
