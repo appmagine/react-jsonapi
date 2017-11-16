@@ -55752,6 +55752,333 @@ System.registerDynamic('npm:react-router@2.8.1/lib/applyRouterMiddleware.js', ['
 
   module.exports = exports['default'];
 });
+System.registerDynamic('npm:react-router@2.8.1/lib/browserHistory.js', ['history/lib/createBrowserHistory', './createRouterHistory', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+
+  var _createBrowserHistory = $__require('history/lib/createBrowserHistory');
+
+  var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
+
+  var _createRouterHistory = $__require('./createRouterHistory');
+
+  var _createRouterHistory2 = _interopRequireDefault(_createRouterHistory);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+  }
+
+  exports.default = (0, _createRouterHistory2.default)(_createBrowserHistory2.default);
+  module.exports = exports['default'];
+});
+System.registerDynamic('npm:react-router@2.8.1/lib/useRouterHistory.js', ['history/lib/useQueries', 'history/lib/useBasename', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+  exports.default = useRouterHistory;
+
+  var _useQueries = $__require('history/lib/useQueries');
+
+  var _useQueries2 = _interopRequireDefault(_useQueries);
+
+  var _useBasename = $__require('history/lib/useBasename');
+
+  var _useBasename2 = _interopRequireDefault(_useBasename);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+  }
+
+  function useRouterHistory(createHistory) {
+    return function (options) {
+      var history = (0, _useQueries2.default)((0, _useBasename2.default)(createHistory))(options);
+      history.__v2_compatible__ = true;
+      return history;
+    };
+  }
+  module.exports = exports['default'];
+});
+System.registerDynamic('npm:react-router@2.8.1/lib/createRouterHistory.js', ['./useRouterHistory', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+
+  exports.default = function (createHistory) {
+    var history = void 0;
+    if (canUseDOM) history = (0, _useRouterHistory2.default)(createHistory)();
+    return history;
+  };
+
+  var _useRouterHistory = $__require('./useRouterHistory');
+
+  var _useRouterHistory2 = _interopRequireDefault(_useRouterHistory);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+  }
+
+  var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
+
+  module.exports = exports['default'];
+});
+System.registerDynamic('npm:react-router@2.8.1/lib/hashHistory.js', ['history/lib/createHashHistory', './createRouterHistory', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+
+  var _createHashHistory = $__require('history/lib/createHashHistory');
+
+  var _createHashHistory2 = _interopRequireDefault(_createHashHistory);
+
+  var _createRouterHistory = $__require('./createRouterHistory');
+
+  var _createRouterHistory2 = _interopRequireDefault(_createRouterHistory);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+  }
+
+  exports.default = (0, _createRouterHistory2.default)(_createHashHistory2.default);
+  module.exports = exports['default'];
+});
+System.registerDynamic('npm:react-router@2.8.1/lib/createMemoryHistory.js', ['history/lib/useQueries', 'history/lib/useBasename', 'history/lib/createMemoryHistory', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+  exports.default = createMemoryHistory;
+
+  var _useQueries = $__require('history/lib/useQueries');
+
+  var _useQueries2 = _interopRequireDefault(_useQueries);
+
+  var _useBasename = $__require('history/lib/useBasename');
+
+  var _useBasename2 = _interopRequireDefault(_useBasename);
+
+  var _createMemoryHistory = $__require('history/lib/createMemoryHistory');
+
+  var _createMemoryHistory2 = _interopRequireDefault(_createMemoryHistory);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+  }
+
+  function createMemoryHistory(options) {
+    // signatures and type checking differ between `useRoutes` and
+    // `createMemoryHistory`, have to create `memoryHistory` first because
+    // `useQueries` doesn't understand the signature
+    var memoryHistory = (0, _createMemoryHistory2.default)(options);
+    var createHistory = function createHistory() {
+      return memoryHistory;
+    };
+    var history = (0, _useQueries2.default)((0, _useBasename2.default)(createHistory))(options);
+    history.__v2_compatible__ = true;
+    return history;
+  }
+  module.exports = exports['default'];
+});
+System.registerDynamic("npm:react-router@2.8.1.json", [], true, function() {
+  return {
+    "main": "lib/index.js",
+    "format": "cjs",
+    "meta": {
+      "*": {
+        "globals": {
+          "process": "process"
+        }
+      },
+      "*.json": {
+        "format": "json"
+      },
+      "es6/*": {
+        "format": "esm"
+      }
+    },
+    "map": {
+      "./lib": "./lib/index.js"
+    }
+  };
+});
+
+System.registerDynamic('npm:react-router@2.8.1/lib/index.js', ['./RouteUtils', './PropTypes', './PatternUtils', './Router', './Link', './IndexLink', './withRouter', './IndexRedirect', './IndexRoute', './Redirect', './Route', './History', './Lifecycle', './RouteContext', './useRoutes', './RouterContext', './RoutingContext', './match', './useRouterHistory', './applyRouterMiddleware', './browserHistory', './hashHistory', './createMemoryHistory', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+  exports.createMemoryHistory = exports.hashHistory = exports.browserHistory = exports.applyRouterMiddleware = exports.formatPattern = exports.useRouterHistory = exports.match = exports.routerShape = exports.locationShape = exports.PropTypes = exports.RoutingContext = exports.RouterContext = exports.createRoutes = exports.useRoutes = exports.RouteContext = exports.Lifecycle = exports.History = exports.Route = exports.Redirect = exports.IndexRoute = exports.IndexRedirect = exports.withRouter = exports.IndexLink = exports.Link = exports.Router = undefined;
+
+  var _RouteUtils = $__require('./RouteUtils');
+
+  Object.defineProperty(exports, 'createRoutes', {
+    enumerable: true,
+    get: function get() {
+      return _RouteUtils.createRoutes;
+    }
+  });
+
+  var _PropTypes2 = $__require('./PropTypes');
+
+  Object.defineProperty(exports, 'locationShape', {
+    enumerable: true,
+    get: function get() {
+      return _PropTypes2.locationShape;
+    }
+  });
+  Object.defineProperty(exports, 'routerShape', {
+    enumerable: true,
+    get: function get() {
+      return _PropTypes2.routerShape;
+    }
+  });
+
+  var _PatternUtils = $__require('./PatternUtils');
+
+  Object.defineProperty(exports, 'formatPattern', {
+    enumerable: true,
+    get: function get() {
+      return _PatternUtils.formatPattern;
+    }
+  });
+
+  var _Router2 = $__require('./Router');
+
+  var _Router3 = _interopRequireDefault(_Router2);
+
+  var _Link2 = $__require('./Link');
+
+  var _Link3 = _interopRequireDefault(_Link2);
+
+  var _IndexLink2 = $__require('./IndexLink');
+
+  var _IndexLink3 = _interopRequireDefault(_IndexLink2);
+
+  var _withRouter2 = $__require('./withRouter');
+
+  var _withRouter3 = _interopRequireDefault(_withRouter2);
+
+  var _IndexRedirect2 = $__require('./IndexRedirect');
+
+  var _IndexRedirect3 = _interopRequireDefault(_IndexRedirect2);
+
+  var _IndexRoute2 = $__require('./IndexRoute');
+
+  var _IndexRoute3 = _interopRequireDefault(_IndexRoute2);
+
+  var _Redirect2 = $__require('./Redirect');
+
+  var _Redirect3 = _interopRequireDefault(_Redirect2);
+
+  var _Route2 = $__require('./Route');
+
+  var _Route3 = _interopRequireDefault(_Route2);
+
+  var _History2 = $__require('./History');
+
+  var _History3 = _interopRequireDefault(_History2);
+
+  var _Lifecycle2 = $__require('./Lifecycle');
+
+  var _Lifecycle3 = _interopRequireDefault(_Lifecycle2);
+
+  var _RouteContext2 = $__require('./RouteContext');
+
+  var _RouteContext3 = _interopRequireDefault(_RouteContext2);
+
+  var _useRoutes2 = $__require('./useRoutes');
+
+  var _useRoutes3 = _interopRequireDefault(_useRoutes2);
+
+  var _RouterContext2 = $__require('./RouterContext');
+
+  var _RouterContext3 = _interopRequireDefault(_RouterContext2);
+
+  var _RoutingContext2 = $__require('./RoutingContext');
+
+  var _RoutingContext3 = _interopRequireDefault(_RoutingContext2);
+
+  var _PropTypes3 = _interopRequireDefault(_PropTypes2);
+
+  var _match2 = $__require('./match');
+
+  var _match3 = _interopRequireDefault(_match2);
+
+  var _useRouterHistory2 = $__require('./useRouterHistory');
+
+  var _useRouterHistory3 = _interopRequireDefault(_useRouterHistory2);
+
+  var _applyRouterMiddleware2 = $__require('./applyRouterMiddleware');
+
+  var _applyRouterMiddleware3 = _interopRequireDefault(_applyRouterMiddleware2);
+
+  var _browserHistory2 = $__require('./browserHistory');
+
+  var _browserHistory3 = _interopRequireDefault(_browserHistory2);
+
+  var _hashHistory2 = $__require('./hashHistory');
+
+  var _hashHistory3 = _interopRequireDefault(_hashHistory2);
+
+  var _createMemoryHistory2 = $__require('./createMemoryHistory');
+
+  var _createMemoryHistory3 = _interopRequireDefault(_createMemoryHistory2);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { default: obj };
+  }
+
+  exports.Router = _Router3.default; /* components */
+
+  exports.Link = _Link3.default;
+  exports.IndexLink = _IndexLink3.default;
+  exports.withRouter = _withRouter3.default;
+
+  /* components (configuration) */
+
+  exports.IndexRedirect = _IndexRedirect3.default;
+  exports.IndexRoute = _IndexRoute3.default;
+  exports.Redirect = _Redirect3.default;
+  exports.Route = _Route3.default;
+
+  /* mixins */
+
+  exports.History = _History3.default;
+  exports.Lifecycle = _Lifecycle3.default;
+  exports.RouteContext = _RouteContext3.default;
+
+  /* utils */
+
+  exports.useRoutes = _useRoutes3.default;
+  exports.RouterContext = _RouterContext3.default;
+  exports.RoutingContext = _RoutingContext3.default;
+  exports.PropTypes = _PropTypes3.default;
+  exports.match = _match3.default;
+  exports.useRouterHistory = _useRouterHistory3.default;
+  exports.applyRouterMiddleware = _applyRouterMiddleware3.default;
+
+  /* histories */
+
+  exports.browserHistory = _browserHistory3.default;
+  exports.hashHistory = _hashHistory3.default;
+  exports.createMemoryHistory = _createMemoryHistory3.default;
+});
 System.registerDynamic('npm:history@2.1.2/lib/createBrowserHistory.js', ['invariant', './Actions', './PathUtils', './ExecutionEnvironment', './DOMUtils', './DOMStateStorage', './createDOMHistory', 'process'], true, function ($__require, exports, module) {
   'use strict';
 
@@ -55947,29 +56274,6 @@ System.registerDynamic('npm:history@2.1.2/lib/createBrowserHistory.js', ['invari
   exports['default'] = createBrowserHistory;
   module.exports = exports['default'];
 });
-System.registerDynamic('npm:react-router@2.8.1/lib/browserHistory.js', ['history/lib/createBrowserHistory', './createRouterHistory', 'process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-
-  var _createBrowserHistory = $__require('history/lib/createBrowserHistory');
-
-  var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
-
-  var _createRouterHistory = $__require('./createRouterHistory');
-
-  var _createRouterHistory2 = _interopRequireDefault(_createRouterHistory);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-  }
-
-  exports.default = (0, _createRouterHistory2.default)(_createBrowserHistory2.default);
-  module.exports = exports['default'];
-});
 System.registerDynamic('npm:history@2.1.2/lib/DOMStateStorage.js', ['warning', 'process'], true, function ($__require, exports, module) {
   /*eslint-disable no-empty */
   'use strict';
@@ -56048,86 +56352,6 @@ System.registerDynamic('npm:history@2.1.2/lib/DOMStateStorage.js', ['warning', '
     }
 
     return null;
-  }
-});
-System.registerDynamic('npm:history@2.1.2/lib/DOMUtils.js', ['process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-  exports.addEventListener = addEventListener;
-  exports.removeEventListener = removeEventListener;
-  exports.getHashPath = getHashPath;
-  exports.replaceHashPath = replaceHashPath;
-  exports.getWindowPath = getWindowPath;
-  exports.go = go;
-  exports.getUserConfirmation = getUserConfirmation;
-  exports.supportsHistory = supportsHistory;
-  exports.supportsGoWithoutReloadUsingHash = supportsGoWithoutReloadUsingHash;
-
-  function addEventListener(node, event, listener) {
-    if (node.addEventListener) {
-      node.addEventListener(event, listener, false);
-    } else {
-      node.attachEvent('on' + event, listener);
-    }
-  }
-
-  function removeEventListener(node, event, listener) {
-    if (node.removeEventListener) {
-      node.removeEventListener(event, listener, false);
-    } else {
-      node.detachEvent('on' + event, listener);
-    }
-  }
-
-  function getHashPath() {
-    // We can't use window.location.hash here because it's not
-    // consistent across browsers - Firefox will pre-decode it!
-    return window.location.href.split('#')[1] || '';
-  }
-
-  function replaceHashPath(path) {
-    window.location.replace(window.location.pathname + window.location.search + '#' + path);
-  }
-
-  function getWindowPath() {
-    return window.location.pathname + window.location.search + window.location.hash;
-  }
-
-  function go(n) {
-    if (n) window.history.go(n);
-  }
-
-  function getUserConfirmation(message, callback) {
-    callback(window.confirm(message));
-  }
-
-  /**
-   * Returns true if the HTML5 history API is supported. Taken from Modernizr.
-   *
-   * https://github.com/Modernizr/Modernizr/blob/master/LICENSE
-   * https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
-   * changed to avoid false negatives for Windows Phones: https://github.com/rackt/react-router/issues/586
-   */
-
-  function supportsHistory() {
-    var ua = navigator.userAgent;
-    if ((ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) && ua.indexOf('Mobile Safari') !== -1 && ua.indexOf('Chrome') === -1 && ua.indexOf('Windows Phone') === -1) {
-      return false;
-    }
-    return window.history && 'pushState' in window.history;
-  }
-
-  /**
-   * Returns false if using go(n) with hash history causes a full page reload.
-   */
-
-  function supportsGoWithoutReloadUsingHash() {
-    var ua = navigator.userAgent;
-    return ua.indexOf('Firefox') === -1;
   }
 });
 System.registerDynamic('npm:history@2.1.2/lib/createDOMHistory.js', ['invariant', './ExecutionEnvironment', './DOMUtils', './createHistory', 'process'], true, function ($__require, exports, module) {
@@ -56446,565 +56670,6 @@ System.registerDynamic('npm:history@2.1.2/lib/createHashHistory.js', ['warning',
   exports['default'] = createHashHistory;
   module.exports = exports['default'];
 });
-System.registerDynamic('npm:react-router@2.8.1/lib/useRouterHistory.js', ['history/lib/useQueries', 'history/lib/useBasename', 'process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-  exports.default = useRouterHistory;
-
-  var _useQueries = $__require('history/lib/useQueries');
-
-  var _useQueries2 = _interopRequireDefault(_useQueries);
-
-  var _useBasename = $__require('history/lib/useBasename');
-
-  var _useBasename2 = _interopRequireDefault(_useBasename);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-  }
-
-  function useRouterHistory(createHistory) {
-    return function (options) {
-      var history = (0, _useQueries2.default)((0, _useBasename2.default)(createHistory))(options);
-      history.__v2_compatible__ = true;
-      return history;
-    };
-  }
-  module.exports = exports['default'];
-});
-System.registerDynamic('npm:react-router@2.8.1/lib/createRouterHistory.js', ['./useRouterHistory', 'process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-
-  exports.default = function (createHistory) {
-    var history = void 0;
-    if (canUseDOM) history = (0, _useRouterHistory2.default)(createHistory)();
-    return history;
-  };
-
-  var _useRouterHistory = $__require('./useRouterHistory');
-
-  var _useRouterHistory2 = _interopRequireDefault(_useRouterHistory);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-  }
-
-  var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
-
-  module.exports = exports['default'];
-});
-System.registerDynamic('npm:react-router@2.8.1/lib/hashHistory.js', ['history/lib/createHashHistory', './createRouterHistory', 'process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-
-  var _createHashHistory = $__require('history/lib/createHashHistory');
-
-  var _createHashHistory2 = _interopRequireDefault(_createHashHistory);
-
-  var _createRouterHistory = $__require('./createRouterHistory');
-
-  var _createRouterHistory2 = _interopRequireDefault(_createRouterHistory);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-  }
-
-  exports.default = (0, _createRouterHistory2.default)(_createHashHistory2.default);
-  module.exports = exports['default'];
-});
-System.registerDynamic("npm:strict-uri-encode@1.1.0.json", [], true, function() {
-  return {
-    "main": "index.js",
-    "format": "cjs",
-    "meta": {
-      "*.json": {
-        "format": "json"
-      }
-    }
-  };
-});
-
-System.registerDynamic('npm:strict-uri-encode@1.1.0/index.js', [], true, function ($__require, exports, module) {
-	'use strict';
-
-	var global = this || self,
-	    GLOBAL = global;
-	module.exports = function (str) {
-		return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
-			return '%' + c.charCodeAt(0).toString(16).toUpperCase();
-		});
-	};
-});
-System.registerDynamic("npm:query-string@3.0.3.json", [], true, function() {
-  return {
-    "main": "index.js",
-    "format": "cjs",
-    "meta": {
-      "*.json": {
-        "format": "json"
-      }
-    }
-  };
-});
-
-System.registerDynamic('npm:query-string@3.0.3/index.js', ['strict-uri-encode'], true, function ($__require, exports, module) {
-	'use strict';
-
-	var global = this || self,
-	    GLOBAL = global;
-	var strictUriEncode = $__require('strict-uri-encode');
-
-	exports.extract = function (str) {
-		return str.split('?')[1] || '';
-	};
-
-	exports.parse = function (str) {
-		if (typeof str !== 'string') {
-			return {};
-		}
-
-		str = str.trim().replace(/^(\?|#|&)/, '');
-
-		if (!str) {
-			return {};
-		}
-
-		return str.split('&').reduce(function (ret, param) {
-			var parts = param.replace(/\+/g, ' ').split('=');
-			// Firefox (pre 40) decodes `%3D` to `=`
-			// https://github.com/sindresorhus/query-string/pull/37
-			var key = parts.shift();
-			var val = parts.length > 0 ? parts.join('=') : undefined;
-
-			key = decodeURIComponent(key);
-
-			// missing `=` should be `null`:
-			// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
-			val = val === undefined ? null : decodeURIComponent(val);
-
-			if (!ret.hasOwnProperty(key)) {
-				ret[key] = val;
-			} else if (Array.isArray(ret[key])) {
-				ret[key].push(val);
-			} else {
-				ret[key] = [ret[key], val];
-			}
-
-			return ret;
-		}, {});
-	};
-
-	exports.stringify = function (obj) {
-		return obj ? Object.keys(obj).sort().map(function (key) {
-			var val = obj[key];
-
-			if (val === undefined) {
-				return '';
-			}
-
-			if (val === null) {
-				return key;
-			}
-
-			if (Array.isArray(val)) {
-				return val.slice().sort().map(function (val2) {
-					return strictUriEncode(key) + '=' + strictUriEncode(val2);
-				}).join('&');
-			}
-
-			return strictUriEncode(key) + '=' + strictUriEncode(val);
-		}).filter(function (x) {
-			return x.length > 0;
-		}).join('&') : '';
-	};
-});
-System.registerDynamic('npm:history@2.1.2/lib/useQueries.js', ['warning', 'query-string', './runTransitionHook', './PathUtils', './deprecate', 'process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-
-  var _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }return target;
-  };
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { 'default': obj };
-  }
-
-  var _warning = $__require('warning');
-
-  var _warning2 = _interopRequireDefault(_warning);
-
-  var _queryString = $__require('query-string');
-
-  var _runTransitionHook = $__require('./runTransitionHook');
-
-  var _runTransitionHook2 = _interopRequireDefault(_runTransitionHook);
-
-  var _PathUtils = $__require('./PathUtils');
-
-  var _deprecate = $__require('./deprecate');
-
-  var _deprecate2 = _interopRequireDefault(_deprecate);
-
-  var SEARCH_BASE_KEY = '$searchBase';
-
-  function defaultStringifyQuery(query) {
-    return _queryString.stringify(query).replace(/%20/g, '+');
-  }
-
-  var defaultParseQueryString = _queryString.parse;
-
-  function isNestedObject(object) {
-    for (var p in object) {
-      if (Object.prototype.hasOwnProperty.call(object, p) && typeof object[p] === 'object' && !Array.isArray(object[p]) && object[p] !== null) return true;
-    }return false;
-  }
-
-  /**
-   * Returns a new createHistory function that may be used to create
-   * history objects that know how to handle URL queries.
-   */
-  function useQueries(createHistory) {
-    return function () {
-      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-      var history = createHistory(options);
-
-      var stringifyQuery = options.stringifyQuery;
-      var parseQueryString = options.parseQueryString;
-
-      if (typeof stringifyQuery !== 'function') stringifyQuery = defaultStringifyQuery;
-
-      if (typeof parseQueryString !== 'function') parseQueryString = defaultParseQueryString;
-
-      function addQuery(location) {
-        if (location.query == null) {
-          var search = location.search;
-
-          location.query = parseQueryString(search.substring(1));
-          location[SEARCH_BASE_KEY] = { search: search, searchBase: '' };
-        }
-
-        // TODO: Instead of all the book-keeping here, this should just strip the
-        // stringified query from the search.
-
-        return location;
-      }
-
-      function appendQuery(location, query) {
-        var _extends2;
-
-        var searchBaseSpec = location[SEARCH_BASE_KEY];
-        var queryString = query ? stringifyQuery(query) : '';
-        if (!searchBaseSpec && !queryString) {
-          return location;
-        }
-
-        'production' !== 'production' ? _warning2['default'](stringifyQuery !== defaultStringifyQuery || !isNestedObject(query), 'useQueries does not stringify nested query objects by default; ' + 'use a custom stringifyQuery function') : undefined;
-
-        if (typeof location === 'string') location = _PathUtils.parsePath(location);
-
-        var searchBase = undefined;
-        if (searchBaseSpec && location.search === searchBaseSpec.search) {
-          searchBase = searchBaseSpec.searchBase;
-        } else {
-          searchBase = location.search || '';
-        }
-
-        var search = searchBase;
-        if (queryString) {
-          search += (search ? '&' : '?') + queryString;
-        }
-
-        return _extends({}, location, (_extends2 = {
-          search: search
-        }, _extends2[SEARCH_BASE_KEY] = { search: search, searchBase: searchBase }, _extends2));
-      }
-
-      // Override all read methods with query-aware versions.
-      function listenBefore(hook) {
-        return history.listenBefore(function (location, callback) {
-          _runTransitionHook2['default'](hook, addQuery(location), callback);
-        });
-      }
-
-      function listen(listener) {
-        return history.listen(function (location) {
-          listener(addQuery(location));
-        });
-      }
-
-      // Override all write methods with query-aware versions.
-      function push(location) {
-        history.push(appendQuery(location, location.query));
-      }
-
-      function replace(location) {
-        history.replace(appendQuery(location, location.query));
-      }
-
-      function createPath(location, query) {
-        'production' !== 'production' ? _warning2['default'](!query, 'the query argument to createPath is deprecated; use a location descriptor instead') : undefined;
-
-        return history.createPath(appendQuery(location, query || location.query));
-      }
-
-      function createHref(location, query) {
-        'production' !== 'production' ? _warning2['default'](!query, 'the query argument to createHref is deprecated; use a location descriptor instead') : undefined;
-
-        return history.createHref(appendQuery(location, query || location.query));
-      }
-
-      function createLocation(location) {
-        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-          args[_key - 1] = arguments[_key];
-        }
-
-        var fullLocation = history.createLocation.apply(history, [appendQuery(location, location.query)].concat(args));
-        if (location.query) {
-          fullLocation.query = location.query;
-        }
-        return addQuery(fullLocation);
-      }
-
-      // deprecated
-      function pushState(state, path, query) {
-        if (typeof path === 'string') path = _PathUtils.parsePath(path);
-
-        push(_extends({ state: state }, path, { query: query }));
-      }
-
-      // deprecated
-      function replaceState(state, path, query) {
-        if (typeof path === 'string') path = _PathUtils.parsePath(path);
-
-        replace(_extends({ state: state }, path, { query: query }));
-      }
-
-      return _extends({}, history, {
-        listenBefore: listenBefore,
-        listen: listen,
-        push: push,
-        replace: replace,
-        createPath: createPath,
-        createHref: createHref,
-        createLocation: createLocation,
-
-        pushState: _deprecate2['default'](pushState, 'pushState is deprecated; use push instead'),
-        replaceState: _deprecate2['default'](replaceState, 'replaceState is deprecated; use replace instead')
-      });
-    };
-  }
-
-  exports['default'] = useQueries;
-  module.exports = exports['default'];
-});
-System.registerDynamic('npm:history@2.1.2/lib/ExecutionEnvironment.js', ['process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-  var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
-  exports.canUseDOM = canUseDOM;
-});
-System.registerDynamic('npm:history@2.1.2/lib/useBasename.js', ['warning', './ExecutionEnvironment', './PathUtils', './runTransitionHook', './deprecate', 'process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-
-  var _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }return target;
-  };
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { 'default': obj };
-  }
-
-  var _warning = $__require('warning');
-
-  var _warning2 = _interopRequireDefault(_warning);
-
-  var _ExecutionEnvironment = $__require('./ExecutionEnvironment');
-
-  var _PathUtils = $__require('./PathUtils');
-
-  var _runTransitionHook = $__require('./runTransitionHook');
-
-  var _runTransitionHook2 = _interopRequireDefault(_runTransitionHook);
-
-  var _deprecate = $__require('./deprecate');
-
-  var _deprecate2 = _interopRequireDefault(_deprecate);
-
-  function useBasename(createHistory) {
-    return function () {
-      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
-
-      var history = createHistory(options);
-
-      var basename = options.basename;
-
-      var checkedBaseHref = false;
-
-      function checkBaseHref() {
-        if (checkedBaseHref) {
-          return;
-        }
-
-        // Automatically use the value of <base href> in HTML
-        // documents as basename if it's not explicitly given.
-        if (basename == null && _ExecutionEnvironment.canUseDOM) {
-          var base = document.getElementsByTagName('base')[0];
-          var baseHref = base && base.getAttribute('href');
-
-          if (baseHref != null) {
-            basename = baseHref;
-
-            'production' !== 'production' ? _warning2['default'](false, 'Automatically setting basename using <base href> is deprecated and will ' + 'be removed in the next major release. The semantics of <base href> are ' + 'subtly different from basename. Please pass the basename explicitly in ' + 'the options to createHistory') : undefined;
-          }
-        }
-
-        checkedBaseHref = true;
-      }
-
-      function addBasename(location) {
-        checkBaseHref();
-
-        if (basename && location.basename == null) {
-          if (location.pathname.indexOf(basename) === 0) {
-            location.pathname = location.pathname.substring(basename.length);
-            location.basename = basename;
-
-            if (location.pathname === '') location.pathname = '/';
-          } else {
-            location.basename = '';
-          }
-        }
-
-        return location;
-      }
-
-      function prependBasename(location) {
-        checkBaseHref();
-
-        if (!basename) return location;
-
-        if (typeof location === 'string') location = _PathUtils.parsePath(location);
-
-        var pname = location.pathname;
-        var normalizedBasename = basename.slice(-1) === '/' ? basename : basename + '/';
-        var normalizedPathname = pname.charAt(0) === '/' ? pname.slice(1) : pname;
-        var pathname = normalizedBasename + normalizedPathname;
-
-        return _extends({}, location, {
-          pathname: pathname
-        });
-      }
-
-      // Override all read methods with basename-aware versions.
-      function listenBefore(hook) {
-        return history.listenBefore(function (location, callback) {
-          _runTransitionHook2['default'](hook, addBasename(location), callback);
-        });
-      }
-
-      function listen(listener) {
-        return history.listen(function (location) {
-          listener(addBasename(location));
-        });
-      }
-
-      // Override all write methods with basename-aware versions.
-      function push(location) {
-        history.push(prependBasename(location));
-      }
-
-      function replace(location) {
-        history.replace(prependBasename(location));
-      }
-
-      function createPath(location) {
-        return history.createPath(prependBasename(location));
-      }
-
-      function createHref(location) {
-        return history.createHref(prependBasename(location));
-      }
-
-      function createLocation(location) {
-        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-          args[_key - 1] = arguments[_key];
-        }
-
-        return addBasename(history.createLocation.apply(history, [prependBasename(location)].concat(args)));
-      }
-
-      // deprecated
-      function pushState(state, path) {
-        if (typeof path === 'string') path = _PathUtils.parsePath(path);
-
-        push(_extends({ state: state }, path));
-      }
-
-      // deprecated
-      function replaceState(state, path) {
-        if (typeof path === 'string') path = _PathUtils.parsePath(path);
-
-        replace(_extends({ state: state }, path));
-      }
-
-      return _extends({}, history, {
-        listenBefore: listenBefore,
-        listen: listen,
-        push: push,
-        replace: replace,
-        createPath: createPath,
-        createHref: createHref,
-        createLocation: createLocation,
-
-        pushState: _deprecate2['default'](pushState, 'pushState is deprecated; use push instead'),
-        replaceState: _deprecate2['default'](replaceState, 'replaceState is deprecated; use replace instead')
-      });
-    };
-  }
-
-  exports['default'] = useBasename;
-  module.exports = exports['default'];
-});
 System.registerDynamic("npm:invariant@2.2.2.json", [], true, function() {
   return {
     "main": "invariant.js",
@@ -57286,96 +56951,6 @@ System.registerDynamic("npm:history@2.1.2/lib/AsyncUtils.js", ["process"], true,
     next();
   }
 });
-System.registerDynamic('npm:history@2.1.2/lib/Actions.js', ['process'], true, function ($__require, exports, module) {
-  /**
-   * Indicates that navigation was caused by a call to history.push.
-   */
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-  var PUSH = 'PUSH';
-
-  exports.PUSH = PUSH;
-  /**
-   * Indicates that navigation was caused by a call to history.replace.
-   */
-  var REPLACE = 'REPLACE';
-
-  exports.REPLACE = REPLACE;
-  /**
-   * Indicates that navigation was caused by some other action such
-   * as using a browser's back/forward buttons and/or manually manipulating
-   * the URL in a browser's location bar. This is the default.
-   *
-   * See https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate
-   * for more information.
-   */
-  var POP = 'POP';
-
-  exports.POP = POP;
-  exports['default'] = {
-    PUSH: PUSH,
-    REPLACE: REPLACE,
-    POP: POP
-  };
-});
-System.registerDynamic('npm:history@2.1.2/lib/PathUtils.js', ['warning', 'process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-  exports.extractPath = extractPath;
-  exports.parsePath = parsePath;
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { 'default': obj };
-  }
-
-  var _warning = $__require('warning');
-
-  var _warning2 = _interopRequireDefault(_warning);
-
-  function extractPath(string) {
-    var match = string.match(/^https?:\/\/[^\/]*/);
-
-    if (match == null) return string;
-
-    return string.substring(match[0].length);
-  }
-
-  function parsePath(path) {
-    var pathname = extractPath(path);
-    var search = '';
-    var hash = '';
-
-    'production' !== 'production' ? _warning2['default'](path === pathname, 'A path must be pathname + search + hash only, not a fully qualified URL like "%s"', path) : undefined;
-
-    var hashIndex = pathname.indexOf('#');
-    if (hashIndex !== -1) {
-      hash = pathname.substring(hashIndex);
-      pathname = pathname.substring(0, hashIndex);
-    }
-
-    var searchIndex = pathname.indexOf('?');
-    if (searchIndex !== -1) {
-      search = pathname.substring(searchIndex);
-      pathname = pathname.substring(0, searchIndex);
-    }
-
-    if (pathname === '') pathname = '/';
-
-    return {
-      pathname: pathname,
-      search: search,
-      hash: hash
-    };
-  }
-});
 System.registerDynamic('npm:history@2.1.2/lib/createLocation.js', ['warning', './Actions', './PathUtils', 'process'], true, function ($__require, exports, module) {
   'use strict';
 
@@ -57440,143 +57015,6 @@ System.registerDynamic('npm:history@2.1.2/lib/createLocation.js', ['warning', '.
   }
 
   exports['default'] = createLocation;
-  module.exports = exports['default'];
-});
-System.registerDynamic('npm:history@2.1.2/lib/runTransitionHook.js', ['warning', 'process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { 'default': obj };
-  }
-
-  var _warning = $__require('warning');
-
-  var _warning2 = _interopRequireDefault(_warning);
-
-  function runTransitionHook(hook, location, callback) {
-    var result = hook(location, callback);
-
-    if (hook.length < 2) {
-      // Assume the hook runs synchronously and automatically
-      // call the callback with the return value.
-      callback(result);
-    } else {
-      'production' !== 'production' ? _warning2['default'](result === undefined, 'You should not "return" in a transition hook with a callback argument; call the callback instead') : undefined;
-    }
-  }
-
-  exports['default'] = runTransitionHook;
-  module.exports = exports['default'];
-});
-System.registerDynamic("npm:warning@2.1.0.json", [], true, function() {
-  return {
-    "main": "warning.js",
-    "format": "cjs",
-    "meta": {
-      "*": {
-        "globals": {
-          "process": "process"
-        }
-      },
-      "*.json": {
-        "format": "json"
-      }
-    },
-    "map": {
-      "./warning.js": {
-        "browser": "./browser.js"
-      }
-    }
-  };
-});
-
-System.registerDynamic('npm:warning@2.1.0/browser.js', ['process'], true, function ($__require, exports, module) {
-  /**
-   * Copyright 2014-2015, Facebook, Inc.
-   * All rights reserved.
-   *
-   * This source code is licensed under the BSD-style license found in the
-   * LICENSE file in the root directory of this source tree. An additional grant
-   * of patent rights can be found in the PATENTS file in the same directory.
-   */
-
-  'use strict';
-
-  /**
-   * Similar to invariant but only logs a warning if the condition is not met.
-   * This can be used to log issues in development environments in critical
-   * paths. Removing the logging code for production environments will keep the
-   * same logic and follow the same code paths.
-   */
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  var warning = function () {};
-
-  if ('production' !== 'production') {
-    warning = function (condition, format, args) {
-      var len = arguments.length;
-      args = new Array(len > 2 ? len - 2 : 0);
-      for (var key = 2; key < len; key++) {
-        args[key - 2] = arguments[key];
-      }
-      if (format === undefined) {
-        throw new Error('`warning(condition, format, ...args)` requires a warning ' + 'message argument');
-      }
-
-      if (format.length < 10 || /^[s\W]*$/.test(format)) {
-        throw new Error('The warning format should be able to uniquely identify this ' + 'warning. Please, use a more descriptive format than: ' + format);
-      }
-
-      if (!condition) {
-        var argIndex = 0;
-        var message = 'Warning: ' + format.replace(/%s/g, function () {
-          return args[argIndex++];
-        });
-        if (typeof console !== 'undefined') {
-          console.error(message);
-        }
-        try {
-          // This error was thrown as a convenience so that you can use this stack
-          // to find the callsite that caused this warning to fire.
-          throw new Error(message);
-        } catch (x) {}
-      }
-    };
-  }
-
-  module.exports = warning;
-});
-System.registerDynamic('npm:history@2.1.2/lib/deprecate.js', ['warning', 'process'], true, function ($__require, exports, module) {
-  'use strict';
-
-  var process = $__require('process');
-  var global = this || self,
-      GLOBAL = global;
-  exports.__esModule = true;
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { 'default': obj };
-  }
-
-  var _warning = $__require('warning');
-
-  var _warning2 = _interopRequireDefault(_warning);
-
-  function deprecate(fn, message) {
-    return function () {
-      'production' !== 'production' ? _warning2['default'](false, '[history] ' + message) : undefined;
-      return fn.apply(this, arguments);
-    };
-  }
-
-  exports['default'] = deprecate;
   module.exports = exports['default'];
 });
 System.registerDynamic('npm:history@2.1.2/lib/createHistory.js', ['warning', 'deep-equal', './PathUtils', './AsyncUtils', './Actions', './createLocation', './runTransitionHook', './deprecate', 'process'], true, function ($__require, exports, module) {
@@ -57882,60 +57320,6 @@ System.registerDynamic('npm:history@2.1.2/lib/createHistory.js', ['warning', 'de
   exports['default'] = createHistory;
   module.exports = exports['default'];
 });
-System.registerDynamic("npm:history@2.1.2.json", [], true, function() {
-  return {
-    "main": "lib/index.js",
-    "format": "cjs",
-    "meta": {
-      "*": {
-        "globals": {
-          "process": "process"
-        }
-      },
-      "*.json": {
-        "format": "json"
-      },
-      "es6/*": {
-        "format": "esm"
-      },
-      "modules/Actions.js": {
-        "format": "esm"
-      },
-      "modules/AsyncUtils.js": {
-        "format": "esm"
-      },
-      "modules/DOMStateStorage.js": {
-        "format": "esm"
-      },
-      "modules/DOMUtils.js": {
-        "format": "esm"
-      },
-      "modules/ExecutionEnvironment.js": {
-        "format": "esm"
-      },
-      "modules/PathUtils.js": {
-        "format": "esm"
-      },
-      "modules/deprecate.js": {
-        "format": "esm"
-      },
-      "modules/enableBeforeUnload.js": {
-        "format": "esm"
-      },
-      "modules/enableQueries.js": {
-        "format": "esm"
-      },
-      "modules/runTransitionHook.js": {
-        "format": "esm"
-      }
-    },
-    "map": {
-      "./lib": "./lib/index.js",
-      "./modules": "./modules/index.js"
-    }
-  };
-});
-
 System.registerDynamic('npm:history@2.1.2/lib/createMemoryHistory.js', ['warning', 'invariant', './PathUtils', './Actions', './createHistory', 'process'], true, function ($__require, exports, module) {
   'use strict';
 
@@ -58105,43 +57489,963 @@ System.registerDynamic('npm:history@2.1.2/lib/createMemoryHistory.js', ['warning
   exports['default'] = createMemoryHistory;
   module.exports = exports['default'];
 });
-System.registerDynamic('npm:react-router@2.8.1/lib/createMemoryHistory.js', ['history/lib/useQueries', 'history/lib/useBasename', 'history/lib/createMemoryHistory', 'process'], true, function ($__require, exports, module) {
+System.registerDynamic('npm:history@2.1.2/lib/useBasename.js', ['warning', './ExecutionEnvironment', './PathUtils', './runTransitionHook', './deprecate', 'process'], true, function ($__require, exports, module) {
   'use strict';
 
   var process = $__require('process');
   var global = this || self,
       GLOBAL = global;
   exports.__esModule = true;
-  exports.default = createMemoryHistory;
 
-  var _useQueries = $__require('history/lib/useQueries');
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }return target;
+  };
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { 'default': obj };
+  }
+
+  var _warning = $__require('warning');
+
+  var _warning2 = _interopRequireDefault(_warning);
+
+  var _ExecutionEnvironment = $__require('./ExecutionEnvironment');
+
+  var _PathUtils = $__require('./PathUtils');
+
+  var _runTransitionHook = $__require('./runTransitionHook');
+
+  var _runTransitionHook2 = _interopRequireDefault(_runTransitionHook);
+
+  var _deprecate = $__require('./deprecate');
+
+  var _deprecate2 = _interopRequireDefault(_deprecate);
+
+  function useBasename(createHistory) {
+    return function () {
+      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var history = createHistory(options);
+
+      var basename = options.basename;
+
+      var checkedBaseHref = false;
+
+      function checkBaseHref() {
+        if (checkedBaseHref) {
+          return;
+        }
+
+        // Automatically use the value of <base href> in HTML
+        // documents as basename if it's not explicitly given.
+        if (basename == null && _ExecutionEnvironment.canUseDOM) {
+          var base = document.getElementsByTagName('base')[0];
+          var baseHref = base && base.getAttribute('href');
+
+          if (baseHref != null) {
+            basename = baseHref;
+
+            'production' !== 'production' ? _warning2['default'](false, 'Automatically setting basename using <base href> is deprecated and will ' + 'be removed in the next major release. The semantics of <base href> are ' + 'subtly different from basename. Please pass the basename explicitly in ' + 'the options to createHistory') : undefined;
+          }
+        }
+
+        checkedBaseHref = true;
+      }
+
+      function addBasename(location) {
+        checkBaseHref();
+
+        if (basename && location.basename == null) {
+          if (location.pathname.indexOf(basename) === 0) {
+            location.pathname = location.pathname.substring(basename.length);
+            location.basename = basename;
+
+            if (location.pathname === '') location.pathname = '/';
+          } else {
+            location.basename = '';
+          }
+        }
+
+        return location;
+      }
+
+      function prependBasename(location) {
+        checkBaseHref();
+
+        if (!basename) return location;
+
+        if (typeof location === 'string') location = _PathUtils.parsePath(location);
+
+        var pname = location.pathname;
+        var normalizedBasename = basename.slice(-1) === '/' ? basename : basename + '/';
+        var normalizedPathname = pname.charAt(0) === '/' ? pname.slice(1) : pname;
+        var pathname = normalizedBasename + normalizedPathname;
+
+        return _extends({}, location, {
+          pathname: pathname
+        });
+      }
+
+      // Override all read methods with basename-aware versions.
+      function listenBefore(hook) {
+        return history.listenBefore(function (location, callback) {
+          _runTransitionHook2['default'](hook, addBasename(location), callback);
+        });
+      }
+
+      function listen(listener) {
+        return history.listen(function (location) {
+          listener(addBasename(location));
+        });
+      }
+
+      // Override all write methods with basename-aware versions.
+      function push(location) {
+        history.push(prependBasename(location));
+      }
+
+      function replace(location) {
+        history.replace(prependBasename(location));
+      }
+
+      function createPath(location) {
+        return history.createPath(prependBasename(location));
+      }
+
+      function createHref(location) {
+        return history.createHref(prependBasename(location));
+      }
+
+      function createLocation(location) {
+        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
+        }
+
+        return addBasename(history.createLocation.apply(history, [prependBasename(location)].concat(args)));
+      }
+
+      // deprecated
+      function pushState(state, path) {
+        if (typeof path === 'string') path = _PathUtils.parsePath(path);
+
+        push(_extends({ state: state }, path));
+      }
+
+      // deprecated
+      function replaceState(state, path) {
+        if (typeof path === 'string') path = _PathUtils.parsePath(path);
+
+        replace(_extends({ state: state }, path));
+      }
+
+      return _extends({}, history, {
+        listenBefore: listenBefore,
+        listen: listen,
+        push: push,
+        replace: replace,
+        createPath: createPath,
+        createHref: createHref,
+        createLocation: createLocation,
+
+        pushState: _deprecate2['default'](pushState, 'pushState is deprecated; use push instead'),
+        replaceState: _deprecate2['default'](replaceState, 'replaceState is deprecated; use replace instead')
+      });
+    };
+  }
+
+  exports['default'] = useBasename;
+  module.exports = exports['default'];
+});
+System.registerDynamic('npm:history@2.1.2/lib/Actions.js', ['process'], true, function ($__require, exports, module) {
+  /**
+   * Indicates that navigation was caused by a call to history.push.
+   */
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+  var PUSH = 'PUSH';
+
+  exports.PUSH = PUSH;
+  /**
+   * Indicates that navigation was caused by a call to history.replace.
+   */
+  var REPLACE = 'REPLACE';
+
+  exports.REPLACE = REPLACE;
+  /**
+   * Indicates that navigation was caused by some other action such
+   * as using a browser's back/forward buttons and/or manually manipulating
+   * the URL in a browser's location bar. This is the default.
+   *
+   * See https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate
+   * for more information.
+   */
+  var POP = 'POP';
+
+  exports.POP = POP;
+  exports['default'] = {
+    PUSH: PUSH,
+    REPLACE: REPLACE,
+    POP: POP
+  };
+});
+System.registerDynamic('npm:history@2.1.2/lib/ExecutionEnvironment.js', ['process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+  var canUseDOM = !!(typeof window !== 'undefined' && window.document && window.document.createElement);
+  exports.canUseDOM = canUseDOM;
+});
+System.registerDynamic('npm:history@2.1.2/lib/DOMUtils.js', ['process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+  exports.addEventListener = addEventListener;
+  exports.removeEventListener = removeEventListener;
+  exports.getHashPath = getHashPath;
+  exports.replaceHashPath = replaceHashPath;
+  exports.getWindowPath = getWindowPath;
+  exports.go = go;
+  exports.getUserConfirmation = getUserConfirmation;
+  exports.supportsHistory = supportsHistory;
+  exports.supportsGoWithoutReloadUsingHash = supportsGoWithoutReloadUsingHash;
+
+  function addEventListener(node, event, listener) {
+    if (node.addEventListener) {
+      node.addEventListener(event, listener, false);
+    } else {
+      node.attachEvent('on' + event, listener);
+    }
+  }
+
+  function removeEventListener(node, event, listener) {
+    if (node.removeEventListener) {
+      node.removeEventListener(event, listener, false);
+    } else {
+      node.detachEvent('on' + event, listener);
+    }
+  }
+
+  function getHashPath() {
+    // We can't use window.location.hash here because it's not
+    // consistent across browsers - Firefox will pre-decode it!
+    return window.location.href.split('#')[1] || '';
+  }
+
+  function replaceHashPath(path) {
+    window.location.replace(window.location.pathname + window.location.search + '#' + path);
+  }
+
+  function getWindowPath() {
+    return window.location.pathname + window.location.search + window.location.hash;
+  }
+
+  function go(n) {
+    if (n) window.history.go(n);
+  }
+
+  function getUserConfirmation(message, callback) {
+    callback(window.confirm(message));
+  }
+
+  /**
+   * Returns true if the HTML5 history API is supported. Taken from Modernizr.
+   *
+   * https://github.com/Modernizr/Modernizr/blob/master/LICENSE
+   * https://github.com/Modernizr/Modernizr/blob/master/feature-detects/history.js
+   * changed to avoid false negatives for Windows Phones: https://github.com/rackt/react-router/issues/586
+   */
+
+  function supportsHistory() {
+    var ua = navigator.userAgent;
+    if ((ua.indexOf('Android 2.') !== -1 || ua.indexOf('Android 4.0') !== -1) && ua.indexOf('Mobile Safari') !== -1 && ua.indexOf('Chrome') === -1 && ua.indexOf('Windows Phone') === -1) {
+      return false;
+    }
+    return window.history && 'pushState' in window.history;
+  }
+
+  /**
+   * Returns false if using go(n) with hash history causes a full page reload.
+   */
+
+  function supportsGoWithoutReloadUsingHash() {
+    var ua = navigator.userAgent;
+    return ua.indexOf('Firefox') === -1;
+  }
+});
+System.registerDynamic('npm:history@2.1.2/lib/useBeforeUnload.js', ['warning', './ExecutionEnvironment', './DOMUtils', './deprecate', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }return target;
+  };
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { 'default': obj };
+  }
+
+  var _warning = $__require('warning');
+
+  var _warning2 = _interopRequireDefault(_warning);
+
+  var _ExecutionEnvironment = $__require('./ExecutionEnvironment');
+
+  var _DOMUtils = $__require('./DOMUtils');
+
+  var _deprecate = $__require('./deprecate');
+
+  var _deprecate2 = _interopRequireDefault(_deprecate);
+
+  function startBeforeUnloadListener(getBeforeUnloadPromptMessage) {
+    function listener(event) {
+      var message = getBeforeUnloadPromptMessage();
+
+      if (typeof message === 'string') {
+        (event || window.event).returnValue = message;
+        return message;
+      }
+    }
+
+    _DOMUtils.addEventListener(window, 'beforeunload', listener);
+
+    return function () {
+      _DOMUtils.removeEventListener(window, 'beforeunload', listener);
+    };
+  }
+
+  /**
+   * Returns a new createHistory function that can be used to create
+   * history objects that know how to use the beforeunload event in web
+   * browsers to cancel navigation.
+   */
+  function useBeforeUnload(createHistory) {
+    return function (options) {
+      var history = createHistory(options);
+
+      var stopBeforeUnloadListener = undefined;
+      var beforeUnloadHooks = [];
+
+      function getBeforeUnloadPromptMessage() {
+        var message = undefined;
+
+        for (var i = 0, len = beforeUnloadHooks.length; message == null && i < len; ++i) {
+          message = beforeUnloadHooks[i].call();
+        }return message;
+      }
+
+      function listenBeforeUnload(hook) {
+        beforeUnloadHooks.push(hook);
+
+        if (beforeUnloadHooks.length === 1) {
+          if (_ExecutionEnvironment.canUseDOM) {
+            stopBeforeUnloadListener = startBeforeUnloadListener(getBeforeUnloadPromptMessage);
+          } else {
+            'production' !== 'production' ? _warning2['default'](false, 'listenBeforeUnload only works in DOM environments') : undefined;
+          }
+        }
+
+        return function () {
+          beforeUnloadHooks = beforeUnloadHooks.filter(function (item) {
+            return item !== hook;
+          });
+
+          if (beforeUnloadHooks.length === 0 && stopBeforeUnloadListener) {
+            stopBeforeUnloadListener();
+            stopBeforeUnloadListener = null;
+          }
+        };
+      }
+
+      // deprecated
+      function registerBeforeUnloadHook(hook) {
+        if (_ExecutionEnvironment.canUseDOM && beforeUnloadHooks.indexOf(hook) === -1) {
+          beforeUnloadHooks.push(hook);
+
+          if (beforeUnloadHooks.length === 1) stopBeforeUnloadListener = startBeforeUnloadListener(getBeforeUnloadPromptMessage);
+        }
+      }
+
+      // deprecated
+      function unregisterBeforeUnloadHook(hook) {
+        if (beforeUnloadHooks.length > 0) {
+          beforeUnloadHooks = beforeUnloadHooks.filter(function (item) {
+            return item !== hook;
+          });
+
+          if (beforeUnloadHooks.length === 0) stopBeforeUnloadListener();
+        }
+      }
+
+      return _extends({}, history, {
+        listenBeforeUnload: listenBeforeUnload,
+
+        registerBeforeUnloadHook: _deprecate2['default'](registerBeforeUnloadHook, 'registerBeforeUnloadHook is deprecated; use listenBeforeUnload instead'),
+        unregisterBeforeUnloadHook: _deprecate2['default'](unregisterBeforeUnloadHook, 'unregisterBeforeUnloadHook is deprecated; use the callback returned from listenBeforeUnload instead')
+      });
+    };
+  }
+
+  exports['default'] = useBeforeUnload;
+  module.exports = exports['default'];
+});
+System.registerDynamic('npm:history@2.1.2/lib/enableBeforeUnload.js', ['./deprecate', './useBeforeUnload', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { 'default': obj };
+  }
+
+  var _deprecate = $__require('./deprecate');
+
+  var _deprecate2 = _interopRequireDefault(_deprecate);
+
+  var _useBeforeUnload = $__require('./useBeforeUnload');
+
+  var _useBeforeUnload2 = _interopRequireDefault(_useBeforeUnload);
+
+  exports['default'] = _deprecate2['default'](_useBeforeUnload2['default'], 'enableBeforeUnload is deprecated, use useBeforeUnload instead');
+  module.exports = exports['default'];
+});
+System.registerDynamic("npm:strict-uri-encode@1.1.0.json", [], true, function() {
+  return {
+    "main": "index.js",
+    "format": "cjs",
+    "meta": {
+      "*.json": {
+        "format": "json"
+      }
+    }
+  };
+});
+
+System.registerDynamic('npm:strict-uri-encode@1.1.0/index.js', [], true, function ($__require, exports, module) {
+	'use strict';
+
+	var global = this || self,
+	    GLOBAL = global;
+	module.exports = function (str) {
+		return encodeURIComponent(str).replace(/[!'()*]/g, function (c) {
+			return '%' + c.charCodeAt(0).toString(16).toUpperCase();
+		});
+	};
+});
+System.registerDynamic("npm:query-string@3.0.3.json", [], true, function() {
+  return {
+    "main": "index.js",
+    "format": "cjs",
+    "meta": {
+      "*.json": {
+        "format": "json"
+      }
+    }
+  };
+});
+
+System.registerDynamic('npm:query-string@3.0.3/index.js', ['strict-uri-encode'], true, function ($__require, exports, module) {
+	'use strict';
+
+	var global = this || self,
+	    GLOBAL = global;
+	var strictUriEncode = $__require('strict-uri-encode');
+
+	exports.extract = function (str) {
+		return str.split('?')[1] || '';
+	};
+
+	exports.parse = function (str) {
+		if (typeof str !== 'string') {
+			return {};
+		}
+
+		str = str.trim().replace(/^(\?|#|&)/, '');
+
+		if (!str) {
+			return {};
+		}
+
+		return str.split('&').reduce(function (ret, param) {
+			var parts = param.replace(/\+/g, ' ').split('=');
+			// Firefox (pre 40) decodes `%3D` to `=`
+			// https://github.com/sindresorhus/query-string/pull/37
+			var key = parts.shift();
+			var val = parts.length > 0 ? parts.join('=') : undefined;
+
+			key = decodeURIComponent(key);
+
+			// missing `=` should be `null`:
+			// http://w3.org/TR/2012/WD-url-20120524/#collect-url-parameters
+			val = val === undefined ? null : decodeURIComponent(val);
+
+			if (!ret.hasOwnProperty(key)) {
+				ret[key] = val;
+			} else if (Array.isArray(ret[key])) {
+				ret[key].push(val);
+			} else {
+				ret[key] = [ret[key], val];
+			}
+
+			return ret;
+		}, {});
+	};
+
+	exports.stringify = function (obj) {
+		return obj ? Object.keys(obj).sort().map(function (key) {
+			var val = obj[key];
+
+			if (val === undefined) {
+				return '';
+			}
+
+			if (val === null) {
+				return key;
+			}
+
+			if (Array.isArray(val)) {
+				return val.slice().sort().map(function (val2) {
+					return strictUriEncode(key) + '=' + strictUriEncode(val2);
+				}).join('&');
+			}
+
+			return strictUriEncode(key) + '=' + strictUriEncode(val);
+		}).filter(function (x) {
+			return x.length > 0;
+		}).join('&') : '';
+	};
+});
+System.registerDynamic('npm:history@2.1.2/lib/runTransitionHook.js', ['warning', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { 'default': obj };
+  }
+
+  var _warning = $__require('warning');
+
+  var _warning2 = _interopRequireDefault(_warning);
+
+  function runTransitionHook(hook, location, callback) {
+    var result = hook(location, callback);
+
+    if (hook.length < 2) {
+      // Assume the hook runs synchronously and automatically
+      // call the callback with the return value.
+      callback(result);
+    } else {
+      'production' !== 'production' ? _warning2['default'](result === undefined, 'You should not "return" in a transition hook with a callback argument; call the callback instead') : undefined;
+    }
+  }
+
+  exports['default'] = runTransitionHook;
+  module.exports = exports['default'];
+});
+System.registerDynamic('npm:history@2.1.2/lib/PathUtils.js', ['warning', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+  exports.extractPath = extractPath;
+  exports.parsePath = parsePath;
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { 'default': obj };
+  }
+
+  var _warning = $__require('warning');
+
+  var _warning2 = _interopRequireDefault(_warning);
+
+  function extractPath(string) {
+    var match = string.match(/^https?:\/\/[^\/]*/);
+
+    if (match == null) return string;
+
+    return string.substring(match[0].length);
+  }
+
+  function parsePath(path) {
+    var pathname = extractPath(path);
+    var search = '';
+    var hash = '';
+
+    'production' !== 'production' ? _warning2['default'](path === pathname, 'A path must be pathname + search + hash only, not a fully qualified URL like "%s"', path) : undefined;
+
+    var hashIndex = pathname.indexOf('#');
+    if (hashIndex !== -1) {
+      hash = pathname.substring(hashIndex);
+      pathname = pathname.substring(0, hashIndex);
+    }
+
+    var searchIndex = pathname.indexOf('?');
+    if (searchIndex !== -1) {
+      search = pathname.substring(searchIndex);
+      pathname = pathname.substring(0, searchIndex);
+    }
+
+    if (pathname === '') pathname = '/';
+
+    return {
+      pathname: pathname,
+      search: search,
+      hash: hash
+    };
+  }
+});
+System.registerDynamic("npm:warning@2.1.0.json", [], true, function() {
+  return {
+    "main": "warning.js",
+    "format": "cjs",
+    "meta": {
+      "*": {
+        "globals": {
+          "process": "process"
+        }
+      },
+      "*.json": {
+        "format": "json"
+      }
+    },
+    "map": {
+      "./warning.js": {
+        "browser": "./browser.js"
+      }
+    }
+  };
+});
+
+System.registerDynamic('npm:warning@2.1.0/browser.js', ['process'], true, function ($__require, exports, module) {
+  /**
+   * Copyright 2014-2015, Facebook, Inc.
+   * All rights reserved.
+   *
+   * This source code is licensed under the BSD-style license found in the
+   * LICENSE file in the root directory of this source tree. An additional grant
+   * of patent rights can be found in the PATENTS file in the same directory.
+   */
+
+  'use strict';
+
+  /**
+   * Similar to invariant but only logs a warning if the condition is not met.
+   * This can be used to log issues in development environments in critical
+   * paths. Removing the logging code for production environments will keep the
+   * same logic and follow the same code paths.
+   */
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  var warning = function () {};
+
+  if ('production' !== 'production') {
+    warning = function (condition, format, args) {
+      var len = arguments.length;
+      args = new Array(len > 2 ? len - 2 : 0);
+      for (var key = 2; key < len; key++) {
+        args[key - 2] = arguments[key];
+      }
+      if (format === undefined) {
+        throw new Error('`warning(condition, format, ...args)` requires a warning ' + 'message argument');
+      }
+
+      if (format.length < 10 || /^[s\W]*$/.test(format)) {
+        throw new Error('The warning format should be able to uniquely identify this ' + 'warning. Please, use a more descriptive format than: ' + format);
+      }
+
+      if (!condition) {
+        var argIndex = 0;
+        var message = 'Warning: ' + format.replace(/%s/g, function () {
+          return args[argIndex++];
+        });
+        if (typeof console !== 'undefined') {
+          console.error(message);
+        }
+        try {
+          // This error was thrown as a convenience so that you can use this stack
+          // to find the callsite that caused this warning to fire.
+          throw new Error(message);
+        } catch (x) {}
+      }
+    };
+  }
+
+  module.exports = warning;
+});
+System.registerDynamic('npm:history@2.1.2/lib/deprecate.js', ['warning', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { 'default': obj };
+  }
+
+  var _warning = $__require('warning');
+
+  var _warning2 = _interopRequireDefault(_warning);
+
+  function deprecate(fn, message) {
+    return function () {
+      'production' !== 'production' ? _warning2['default'](false, '[history] ' + message) : undefined;
+      return fn.apply(this, arguments);
+    };
+  }
+
+  exports['default'] = deprecate;
+  module.exports = exports['default'];
+});
+System.registerDynamic('npm:history@2.1.2/lib/useQueries.js', ['warning', 'query-string', './runTransitionHook', './PathUtils', './deprecate', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }return target;
+  };
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { 'default': obj };
+  }
+
+  var _warning = $__require('warning');
+
+  var _warning2 = _interopRequireDefault(_warning);
+
+  var _queryString = $__require('query-string');
+
+  var _runTransitionHook = $__require('./runTransitionHook');
+
+  var _runTransitionHook2 = _interopRequireDefault(_runTransitionHook);
+
+  var _PathUtils = $__require('./PathUtils');
+
+  var _deprecate = $__require('./deprecate');
+
+  var _deprecate2 = _interopRequireDefault(_deprecate);
+
+  var SEARCH_BASE_KEY = '$searchBase';
+
+  function defaultStringifyQuery(query) {
+    return _queryString.stringify(query).replace(/%20/g, '+');
+  }
+
+  var defaultParseQueryString = _queryString.parse;
+
+  function isNestedObject(object) {
+    for (var p in object) {
+      if (Object.prototype.hasOwnProperty.call(object, p) && typeof object[p] === 'object' && !Array.isArray(object[p]) && object[p] !== null) return true;
+    }return false;
+  }
+
+  /**
+   * Returns a new createHistory function that may be used to create
+   * history objects that know how to handle URL queries.
+   */
+  function useQueries(createHistory) {
+    return function () {
+      var options = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var history = createHistory(options);
+
+      var stringifyQuery = options.stringifyQuery;
+      var parseQueryString = options.parseQueryString;
+
+      if (typeof stringifyQuery !== 'function') stringifyQuery = defaultStringifyQuery;
+
+      if (typeof parseQueryString !== 'function') parseQueryString = defaultParseQueryString;
+
+      function addQuery(location) {
+        if (location.query == null) {
+          var search = location.search;
+
+          location.query = parseQueryString(search.substring(1));
+          location[SEARCH_BASE_KEY] = { search: search, searchBase: '' };
+        }
+
+        // TODO: Instead of all the book-keeping here, this should just strip the
+        // stringified query from the search.
+
+        return location;
+      }
+
+      function appendQuery(location, query) {
+        var _extends2;
+
+        var searchBaseSpec = location[SEARCH_BASE_KEY];
+        var queryString = query ? stringifyQuery(query) : '';
+        if (!searchBaseSpec && !queryString) {
+          return location;
+        }
+
+        'production' !== 'production' ? _warning2['default'](stringifyQuery !== defaultStringifyQuery || !isNestedObject(query), 'useQueries does not stringify nested query objects by default; ' + 'use a custom stringifyQuery function') : undefined;
+
+        if (typeof location === 'string') location = _PathUtils.parsePath(location);
+
+        var searchBase = undefined;
+        if (searchBaseSpec && location.search === searchBaseSpec.search) {
+          searchBase = searchBaseSpec.searchBase;
+        } else {
+          searchBase = location.search || '';
+        }
+
+        var search = searchBase;
+        if (queryString) {
+          search += (search ? '&' : '?') + queryString;
+        }
+
+        return _extends({}, location, (_extends2 = {
+          search: search
+        }, _extends2[SEARCH_BASE_KEY] = { search: search, searchBase: searchBase }, _extends2));
+      }
+
+      // Override all read methods with query-aware versions.
+      function listenBefore(hook) {
+        return history.listenBefore(function (location, callback) {
+          _runTransitionHook2['default'](hook, addQuery(location), callback);
+        });
+      }
+
+      function listen(listener) {
+        return history.listen(function (location) {
+          listener(addQuery(location));
+        });
+      }
+
+      // Override all write methods with query-aware versions.
+      function push(location) {
+        history.push(appendQuery(location, location.query));
+      }
+
+      function replace(location) {
+        history.replace(appendQuery(location, location.query));
+      }
+
+      function createPath(location, query) {
+        'production' !== 'production' ? _warning2['default'](!query, 'the query argument to createPath is deprecated; use a location descriptor instead') : undefined;
+
+        return history.createPath(appendQuery(location, query || location.query));
+      }
+
+      function createHref(location, query) {
+        'production' !== 'production' ? _warning2['default'](!query, 'the query argument to createHref is deprecated; use a location descriptor instead') : undefined;
+
+        return history.createHref(appendQuery(location, query || location.query));
+      }
+
+      function createLocation(location) {
+        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+          args[_key - 1] = arguments[_key];
+        }
+
+        var fullLocation = history.createLocation.apply(history, [appendQuery(location, location.query)].concat(args));
+        if (location.query) {
+          fullLocation.query = location.query;
+        }
+        return addQuery(fullLocation);
+      }
+
+      // deprecated
+      function pushState(state, path, query) {
+        if (typeof path === 'string') path = _PathUtils.parsePath(path);
+
+        push(_extends({ state: state }, path, { query: query }));
+      }
+
+      // deprecated
+      function replaceState(state, path, query) {
+        if (typeof path === 'string') path = _PathUtils.parsePath(path);
+
+        replace(_extends({ state: state }, path, { query: query }));
+      }
+
+      return _extends({}, history, {
+        listenBefore: listenBefore,
+        listen: listen,
+        push: push,
+        replace: replace,
+        createPath: createPath,
+        createHref: createHref,
+        createLocation: createLocation,
+
+        pushState: _deprecate2['default'](pushState, 'pushState is deprecated; use push instead'),
+        replaceState: _deprecate2['default'](replaceState, 'replaceState is deprecated; use replace instead')
+      });
+    };
+  }
+
+  exports['default'] = useQueries;
+  module.exports = exports['default'];
+});
+System.registerDynamic('npm:history@2.1.2/lib/enableQueries.js', ['./deprecate', './useQueries', 'process'], true, function ($__require, exports, module) {
+  'use strict';
+
+  var process = $__require('process');
+  var global = this || self,
+      GLOBAL = global;
+  exports.__esModule = true;
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { 'default': obj };
+  }
+
+  var _deprecate = $__require('./deprecate');
+
+  var _deprecate2 = _interopRequireDefault(_deprecate);
+
+  var _useQueries = $__require('./useQueries');
 
   var _useQueries2 = _interopRequireDefault(_useQueries);
 
-  var _useBasename = $__require('history/lib/useBasename');
-
-  var _useBasename2 = _interopRequireDefault(_useBasename);
-
-  var _createMemoryHistory = $__require('history/lib/createMemoryHistory');
-
-  var _createMemoryHistory2 = _interopRequireDefault(_createMemoryHistory);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-  }
-
-  function createMemoryHistory(options) {
-    // signatures and type checking differ between `useRoutes` and
-    // `createMemoryHistory`, have to create `memoryHistory` first because
-    // `useQueries` doesn't understand the signature
-    var memoryHistory = (0, _createMemoryHistory2.default)(options);
-    var createHistory = function createHistory() {
-      return memoryHistory;
-    };
-    var history = (0, _useQueries2.default)((0, _useBasename2.default)(createHistory))(options);
-    history.__v2_compatible__ = true;
-    return history;
-  }
+  exports['default'] = _deprecate2['default'](_useQueries2['default'], 'enableQueries is deprecated, use useQueries instead');
   module.exports = exports['default'];
 });
 System.registerDynamic("npm:jspm-nodelibs-process@0.2.0.json", [], true, function() {
@@ -58254,7 +58558,7 @@ System.registerDynamic('npm:jspm-nodelibs-process@0.2.0/process.js', ['@system-e
         return 0;
     };
 });
-System.registerDynamic("npm:react-router@2.8.1.json", [], true, function() {
+System.registerDynamic("npm:history@2.1.2.json", [], true, function() {
   return {
     "main": "lib/index.js",
     "format": "cjs",
@@ -58269,181 +58573,127 @@ System.registerDynamic("npm:react-router@2.8.1.json", [], true, function() {
       },
       "es6/*": {
         "format": "esm"
+      },
+      "modules/Actions.js": {
+        "format": "esm"
+      },
+      "modules/AsyncUtils.js": {
+        "format": "esm"
+      },
+      "modules/DOMStateStorage.js": {
+        "format": "esm"
+      },
+      "modules/DOMUtils.js": {
+        "format": "esm"
+      },
+      "modules/ExecutionEnvironment.js": {
+        "format": "esm"
+      },
+      "modules/PathUtils.js": {
+        "format": "esm"
+      },
+      "modules/deprecate.js": {
+        "format": "esm"
+      },
+      "modules/enableBeforeUnload.js": {
+        "format": "esm"
+      },
+      "modules/enableQueries.js": {
+        "format": "esm"
+      },
+      "modules/runTransitionHook.js": {
+        "format": "esm"
       }
     },
     "map": {
-      "./lib": "./lib/index.js"
+      "./lib": "./lib/index.js",
+      "./modules": "./modules/index.js"
     }
   };
 });
 
-System.registerDynamic('npm:react-router@2.8.1/lib/index.js', ['./RouteUtils', './PropTypes', './PatternUtils', './Router', './Link', './IndexLink', './withRouter', './IndexRedirect', './IndexRoute', './Redirect', './Route', './History', './Lifecycle', './RouteContext', './useRoutes', './RouterContext', './RoutingContext', './match', './useRouterHistory', './applyRouterMiddleware', './browserHistory', './hashHistory', './createMemoryHistory', 'process'], true, function ($__require, exports, module) {
+System.registerDynamic('npm:history@2.1.2/lib/index.js', ['./deprecate', './createLocation', './createBrowserHistory', './createHashHistory', './createMemoryHistory', './useBasename', './useBeforeUnload', './useQueries', './Actions', './enableBeforeUnload', './enableQueries', 'process'], true, function ($__require, exports, module) {
   'use strict';
 
   var process = $__require('process');
   var global = this || self,
       GLOBAL = global;
   exports.__esModule = true;
-  exports.createMemoryHistory = exports.hashHistory = exports.browserHistory = exports.applyRouterMiddleware = exports.formatPattern = exports.useRouterHistory = exports.match = exports.routerShape = exports.locationShape = exports.PropTypes = exports.RoutingContext = exports.RouterContext = exports.createRoutes = exports.useRoutes = exports.RouteContext = exports.Lifecycle = exports.History = exports.Route = exports.Redirect = exports.IndexRoute = exports.IndexRedirect = exports.withRouter = exports.IndexLink = exports.Link = exports.Router = undefined;
 
-  var _RouteUtils = $__require('./RouteUtils');
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : { 'default': obj };
+  }
 
-  Object.defineProperty(exports, 'createRoutes', {
-    enumerable: true,
-    get: function get() {
-      return _RouteUtils.createRoutes;
-    }
-  });
+  var _deprecate = $__require('./deprecate');
 
-  var _PropTypes2 = $__require('./PropTypes');
+  var _deprecate2 = _interopRequireDefault(_deprecate);
 
-  Object.defineProperty(exports, 'locationShape', {
-    enumerable: true,
-    get: function get() {
-      return _PropTypes2.locationShape;
-    }
-  });
-  Object.defineProperty(exports, 'routerShape', {
-    enumerable: true,
-    get: function get() {
-      return _PropTypes2.routerShape;
-    }
-  });
+  var _createLocation2 = $__require('./createLocation');
 
-  var _PatternUtils = $__require('./PatternUtils');
+  var _createLocation3 = _interopRequireDefault(_createLocation2);
 
-  Object.defineProperty(exports, 'formatPattern', {
-    enumerable: true,
-    get: function get() {
-      return _PatternUtils.formatPattern;
-    }
-  });
+  var _createBrowserHistory = $__require('./createBrowserHistory');
 
-  var _Router2 = $__require('./Router');
+  var _createBrowserHistory2 = _interopRequireDefault(_createBrowserHistory);
 
-  var _Router3 = _interopRequireDefault(_Router2);
+  exports.createHistory = _createBrowserHistory2['default'];
 
-  var _Link2 = $__require('./Link');
+  var _createHashHistory2 = $__require('./createHashHistory');
 
-  var _Link3 = _interopRequireDefault(_Link2);
+  var _createHashHistory3 = _interopRequireDefault(_createHashHistory2);
 
-  var _IndexLink2 = $__require('./IndexLink');
-
-  var _IndexLink3 = _interopRequireDefault(_IndexLink2);
-
-  var _withRouter2 = $__require('./withRouter');
-
-  var _withRouter3 = _interopRequireDefault(_withRouter2);
-
-  var _IndexRedirect2 = $__require('./IndexRedirect');
-
-  var _IndexRedirect3 = _interopRequireDefault(_IndexRedirect2);
-
-  var _IndexRoute2 = $__require('./IndexRoute');
-
-  var _IndexRoute3 = _interopRequireDefault(_IndexRoute2);
-
-  var _Redirect2 = $__require('./Redirect');
-
-  var _Redirect3 = _interopRequireDefault(_Redirect2);
-
-  var _Route2 = $__require('./Route');
-
-  var _Route3 = _interopRequireDefault(_Route2);
-
-  var _History2 = $__require('./History');
-
-  var _History3 = _interopRequireDefault(_History2);
-
-  var _Lifecycle2 = $__require('./Lifecycle');
-
-  var _Lifecycle3 = _interopRequireDefault(_Lifecycle2);
-
-  var _RouteContext2 = $__require('./RouteContext');
-
-  var _RouteContext3 = _interopRequireDefault(_RouteContext2);
-
-  var _useRoutes2 = $__require('./useRoutes');
-
-  var _useRoutes3 = _interopRequireDefault(_useRoutes2);
-
-  var _RouterContext2 = $__require('./RouterContext');
-
-  var _RouterContext3 = _interopRequireDefault(_RouterContext2);
-
-  var _RoutingContext2 = $__require('./RoutingContext');
-
-  var _RoutingContext3 = _interopRequireDefault(_RoutingContext2);
-
-  var _PropTypes3 = _interopRequireDefault(_PropTypes2);
-
-  var _match2 = $__require('./match');
-
-  var _match3 = _interopRequireDefault(_match2);
-
-  var _useRouterHistory2 = $__require('./useRouterHistory');
-
-  var _useRouterHistory3 = _interopRequireDefault(_useRouterHistory2);
-
-  var _applyRouterMiddleware2 = $__require('./applyRouterMiddleware');
-
-  var _applyRouterMiddleware3 = _interopRequireDefault(_applyRouterMiddleware2);
-
-  var _browserHistory2 = $__require('./browserHistory');
-
-  var _browserHistory3 = _interopRequireDefault(_browserHistory2);
-
-  var _hashHistory2 = $__require('./hashHistory');
-
-  var _hashHistory3 = _interopRequireDefault(_hashHistory2);
+  exports.createHashHistory = _createHashHistory3['default'];
 
   var _createMemoryHistory2 = $__require('./createMemoryHistory');
 
   var _createMemoryHistory3 = _interopRequireDefault(_createMemoryHistory2);
 
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : { default: obj };
-  }
+  exports.createMemoryHistory = _createMemoryHistory3['default'];
 
-  exports.Router = _Router3.default; /* components */
+  var _useBasename2 = $__require('./useBasename');
 
-  exports.Link = _Link3.default;
-  exports.IndexLink = _IndexLink3.default;
-  exports.withRouter = _withRouter3.default;
+  var _useBasename3 = _interopRequireDefault(_useBasename2);
 
-  /* components (configuration) */
+  exports.useBasename = _useBasename3['default'];
 
-  exports.IndexRedirect = _IndexRedirect3.default;
-  exports.IndexRoute = _IndexRoute3.default;
-  exports.Redirect = _Redirect3.default;
-  exports.Route = _Route3.default;
+  var _useBeforeUnload2 = $__require('./useBeforeUnload');
 
-  /* mixins */
+  var _useBeforeUnload3 = _interopRequireDefault(_useBeforeUnload2);
 
-  exports.History = _History3.default;
-  exports.Lifecycle = _Lifecycle3.default;
-  exports.RouteContext = _RouteContext3.default;
+  exports.useBeforeUnload = _useBeforeUnload3['default'];
 
-  /* utils */
+  var _useQueries2 = $__require('./useQueries');
 
-  exports.useRoutes = _useRoutes3.default;
-  exports.RouterContext = _RouterContext3.default;
-  exports.RoutingContext = _RoutingContext3.default;
-  exports.PropTypes = _PropTypes3.default;
-  exports.match = _match3.default;
-  exports.useRouterHistory = _useRouterHistory3.default;
-  exports.applyRouterMiddleware = _applyRouterMiddleware3.default;
+  var _useQueries3 = _interopRequireDefault(_useQueries2);
 
-  /* histories */
+  exports.useQueries = _useQueries3['default'];
 
-  exports.browserHistory = _browserHistory3.default;
-  exports.hashHistory = _hashHistory3.default;
-  exports.createMemoryHistory = _createMemoryHistory3.default;
+  var _Actions2 = $__require('./Actions');
+
+  var _Actions3 = _interopRequireDefault(_Actions2);
+
+  exports.Actions = _Actions3['default'];
+
+  // deprecated
+
+  var _enableBeforeUnload2 = $__require('./enableBeforeUnload');
+
+  var _enableBeforeUnload3 = _interopRequireDefault(_enableBeforeUnload2);
+
+  exports.enableBeforeUnload = _enableBeforeUnload3['default'];
+
+  var _enableQueries2 = $__require('./enableQueries');
+
+  var _enableQueries3 = _interopRequireDefault(_enableQueries2);
+
+  exports.enableQueries = _enableQueries3['default'];
+  var createLocation = _deprecate2['default'](_createLocation3['default'], 'Using createLocation without a history instance is deprecated; please use history.createLocation instead');
+  exports.createLocation = createLocation;
 });
-System.register('examples/main.js', ['react', 'react-dom', './components', 'react-jsonapi', 'react-router'], function (_export, _context) {
+System.register('examples/main.js', ['react', 'react-dom', './components', 'react-jsonapi', 'react-router', 'history'], function (_export, _context) {
     "use strict";
 
-    var React, ReactDOM, ArticleList, ArticleItem, AsyncProps, Link, Router, Route, browserHistory, Home;
+    var React, ReactDOM, ArticleList, ArticleItem, AsyncProps, Link, Router, Route, browserHistory, useBasename, Home;
     return {
         setters: [function (_react) {
             React = _react.default;
@@ -58459,6 +58709,8 @@ System.register('examples/main.js', ['react', 'react-dom', './components', 'reac
             Router = _reactRouter.Router;
             Route = _reactRouter.Route;
             browserHistory = _reactRouter.browserHistory;
+        }, function (_history) {
+            useBasename = _history.useBasename;
         }],
         execute: function () {
             Home = React.createClass({
@@ -58469,7 +58721,11 @@ System.register('examples/main.js', ['react', 'react-dom', './components', 'reac
 
 
             ReactDOM.render(React.createElement(Router, {
-                history: browserHistory,
+                history: useBasename(function () {
+                    return browserHistory;
+                })({
+                    basename: window.location.pathname
+                }),
                 render: function render(props) {
                     return React.createElement(AsyncProps, props);
                 }

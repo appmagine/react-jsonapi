@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom';
 import {ArticleList, ArticleItem} from './components';
 
 import {AsyncProps} from 'react-jsonapi';
-import {Link, Router, Route, browserHistory} from 'react-router'
+import {Link, Router, Route, browserHistory} from 'react-router';
+import {useBasename} from 'history';
 
 const Home = React.createClass({
     render() {
@@ -20,7 +21,9 @@ const Home = React.createClass({
 
 ReactDOM.render((
     <Router 
-        history={browserHistory}
+        history={useBasename(() => browserHistory)({ 
+            basename: window.location.pathname
+        })}
         render={(props) => <AsyncProps {...props} />}
     >
         <Route path="/" component={Home} /> 

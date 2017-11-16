@@ -1,5 +1,5 @@
 SystemJS.config({
-  production: true,
+    production: true,
   paths: {
     "npm:": "jspm_packages/npm/",
     "github:": "jspm_packages/github/",
@@ -14,13 +14,17 @@ SystemJS.config({
     }
   },
   map: {
+    "loose-envify": "npm:loose-envify@1.3.1",
+    "object-assign": "npm:object-assign@4.1.1",
+    "fbjs": "npm:fbjs@0.8.9",
+    "invariant": "npm:invariant@2.2.2",
+    "warning": "npm:warning@2.1.0",
+    "query-string": "npm:query-string@4.3.4",
+    "strict-uri-encode": "npm:strict-uri-encode@1.1.0",
       "codemirror": "npm:codemirror@5.23.0",
       "react-dom": "npm:react-dom@15.4.2",
       "plugin-babel": "npm:systemjs-plugin-babel@0.0.21",
-  
-          "loose-envify": "npm:loose-envify@1.3.1",
-          "object-assign": "npm:object-assign@4.1.1",
-          "fbjs": "npm:fbjs@0.8.9"
+      "history": "npm:history@2.1.2"
   },
   devConfig: {
     "map": {
@@ -93,6 +97,12 @@ SystemJS.config({
             ]
           }
         }
+      }
+    },
+    "npm:query-string@4.3.4": {
+      "map": {
+        "object-assign": "npm:object-assign@4.1.1",
+        "strict-uri-encode": "npm:strict-uri-encode@1.1.0"
       }
     }
   }

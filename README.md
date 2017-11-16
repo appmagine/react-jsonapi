@@ -235,5 +235,6 @@ in JSON-API URLs.
 ```
 $ npm install
 $ git checkout -- jspm.config.js
+$ # comment out example-bundle.js in index.html
 $ npm install -g http-server
 $ http-server
