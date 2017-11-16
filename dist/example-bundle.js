@@ -58736,7 +58736,7 @@ System.register('examples/main.js', ['react', 'react-dom', './components', 'reac
 System.register('examples/index.js', ['jquery', 'codemirror', 'codemirror/mode/jsx/jsx', 'codemirror/lib/codemirror.css', './main'], function (_export, _context) {
     "use strict";
 
-    var $, CodeMirror, texts, editor, active;
+    var $, CodeMirror, texts, editor, baseUrl, active;
     return {
         setters: [function (_jquery) {
             $ = _jquery.default;
@@ -58752,6 +58752,8 @@ System.register('examples/index.js', ['jquery', 'codemirror', 'codemirror/mode/j
 
             editor.setSize(null, 400);
 
+            baseUrl = window.location.href;
+
             $("#menu a").click(function (e) {
                 if (active) {
                     active.toggleClass('active');
@@ -58764,7 +58766,7 @@ System.register('examples/index.js', ['jquery', 'codemirror', 'codemirror/mode/j
                 active = $a;
                 if (!texts[file]) {
                     $.ajax({
-                        url: "./examples/" + file,
+                        url: baseUrl + "./examples/" + file,
                         dataType: 'text'
                     }).done(function (data) {
                         texts[file] = data;

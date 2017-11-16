@@ -13,6 +13,8 @@ var editor = CodeMirror.fromTextArea($("#codemirror")[0], {
 });
 editor.setSize(null, 400);
 
+var baseUrl = window.location.href;
+
 var active;
 $("#menu a").click(function (e) {
     if (active) {
@@ -26,7 +28,7 @@ $("#menu a").click(function (e) {
     active = $a;
     if (!texts[file]) {
         $.ajax({
-            url: "./examples/" + file,
+            url: baseUrl + "./examples/" + file,
             dataType: 'text'
         }).done(function (data) {
             texts[file] = data;
