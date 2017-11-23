@@ -10,19 +10,23 @@ instead of GraphQL by virtue of being based on [Backbone](http://backbonejs.org)
 models and [Backbone-Relational](http://backbonerelational.org) (a comprehensive 
 solution for managing nested Backbone models).
 
-It works by modifying `Backbone.sync()` to use JSON API URLs generated based on
+You can see a demo at https://appmagine.github.io/react-jsonapi/.
+
+## How It Works
+
+React JSON API works by modifying `Backbone.sync` to use JSON API URLs generated based on
 queries specified on components as a function of the route params and query,
-as well as query 
-"[variables](https://facebook.github.io/relay/docs/guides-containers.html#requesting-different-data)"
-(query-level state).
+as well as query-level 
+"[variables](https://facebook.github.io/relay/docs/guides-containers.html#requesting-different-data)".
 
 In order to keep the view reflecting the state of your collections and models,
-all relevant Backbone events are subscribed to, so instead of requiring a custom
-layer for defining "[mutations](https://facebook.github.io/relay/docs/mutations.html)"
-like Relay, you can simply use the standard Backbone methods as normal 
-(`new Model()`, `model.set`, `model.save`, `collection.add` and `collection.sync`).
+all relevant Backbone events are subscribed to and cause the view to update when changed.
 
-You can see a demo at https://appmagine.github.io/react-jsonapi/.
+Instead of requiring a custom layer for defining 
+"[mutations](https://facebook.github.io/relay/docs/mutations.html)" like Relay, 
+you can simply use the standard Backbone methods as normal (`new Model`, `model.set`, 
+`model.save`, `collection.add`, and `collection.sync`).
+
 
 ## Example
 
