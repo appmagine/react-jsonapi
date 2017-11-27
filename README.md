@@ -149,6 +149,8 @@ const TacoList = APIComponent(React.createClass({
                 return <div key={taco.id}>
                     Name: {taco.get('name')},
                     Description: {queries.vars.includeDescription ? taco.get('description') : ''}
+                    {/* Todo: monkey-patch Backbone.Collection.map to provide 
+                        each sub-component with model automatically bound */}
                     <TacoItem taco={taco} />
                 </div>;
             })}
