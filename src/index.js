@@ -275,9 +275,9 @@ export function APIComponent(WrappedComponent) {
             const isMatch = (props1, props2) => {
                 const props1Keys = Object.keys(props1);
                 return _.isEqual(
-                    _.sortBy(prop1Keys, _.identity),
+                    _.sortBy(props1Keys, _.identity),
                     _.sortBy(Object.keys(props2), _.identity)
-                ) && _.all(prop1Keys.map((key) => {
+                ) && _.all(props1Keys.map((key) => {
                     return props1[key] === props2[key];
                 }));
             }
