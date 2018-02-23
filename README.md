@@ -6,9 +6,9 @@ transition when used with
 [React Router](https://github.com/ReactTraining/react-router) (v3).
 
 It is a direct alternative to [Relay](http://facebook.github.io/relay/) that uses REST
-instead of GraphQL by virtue of being based on [Backbone](http://backbonejs.org)
-models and [Backbone-Relational](http://backbonerelational.org) (a comprehensive 
-solution for managing nested Backbone models).
+and [Backbone](http://backbonejs.org) models instead of GraphQL by virtue of being 
+based on [Backbone-Relational](http://backbonerelational.org), a comprehensive 
+solution for managing nested Backbone models.
 
 You can see a demo at https://appmagine.github.io/react-jsonapi/.
 
