@@ -5,24 +5,26 @@ provides declarative data loading from [JSON APIs](http://jsonapi.org) on route
 transition when used with 
 [React Router](https://github.com/ReactTraining/react-router) (v3).
 
-It is a direct alternative to [Relay](http://facebook.github.io/relay/) that uses REST
-and [Backbone](http://backbonejs.org) models consuming RESTful APIs instead of the questionable
-new standard GraphQL.
-React JSON API uses [Backbone-Relational](http://backbonerelational.org), a comprehensive 
-solution for managing nested Backbone models.
+It is a direct alternative to [Relay](http://facebook.github.io/relay/) that 
+uses [Backbone](http://backbonejs.org) models that consume a REST API instead of 
+the questionable new standard GraphQL upon which Relay is based.
 
-You can see a demo at https://appmagine.github.io/react-jsonapi/.
+React JSON API relies on [Backbone-relational](http://backbonerelational.org),
+a comprehensive solution for managing relational Backbone models.
 
-## How It Works
+A demo is available at
+[http://appmagine.github.io/react-jsonapi/](http://appmagine.github.io/react-jsonapi/).
 
-React JSON API works by modifying `Backbone.sync()` to use JSON API URLs generated based on
-queries specified on components as a function of the route params and query,
-as well as query-level 
+## Functionality
+
+React JSON API works by modifying `Backbone.sync()` to use JSON API URLs 
+generated based on queries specified on components as a function of the route
+params and query, as well as query-level 
 "[variables](https://facebook.github.io/relay/docs/en/classic/classic-guides-containers.html#requesting-different-data)".
 
-In order to keep the view reflecting the state of your collections and models,
-all relevant Backbone events are subscribed to when models are loaded and cause
-the view to update when changed.
+In order to keep the view reflecting the state of the models, all relevant 
+Backbone events are subscribed to when models are loaded and cause
+the view to update when triggered.
 
 Instead of requiring a custom layer for defining 
 "[mutations](https://facebook.github.io/relay/docs/mutations.html)" like Relay, 
@@ -71,7 +73,6 @@ const TacoCollection = Backbone.Collection.extend({
     model: Taco,
     urlRoot: '/tacos'
 });
-
 
 const TacoItem = APIComponent(React.createClass({
     statics: {
@@ -174,20 +175,20 @@ ReactDOM.render((
 #### AsyncProps
 
 A middleware for React Router that handles loading query results before the
-initial render of a route transition.  You must pass this as the render prop of
+initial render of a route transition.  This must be passed as the render prop of
 `<Router>` as seen above.
-
 
 #### APIComponent
 
 A higher-order component that manages queries.  It accepts the static properties
 `queries` and `fragments` defined on the wrapped component, where:
 
-- `queries` is an object mapping prop names to functions of the signature
-  `(params, query, vars) => data_definition_object` where `params` are the route
-  params (`props.params`), `query` is the route query (`props.location.query`), 
-  and `vars` are the query variables.  `data_definition_object` can contain the 
-  following fields:
+- `queries` is an object that maps prop names to functions that describe how to
+  construct a query for each prop as a function of the React Router route 
+  information `(params, query, vars)`, where `params` is the route params
+  (`props.params`), `query` is the route query (`props.location.query`), 
+  and `vars` are the query variables.  The return value should be an object that
+  can contain any of the following fields:
 
   * `model` - the collection or model to fetch.  Optional for fragments since
     the model is defined by what the relation is.
@@ -195,7 +196,7 @@ A higher-order component that manages queries.  It accepts the static properties
     passed as the JSON-API `fields` parameter
   * `filter` - a string to be passed as the JSON-API `filter` parameter
   * `relations` - a nested array of objects with at least `{key: 'relationKey'}`
-    corresponding to a Backbone-Relational relation, to be passed as the
+    corresponding to a Backbone-relational relation, to be passed as the
     JSON-API `include` parameter.  Additional fields in each entry can be of
     the same structure as an object returned in `queries` for
     nesting.
@@ -209,14 +210,14 @@ A higher-order component that manages queries.  It accepts the static properties
 
 The router middleware causes an additional prop `queries` to be passed to 
 top-level `APIComponent`s, which is a container for all query results (Backbone
-Collections and Models) belonging to that component.  This prop an be explicitly
+collections and models) belonging to that component.  This prop an be explicitly
 passed down the component hierarchy in order to access parent collections or 
 models in a child component, or to use one of the following special attributes
 on `queries`:
 
 - `vars` - the variables for the currently loaded model or collection (these 
    work exactly the same as in Relay, so see the 
-   [Relay documentation](https://facebook.github.io/relay/docs/guides-containers.html#requesting-different-data)
+   [Relay documentation](https://facebook.github.io/relay/docs/en/classic/classic-guides-containers.html#requesting-different-data)
    for an explanation)
 - `pendingVars` - the variables used to fetch the pending model or collection
 - `setVars(vars)` - merge `vars` with the current variables and trigger a refetch
@@ -224,10 +225,10 @@ on `queries`:
 - `hasErrors` - whether any of this set of models and collections had an error
   response on the last request
   
-### Changes to Backbone behavior
+### Added Backbone attributes
 
-The following convenience attributes are added to each instance of `Model` 
-and `Collection`:
+Some additional convenience attributes are added to each instance of `Backbone.Model` 
+and `Backbone.Collection`:
 
 - `syncing` - whether a pending sync is ongoing
 - `error` - the error returned by the latest request, or null
