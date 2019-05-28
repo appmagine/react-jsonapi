@@ -7,13 +7,12 @@ transition when used with
 
 It is a direct alternative to [Relay](http://facebook.github.io/relay/) that 
 uses [Backbone](http://backbonejs.org) models that consume a REST API instead of 
-the questionable new standard GraphQL upon which Relay is based.
+the new standard GraphQL upon which Relay is based.
 
 React JSON API relies on [Backbone-relational](http://backbonerelational.org),
 a comprehensive solution for managing relational Backbone models.
 
-A demo is available at
-[http://appmagine.github.io/react-jsonapi/](http://appmagine.github.io/react-jsonapi/).
+A demo is available at <http://appmagine.github.io/react-jsonapi/>.
 
 ## Functionality
 
@@ -42,11 +41,6 @@ import ReactDOM from 'react-dom';
 import {Router, Route, browserHistory} from 'react-router';
 import {APIComponent, AsyncProps} from 'react-jsonapi';
 
-const Shell = Backbone.RelationalModel.extend({
-    urlRoot: '/shells',
-    defaults: { type: 'shells' }
-});
-
 const Filling = Backbone.RelationalModel.extend({
     urlRoot: '/fillings',
     defaults: { type: 'fillings' }
@@ -56,11 +50,6 @@ const Taco = Backbone.RelationalModel.extend({
     urlRoot: '/tacos',
     defaults: { type: 'tacos' },
     relations: [
-        {
-            type: Backbone.HasOne,
-            key: 'shell',
-            relatedModel: Shell
-        },
         {
             type: Backbone.HasMany,
             key: 'fillings',
@@ -82,10 +71,6 @@ const TacoItem = APIComponent(React.createClass({
                 fields: ['amount']
                 relations: [
                     {
-                        key: 'shell',
-                        fields: ['name']
-                    },
-                    {
                         key: 'fillings',
                         fields: ['name', 'amount']
                     }
@@ -95,12 +80,9 @@ const TacoItem = APIComponent(React.createClass({
     },
     render() {
         const {taco} = this.props;
-        const shell = taco.get('shell');
 
         return <div>
             Amount: {taco.get('amount')}
-            <h4>Shell</h4>
-            Name: {shell.get('name')}
             <h4>Fillings</h4>
             <ul>
             {taco.get('fillings').map((filling) => {
@@ -121,7 +103,6 @@ const TacoList = APIComponent(React.createClass({
             return {
                 includeDescription: true
             };
-        
         },
         queries: {
             tacos(params, query, vars) {
