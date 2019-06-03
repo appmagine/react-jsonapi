@@ -31,7 +31,7 @@
       "prop-types": "npm:prop-types@^15.7.2",
       "underscore": "npm:underscore@^1.9.1",
       "react-dom": "npm:react-dom@16.8.6",
-      "history": "npm:history@2.1.2"
+      "history": "npm:history@3.3.0"
     },
     "devDependencies": {
       "babel-plugin-transform-react-jsx": "npm:babel-plugin-transform-react-jsx@^6.22.0",

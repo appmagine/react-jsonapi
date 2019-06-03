@@ -1,7 +1,8 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
-import {Link} from 'react-router';
-import {APIComponent} from 'react-jsonapi';
+import {Link, Router, Route} from 'react-router';
+import {createMemoryHistory} from 'history';
+import {APIComponent, AsyncProps} from 'react-jsonapi';
 import {ArticleCollection, Article, Comment, Tag, User} from './models';
 
 const ArticleListItem = APIComponent(createReactClass({
@@ -138,9 +139,18 @@ const CommentItem = APIComponent(createReactClass({
 
 export const ArticleItem = APIComponent(createReactClass({
     getInitialState() {
+        const routes = <React.Fragment>
+            <Route path="/" component={() => <div></div>} />
+            <Route path="/articles" component={Articles}>,
+                <Route path=":articleId" component={ArticleSummary} />
+            </Route>
+        </React.Fragment>;
+
         return {
             addingComment: false,
-            commentText: ''
+            commentText: '',
+            history: createMemoryHistory(),
+            routes
         };
     },
     statics: {
@@ -171,6 +181,17 @@ export const ArticleItem = APIComponent(createReactClass({
                     ]
                 };
             }
+        }
+    },
+    componentWillMount() {
+        this.componentDidUpdate();
+    },
+    componentDidUpdate() {
+        const {history} = this.state;
+        const {articleId} = this.props.params;
+        const pathname = `/articles/${articleId}`;
+        if (history.getCurrentLocation().pathname !== pathname) {
+            history.push(pathname)
         }
     },
     render() {
@@ -217,6 +238,12 @@ export const ArticleItem = APIComponent(createReactClass({
                             </li>;
                         })}
                     </ul>
+                    <Router 
+                        history={this.state.history}
+                        render={(props) => <AsyncProps {...props} />}
+                    >
+                        {this.state.routes}
+                    </Router>
                 </div>
                 <div className="panel article-panel">
                     <h3>Comments</h3>
@@ -261,5 +288,79 @@ export const ArticleItem = APIComponent(createReactClass({
                 </div>
             </div>
         );
+    }
+}));
+
+const Articles = APIComponent(createReactClass({
+    statics: {
+        queries: {
+            articles(params, query, vars) {
+                return {
+                    model: ArticleCollection,
+                    filter: vars.filter ? 'id != 11': null,
+                    relations: [
+                        {
+                            key: 'tags',
+                            fields: ['name']
+                        }
+                    ],
+                    fragments: [
+                        ArticleListItem.fragments.article
+                    ]
+                };
+            }
+        }
+    },
+    render() {
+        return <div>
+            {this.props.children}
+        </div>;
+    
+    }
+}));
+
+const ArticleSummary = APIComponent(createReactClass({
+    statics: {
+        queries: {
+            article(params, query, vars) {
+                return {
+                    model: Article,
+                    id: params.articleId,
+                    fields: ['title', 'content'],
+                    relations: [
+                        {
+                            key: 'author',
+                            fields: ['name', 'username'],
+                            relations: [
+                                {
+                                    key: 'articles',
+                                    model: Article,
+                                    fields: ['title']
+                                }
+                            ]
+                        },
+                        {
+                            key: 'comments',
+                            fragments: [
+                                CommentItem.fragments.comment
+                            ]
+                        }
+                    ]
+                };
+            }
+        }
+    },
+    render() {
+        const {article} = this.props;
+
+        if (!article) {
+            return <div></div>;
+        }
+
+        return <div>
+            {article.get('title')} by {article.get('author').get('name')}
+            <br/>
+            {article.get('comments').length} comments
+        </div>;
     }
 }));

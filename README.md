@@ -1,13 +1,19 @@
 # React JSON API
 
 React JSON API is a library for [React](https://facebook.github.io/react/) that
-provides declarative data loading from [JSON APIs](http://jsonapi.org) on route
-transition when used with 
-[React Router](https://github.com/ReactTraining/react-router) (v3).
+provides declarative co-located data loading for React components from [JSON
+APIs](http://jsonapi.org).  It uses [React
+Router](https://github.com/ReactTraining/react-router/tree/v3) (v3), with data
+loading occurring whenever the current route changes.  You can either write your
+app to load data based on the current URL, or embed a non-top-level router
+instance not connected to the page URL in an inner component to manage
+application/data state without affecting the page URL.
 
-It is a direct alternative to [Relay](http://facebook.github.io/relay/) that 
-uses [Backbone](http://backbonejs.org) models that consume a REST API instead of 
-the new standard GraphQL upon which Relay is based.
+React JSON API is a direct alternative to
+[Relay](http://facebook.github.io/relay/) that uses
+[Backbone](http://backbonejs.org) models that consume a REST API instead of the
+new standard GraphQL upon which Relay is based.  It provides the majority of the
+functionality of Relay/GraphQL except multiple queries in one network request.
 
 React JSON API relies on [Backbone-relational](http://backbonerelational.org),
 a comprehensive solution for managing relational Backbone models.
@@ -30,9 +36,14 @@ Instead of requiring a custom layer for defining
 you can simply use the standard Backbone API as normal (`new Model()`, `model.set()`, 
 `model.save()`, `collection.add()`, and `collection.sync()`).
 
-## Example
+## Usage
 
-```js
+### Example
+
+This example loads data based on the current URL.  For an example of managing
+data not connected to the visible page URL, see below.
+
+```javascript
 import Backbone from 'backbone';
 import 'backbone-relational';
 
@@ -149,9 +160,7 @@ ReactDOM.render((
 ));
 ```
 
-## API
-
-### Exports
+### API Exports
 
 #### AsyncProps
 
@@ -218,6 +227,134 @@ The factory function `Backbone.RelationalModel.extend()` is monkey-patched
 to add model classes to a global registry if `defaults.type` is defined 
 (see example).  The value of this property is used where a type is expected 
 in JSON-API URLs.
+
+### A note about React Router versions
+
+This library incorporates the
+[AsyncProps](https://github.com/ryanflorence/async-props) middleware for React
+Router. It is only compatible with React Router up to v3.x, so you will not be
+able to use React Router v4 with this library.
+
+React Router v3 introduced asynchronous route definition via `getChildRoutes()`
+and `getComponents()`, which is incompatible with co-located data loading.  Avoid
+using these features if you want to use React JSON API.
+
+### Using separately from the page URL
+
+To manage the loading of data in parts of your application whose state is not
+connected to the page URL, render an instance of the React Router `Router` that
+uses React Router's `createMemoryHistory` inside of another component to avoid
+interacting with the page URL but still keep data in sync with application
+state in the same way.
+
+React JSON API depends on React Router v3, which is compatible with the
+`[history](https://github.com/ReactTraining/history)` library up to v3.x.
+Specifying `Router` `history` and/or `routes` by value in the `render()` method
+is incorrect, so it is recommended to store your routes as state and create and
+access your `history` object in the component lifecycle and store it as state as
+well, and reference these values when defining a `Router` in the `render()`
+method, as seen below.
+
+For a working example of this usage pattern, see the example.
+
+```javascript
+import {Router, Route, createMemoryHistory} from 'react-router';
+import {APIComponent, AsyncProps} from 'react-jsonapi';
+
+// ...
+
+const ItemList = createReactClass({
+    getInitialState() {
+        const routes = <React.Fragment>
+            <Route path="/" component={() => <div>Loading...</div>} />
+            <Route path="/item/:itemId" component={Item} />,
+        </React.Fragment>;
+
+        return {
+            history: createMemoryHistory("/"),
+            routes
+        };
+    },
+    componentWillMount() {
+        this.componentDidUpdate();
+    },
+    componentDidUpdate() {
+        const {history} = this.state;
+        const pathname = `/item/${this.props.itemId}`;
+        if (history.getCurrentLocation().pathname !== pathname) {
+            history.push(pathname)
+        }
+    },
+    render() {
+        return <div>
+            {tacos.map((taco) => {
+                return <div key={taco.id}>
+                    <Router
+                        history={this.state.history}
+                        render={(props) => <AsyncProps {...props} />}
+                        routes={this.state.routes}
+                    />
+                </div>;
+            })}
+        </div>;    
+    }
+});
+
+const FooList = createReactClass({
+    statics: {
+        fragments: {
+            itemWithFoos: {
+                model: Item,
+                relations: [
+                    {
+                        key: 'foos',
+                        fields: ['field1', 'field2']
+                    }
+                ]
+            }
+        }
+    },
+    render() {
+        const {queries: {item}} = this.props;
+        return <div>
+            <ul>
+            Foos:
+            {item.get('foos').map((foo) => {
+                return <li key={foo.id}>
+                    Foo: {foo.get('field1')}, {foo.get('field2')}
+                </li>;
+            })}
+            </ul>
+        </div>;
+    }
+});
+
+const Item = APIComponent(createReactClass({
+    statics: {
+        queries: {
+            item(params, query, vars): {
+                model: Item,
+                id: params.itemId,
+                fields: ['name'],
+                fragments: [
+                  FooList.fragments.itemWithFoos
+                ]
+            }
+        }
+    },
+    render() {
+        const {item, queries} = this.props;
+
+        return <div>
+            Name: {item.get('name')}
+            {React.Children.map(
+                this.props.children, 
+                (child) => React.cloneElement(child, { queries })
+            }
+        </div>;
+    }
+}));
+```
 
 ## Testing
 

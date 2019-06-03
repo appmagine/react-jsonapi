@@ -96,6 +96,11 @@ SystemJS.config({
           }
         }
       }
+    },
+    "npm:warning@2.1.0": {
+      "map": {
+        "loose-envify": "npm:loose-envify@1.4.0"
+      }
     }
   }
 });
@@ -107,7 +112,7 @@ SystemJS.config({
     "github:*/*.json"
   ],
   map: {
-    "history": "npm:history@2.1.2",
+    "history": "npm:history@3.3.0",
     "react-dom": "npm:react-dom@16.8.6",
     "codemirror": "npm:codemirror@5.47.0",
     "create-react-class": "npm:create-react-class@15.6.3",
@@ -571,24 +576,6 @@ SystemJS.config({
         "object-assign": "npm:object-assign@4.1.1",
         "prop-types": "npm:prop-types@15.7.2",
         "scheduler": "npm:scheduler@0.13.6"
-      }
-    },
-    "npm:history@2.1.2": {
-      "map": {
-        "warning": "npm:warning@2.1.0",
-        "invariant": "npm:invariant@2.2.4",
-        "query-string": "npm:query-string@3.0.3",
-        "deep-equal": "npm:deep-equal@1.0.1"
-      }
-    },
-    "npm:warning@2.1.0": {
-      "map": {
-        "loose-envify": "npm:loose-envify@1.4.0"
-      }
-    },
-    "npm:query-string@3.0.3": {
-      "map": {
-        "strict-uri-encode": "npm:strict-uri-encode@1.1.0"
       }
     }
   }
