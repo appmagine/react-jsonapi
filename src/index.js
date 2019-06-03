@@ -1,4 +1,6 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
 import Backbone from 'backbone';
 import 'backbone-relational';
 import _ from 'underscore';
@@ -235,12 +237,12 @@ export function APIComponent(WrappedComponent) {
     const queryPropTypes = WrappedComponent.queries || {};
     const fragmentPropTypes = WrappedComponent.fragments || {};
 
-    const WrapperComponent = React.createClass({
+    const WrapperComponent = createReactClass({
         propTypes: Object.assign(
             {}, 
             WrappedComponent.propTypes,
             {
-                initialQueries: React.PropTypes.object
+                initialQueries: PropTypes.object
             }
         ),
 

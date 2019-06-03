@@ -2,38 +2,42 @@
   "name": "react-jsonapi",
   "version": "0.0.1",
   "scripts": {
-      "postinstall": "jspm install",
-      "build": "jspm build src/index.js dist/react-jsonapi.js --externals backbone backbone-relational react react-router/lib/RouterContext react-router/lib/computeChangedRoutes underscore --format umd --global-name reactJsonApi --skip-source-maps",
-      "build-example": "jspm bundle examples/index.js dist/example-bundle.js --skip-source-maps"
+    "postinstall": "jspm install",
+    "build": "jspm build src/index.js dist/react-jsonapi.js --externals backbone backbone-relational react react-router/lib/RouterContext react-router/lib/computeChangedRoutes underscore --format cjs --global-name reactJsonApi --skip-source-maps",
+    "build-example": "jspm bundle examples/index.js dist/example-bundle.js --skip-source-maps"
   },
   "dependencies": {
-      "backbone": "^1.3.3",
-      "backbone-relational": "^0.10.0",
-      "underscore": "^1.8.3",
-      "jspm": "beta"
+    "backbone": "^1.3.3",
+    "backbone-relational": "^0.10.0",
+    "underscore": "^1.8.3"
   },
   "peerDependencies": {
-      "react-router": "^2.0.1",
-      "react": "^15.0.0"
+    "react-router": ">=2.0.1 <4.0.0",
+    "react": ">=15.0.0"
+  },
+  "devDependencies": {
+    "jspm": "beta"
   },
   "registry": "jspm",
   "jspm": {
     "name": "react-jsonapi",
     "dependencies": {
-      "backbone": "npm:backbone@^1.3.3",
+      "backbone": "npm:backbone@^1.4.0",
       "backbone-relational": "npm:backbone-relational@^0.10.0",
+      "codemirror": "npm:codemirror@5.47.0",
+      "create-react-class": "npm:create-react-class@^15.6.3",
       "jquery": "npm:jquery@^3.1.1",
       "jquery-mockjax": "npm:jquery-mockjax@^2.2.1",
-      "underscore": "npm:underscore@^1.8.3"
+      "prop-types": "npm:prop-types@^15.7.2",
+      "underscore": "npm:underscore@^1.9.1",
+      "react-dom": "npm:react-dom@16.8.6",
+      "history": "npm:history@2.1.2"
     },
     "devDependencies": {
-      "react-dom": "npm:react-dom@^15.4.2",
       "babel-plugin-transform-react-jsx": "npm:babel-plugin-transform-react-jsx@^6.22.0",
-      "codemirror": "npm:codemirror@^5.23.0",
       "core-js": "npm:core-js@^2.4.1",
       "css": "github:systemjs/plugin-css@^0.1.32",
-      "plugin-babel": "npm:systemjs-plugin-babel@^0.0.21",
-      "history": "npm:history@2.1.2"
+      "plugin-babel": "npm:systemjs-plugin-babel@^0.0.21"
     },
     "peerDependencies": {
       "assert": "npm:jspm-nodelibs-assert@^0.2.0",
@@ -49,8 +53,8 @@
       "os": "npm:jspm-nodelibs-os@^0.2.0",
       "path": "npm:jspm-nodelibs-path@^0.2.0",
       "process": "npm:jspm-nodelibs-process@^0.2.0",
-      "react": "npm:react@^15.0.0",
-      "react-router": "npm:react-router@^2.0.1",
+      "react": "npm:react@^16.0.0",
+      "react-router": "npm:react-router@^3.0.0",
       "stream": "npm:jspm-nodelibs-stream@^0.2.0",
       "string_decoder": "npm:jspm-nodelibs-string_decoder@^0.2.0",
       "url": "npm:jspm-nodelibs-url@^0.2.0",
@@ -72,7 +76,7 @@
           }
         }
       },
-      "npm:backbone@1.3.3": {
+      "npm:backbone@1.4.0": {
         "format": "global",
         "meta": {
           "backbone.js": {
@@ -80,6 +84,15 @@
               "jquery",
               "underscore"
             ],
+            "exports": "Backbone",
+            "format": "global"
+          }
+        }
+      },
+      "npm:underscore@1.9.1": {
+        "format": "global",
+        "meta": {
+          "underscore.js": {
             "format": "global"
           }
         }
@@ -98,7 +111,7 @@
           "test.js"
         ]
       },
-      "npm:jquery-mockjax@2.2.1": {
+      "npm:jquery-mockjax@2.5.0": {
         "format": "global",
         "meta": {
           "dist/jquery.mockjax.js": {
@@ -110,17 +123,20 @@
           }
         }
       },
-      "npm:jquery@3.1.1": {
+      "npm:jquery@3.4.1": {
         "format": "amd"
       },
-      "npm:lodash@4.17.4": {
+      "npm:lodash@4.17.11": {
         "map": {
           "buffer": "@empty",
           "process": "@empty"
         }
       },
-      "npm:underscore@1.8.3": {
-        "format": "global"
+      "npm:pbkdf2@3.0.17": {
+        "main": "browser.js"
+      },
+      "npm:safe-buffer@5.1.2": {
+        "browser": "index.js"
       }
     }
   }

@@ -1,9 +1,10 @@
 import React from 'react';
+import createReactClass from 'create-react-class';
 import {Link} from 'react-router';
 import {APIComponent} from 'react-jsonapi';
 import {ArticleCollection, Article, Comment, Tag, User} from './models';
 
-const ArticleListItem = APIComponent(React.createClass({
+const ArticleListItem = APIComponent(createReactClass({
     statics: {
         fragments: {
             article: {
@@ -33,7 +34,7 @@ const ArticleListItem = APIComponent(React.createClass({
     }
 }));
 
-export const ArticleList = APIComponent(React.createClass({
+export const ArticleList = APIComponent(createReactClass({
     statics: {
         getInitialVars() {
             return {
@@ -98,7 +99,7 @@ export const ArticleList = APIComponent(React.createClass({
 }));
 
 
-const CommentItem = APIComponent(React.createClass({
+const CommentItem = APIComponent(createReactClass({
     statics: {
         fragments: {
             comment: {
@@ -131,7 +132,7 @@ const CommentItem = APIComponent(React.createClass({
 
 }));
 
-export const ArticleItem = APIComponent(React.createClass({
+export const ArticleItem = APIComponent(createReactClass({
     getInitialState() {
         return {
             addingComment: false,

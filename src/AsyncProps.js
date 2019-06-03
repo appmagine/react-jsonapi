@@ -18,7 +18,10 @@ import React from 'react'
 import RouterContext from 'react-router/lib/RouterContext'
 import computeChangedRoutes from 'react-router/lib/computeChangedRoutes'
 
-const { array, func, object } = React.PropTypes
+// todo: replace with ES6 classes in this file
+import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
+const { array, func, object } = PropTypes;
 
 function eachComponents(components, iterator) {
   for (var i = 0, l = components.length; i < l; i++) {
@@ -141,7 +144,7 @@ function hydrate(props) {
 }
 
 
-const AsyncPropsContainer = React.createClass({
+const AsyncPropsContainer = createReactClass({
 
   propTypes: {
     Component: func.isRequired,
@@ -170,7 +173,7 @@ const AsyncPropsContainer = React.createClass({
 
 })
 
-const AsyncProps = React.createClass({
+const AsyncProps = createReactClass({
 
   childContextTypes: {
     asyncProps: object

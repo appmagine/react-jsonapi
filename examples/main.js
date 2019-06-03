@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import createReactClass from 'create-react-class';
 import {ArticleList, ArticleItem} from './components';
 
 import {AsyncProps} from 'react-jsonapi';
 import {Link, Router, Route, browserHistory} from 'react-router';
 import {useBasename} from 'history';
 
-const Home = React.createClass({
+const Home = createReactClass({
     render() {
         return <div>
             <p>
