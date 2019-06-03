@@ -25,7 +25,11 @@ const ArticleListItem = APIComponent(createReactClass({
 
         return (
             <div>
-                <h4>{article.get('title')} (<Link to={`/articles/${article.get('id')}`}>View</Link>)</h4>
+                <h4>
+                    <Link to={`/articles/${article.get('id')}`}>
+                        {article.get('title')}
+                    </Link>
+                </h4>
                 
                 by {author.get('username')} ({author.get('name')})
             </div>
@@ -73,7 +77,7 @@ export const ArticleList = APIComponent(createReactClass({
 
         return (
             <div>
-                <div style={{float: 'left', width: '33%'}}>
+                <div className="panel">
                     <h3>Articles</h3>
                     <input type="checkbox" checked={(queries.pendingVars || queries.vars).filter} onChange={(e) => {
                         queries.setVars({filter: e.target.checked});
@@ -82,14 +86,14 @@ export const ArticleList = APIComponent(createReactClass({
                         return <ArticleListItem key={article.get('id')} article={article} />;
                     })}
 
-                    <h3>Tag counts</h3>
+                    <h4>Tag counts</h4>
                     <ul>
                         {_.map(tagCounts, (count, name) => {
                             return <li key={name}>{name}: {count}</li>;
                         })}
                     </ul>
                 </div>
-                <div style={{float: 'left', width: '60%'}}>
+                <div style={{float: 'left', maxWidth: '520px'}}>
                     {this.props.children}
                 </div>
                 <div style={{clear: "both"}}></div>
@@ -192,8 +196,8 @@ export const ArticleItem = APIComponent(createReactClass({
 
         return (
             <div style={{width: '100%'}}>
-                <div style={{float: 'left', width: '50%'}}>
-                    <h2>{article.get('title')}</h2>
+                <div className="panel article-panel">
+                    <h3>{article.get('title')}</h3>
                     by {author.get('name')}
                     <div>
                         <h4>Content</h4>
@@ -201,7 +205,7 @@ export const ArticleItem = APIComponent(createReactClass({
                             {article.get('content')}
                         </p>
                     </div>
-                    <h3>More by this Author</h3>
+                    <h4>More by this author</h4>
                     <ul>
                         {author.get('articles').map((article) => {
                             if (!article.get) {
@@ -214,11 +218,12 @@ export const ArticleItem = APIComponent(createReactClass({
                         })}
                     </ul>
                 </div>
-                <div style={{float: 'left', width: '50%'}}>
+                <div className="panel article-panel">
                     <h3>Comments</h3>
                     {article.get('comments').map((comment) => {
                         return <CommentItem key={comment.get('id')} comment={comment} />;
                     })}
+                    <br/>
                     {!this.state.addingComment ? 
                             <a href="#" 
                                 onClick={(e) => { 
@@ -230,7 +235,7 @@ export const ArticleItem = APIComponent(createReactClass({
                                 Add Comment
                             </a> :
                             <div>
-                                <input value={this.state.commentText} onChange={(e) => {
+                                <textarea value={this.state.commentText} onChange={(e) => {
                                     this.setState({
                                         commentText: e.target.value
                                     });

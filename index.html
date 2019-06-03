@@ -13,8 +13,16 @@
     }
     #container {
       border: 1px solid #DDD;
-      border-radius: 15px;
-      padding: 1em 2em;
+      border-radius: 5px;
+      padding: 1em;
+      padding-left: 0;
+      margin: 2em 0;
+      max-width: 260px;
+    }
+    @media (min-width: 832px) {
+      #container {
+        max-width: 750px;
+      }
     }
 
     #source {
@@ -48,20 +56,37 @@
       margin-left: 1.5em;
     }
 
-    h3 {
-      margin-top: 2em;
+    .panel {
+      float: left;
+      border: 1px solid #DDD;
+      padding: 1em;
+      width: 200px;
+      margin-left: 1em;
+      border-radius: 5px;
     }
+
+    h3 {
+      margin-top: 0;
+    }
+
+    @media (min-width: 832px) {
+      .panel {
+        min-height: 440px;
+      }
+    }
+
   </style>
 </head>
 <body>
   <div>
     <h2>React JSON API</h2>
     <p>
-      Declarative <a href="http://jsonapi.org/">JSON API</a> data loading for <a href="https://facebook.github.io/react/">React</a>
-      and <a href="https://github.com/ReactTraining/react-router">React Router</a>.
+      Declarative <a href="http://jsonapi.org/">JSON API</a> data loading for <a
+        href="https://facebook.github.io/react/">React</a>.
 
-
-      Based on <a href="http://backbonerelational.org/">Backbone-Relational</a> and <a href="http://backbonejs.org">Backbone</a>.
+      Based on <a href="http://backbonerelational.org/">Backbone-Relational</a>,
+      <a href="http://backbonejs.org">Backbone</a>, and <a
+    href="https://github.com/ReactTraining/react-router">React Router</a>.
     </p>
     <p>
       An alternative to Facebook's <a href="http://facebook.github.io/relay/">Relay</a> that uses REST instead of GraphQL.

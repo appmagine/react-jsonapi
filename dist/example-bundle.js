@@ -40399,7 +40399,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
                     var author = article.get('author');
 
-                    return React.createElement('div', null, React.createElement('h4', null, article.get('title'), ' (', React.createElement(Link, { to: '/articles/' + article.get('id') }, 'View'), ')'), 'by ', author.get('username'), ' (', author.get('name'), ')');
+                    return React.createElement('div', null, React.createElement('h4', null, React.createElement(Link, { to: '/articles/' + article.get('id') }, article.get('title'))), 'by ', author.get('username'), ' (', author.get('name'), ')');
                 }
             }));
 
@@ -40441,13 +40441,13 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         });
                     });
 
-                    return React.createElement('div', null, React.createElement('div', { style: { float: 'left', width: '33%' } }, React.createElement('h3', null, 'Articles'), React.createElement('input', { type: 'checkbox', checked: (queries.pendingVars || queries.vars).filter, onChange: function onChange(e) {
+                    return React.createElement('div', null, React.createElement('div', { className: 'panel' }, React.createElement('h3', null, 'Articles'), React.createElement('input', { type: 'checkbox', checked: (queries.pendingVars || queries.vars).filter, onChange: function onChange(e) {
                             queries.setVars({ filter: e.target.checked });
                         } }), ' Filter', articles.map(function (article) {
                         return React.createElement(ArticleListItem, { key: article.get('id'), article: article });
-                    }), React.createElement('h3', null, 'Tag counts'), React.createElement('ul', null, _.map(tagCounts, function (count, name) {
+                    }), React.createElement('h4', null, 'Tag counts'), React.createElement('ul', null, _.map(tagCounts, function (count, name) {
                         return React.createElement('li', { key: name }, name, ': ', count);
-                    }))), React.createElement('div', { style: { float: 'left', width: '60%' } }, this.props.children), React.createElement('div', { style: { clear: "both" } }));
+                    }))), React.createElement('div', { style: { float: 'left', maxWidth: '520px' } }, this.props.children), React.createElement('div', { style: { clear: "both" } }));
                 }
             })));
 
@@ -40522,20 +40522,20 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
                     var author = article.get('author');
 
-                    return React.createElement('div', { style: { width: '100%' } }, React.createElement('div', { style: { float: 'left', width: '50%' } }, React.createElement('h2', null, article.get('title')), 'by ', author.get('name'), React.createElement('div', null, React.createElement('h4', null, 'Content'), React.createElement('p', null, article.get('content'))), React.createElement('h3', null, 'More by this Author'), React.createElement('ul', null, author.get('articles').map(function (article) {
+                    return React.createElement('div', { style: { width: '100%' } }, React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, article.get('title')), 'by ', author.get('name'), React.createElement('div', null, React.createElement('h4', null, 'Content'), React.createElement('p', null, article.get('content'))), React.createElement('h4', null, 'More by this author'), React.createElement('ul', null, author.get('articles').map(function (article) {
                         if (!article.get) {
                             return React.createElement('li', null);
                         }
                         return React.createElement('li', { key: article.get('id') }, article.get('title'));
-                    }))), React.createElement('div', { style: { float: 'left', width: '50%' } }, React.createElement('h3', null, 'Comments'), article.get('comments').map(function (comment) {
+                    }))), React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, 'Comments'), article.get('comments').map(function (comment) {
                         return React.createElement(CommentItem, { key: comment.get('id'), comment: comment });
-                    }), !this.state.addingComment ? React.createElement('a', { href: '#',
+                    }), React.createElement('br', null), !this.state.addingComment ? React.createElement('a', { href: '#',
                         onClick: function onClick(e) {
                             e.preventDefault();
                             _this.setState({
                                 addingComment: true
                             });
-                        } }, 'Add Comment') : React.createElement('div', null, React.createElement('input', { value: this.state.commentText, onChange: function onChange(e) {
+                        } }, 'Add Comment') : React.createElement('div', null, React.createElement('textarea', { value: this.state.commentText, onChange: function onChange(e) {
                             _this.setState({
                                 commentText: e.target.value
                             });
@@ -50742,6 +50742,7 @@ System.registerDynamic("npm:backbone@1.4.0.json", [], true, function() {
           "jquery",
           "underscore"
         ],
+        "exports": "Backbone",
         "format": "global"
       }
     }
@@ -50749,7 +50750,7 @@ System.registerDynamic("npm:backbone@1.4.0.json", [], true, function() {
 });
 
 System.registerDynamic('npm:backbone@1.4.0/backbone.js', ['jquery', 'underscore'], false, function ($__require, $__exports, $__module) {
-  var _retrieveGlobal = System.registry.get("@@global-helpers").prepareGlobal($__module.id, null, null);
+  var _retrieveGlobal = System.registry.get("@@global-helpers").prepareGlobal($__module.id, 'Backbone', null);
 
   (function ($__global) {
     //     Backbone.js 1.4.0
@@ -52871,7 +52872,7 @@ System.registerDynamic("npm:backbone-relational@0.10.0.json", [], true, function
           "backbone",
           "underscore"
         ],
-        "exports": "Backbone",
+        "exports": "Backbone.RelationalModel",
         "format": "global"
       }
     }
@@ -52879,7 +52880,7 @@ System.registerDynamic("npm:backbone-relational@0.10.0.json", [], true, function
 });
 
 System.registerDynamic('npm:backbone-relational@0.10.0/backbone-relational.js', ['backbone', 'underscore'], false, function ($__require, $__exports, $__module) {
-	var _retrieveGlobal = System.registry.get("@@global-helpers").prepareGlobal($__module.id, 'Backbone', null);
+	var _retrieveGlobal = System.registry.get("@@global-helpers").prepareGlobal($__module.id, 'Backbone.RelationalModel', null);
 
 	(function ($__global) {
 		/* vim: set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab: */
