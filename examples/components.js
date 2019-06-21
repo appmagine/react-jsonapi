@@ -1,9 +1,9 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
-import {Link, Router, Route} from 'react-router';
-import {createMemoryHistory} from 'history';
-import {APIComponent, AsyncProps} from 'react-jsonapi';
-import {ArticleCollection, Article, Comment, Tag, User} from './models';
+import { Link, Router, Route } from 'react-router';
+import { createMemoryHistory } from 'history';
+import { APIComponent, AsyncProps } from 'react-jsonapi';
+import { ArticleCollection, Article, Comment, Tag, User } from './models';
 
 const ArticleListItem = APIComponent(createReactClass({
     statics: {

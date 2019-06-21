@@ -49,8 +49,8 @@ import 'backbone-relational';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Router, Route, browserHistory} from 'react-router';
-import {APIComponent, AsyncProps} from 'react-jsonapi';
+import { Router, Route, browserHistory } from 'react-router';
+import { APIComponent, AsyncProps } from 'react-jsonapi';
 
 const Filling = Backbone.RelationalModel.extend({
     urlRoot: '/fillings',
@@ -258,8 +258,8 @@ method, as seen below.
 For a working example of this usage pattern, see the examples directory.
 
 ```javascript
-import {Router, Route, createMemoryHistory} from 'react-router';
-import {APIComponent, AsyncProps} from 'react-jsonapi';
+import { Router, Route, createMemoryHistory } from 'react-router';
+import { APIComponent, AsyncProps } from 'react-jsonapi';
 
 // ...
 

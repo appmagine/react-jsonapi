@@ -6,7 +6,7 @@ import 'backbone-relational';
 import _ from 'underscore';
 import './backbone-relational-jsonapi';
 
-export {default as AsyncProps} from './AsyncProps';
+export { default as AsyncProps } from './AsyncProps';
 
 // Monkey-patch to fix an apparent bug.
 Backbone.RelationalModel.prototype.set = function( key, value, options ) {
