@@ -239,8 +239,10 @@ export function withJsonApi(options) {
     const getInitialVars = options.getInitialVars;
 
     return function (WrappedComponent) {
+        const displayName = WrappedComponent.displayName || WrappedComponent.name;
+
         return createReactClass({
-            displayName: WrappedComponent.displayName,
+            displayName: `withJsonApi(${displayName})`,
 
             propTypes: Object.assign(
                 {}, 

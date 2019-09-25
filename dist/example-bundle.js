@@ -57181,8 +57181,10 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
         var getInitialVars = options.getInitialVars;
 
         return function (WrappedComponent) {
+            var displayName = WrappedComponent.displayName || WrappedComponent.name;
+
             return createReactClass({
-                displayName: WrappedComponent.displayName,
+                displayName: 'withJsonApi(' + displayName + ')',
 
                 propTypes: Object.assign({}, WrappedComponent.propTypes, {
                     initialQueries: PropTypes.object

@@ -2405,8 +2405,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         var getInitialVars = options.getInitialVars;
 
         return function (WrappedComponent) {
+            var displayName = WrappedComponent.displayName || WrappedComponent.name;
+
             return createReactClass({
-                displayName: WrappedComponent.displayName,
+                displayName: 'withJsonApi(' + displayName + ')',
 
                 propTypes: Object.assign({}, WrappedComponent.propTypes, {
                     initialQueries: PropTypes.object
