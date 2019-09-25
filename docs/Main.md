@@ -307,10 +307,10 @@ transition.  This must be passed as the `render` prop of `Router` as seen above.
 
 #### `withJsonApi(options)`
 
-A decorator for React components that returns a new component that implements
-the loading interface required by the `AsyncProps` middleware, renders the
-decorated component with query models passed as props, and manages Backbone
-event handlers.
+A higher-order component that wraps a component in a new component that
+implements the loading interface required by the `AsyncProps` middleware,
+renders the decorated component with query models passed as props, and manages
+Backbone event handlers.
 
 The query props are constructed based on the `queries` and `fragments` options,
 which are defined in terms of "query definition objects".
