@@ -299,136 +299,135 @@ const ItemSearch = withJsonApi({
 
 React Router JSON API has two exports:
 
-- `AsyncProps`
+#### `AsyncProps`
 
-  A middleware for React Router that loads data for the components for each
-  matched route in the route tree before each render trigger by a route
-  transition.  This must be passed as the `render` prop of `Router` as seen
-  above.
+A middleware for React Router that loads data for the components for each
+matched route in the route tree before each render trigger by a route
+transition.  This must be passed as the `render` prop of `Router` as seen above.
 
-- `withJsonApi(options)`
+#### `withJsonApi(options)`
 
-  A decorator for React components that returns a new component that implements
-  the loading interface required by the `AsyncProps` middleware, renders the
-  decorated component with query models passed as props, and manages Backbone
-  event handlers.
+A decorator for React components that returns a new component that implements
+the loading interface required by the `AsyncProps` middleware, renders the
+decorated component with query models passed as props, and manages Backbone
+event handlers.
 
-  The query props are constructed based on the `queries` and `fragments`
-  options, which are defined in terms of "query definition objects".
+The query props are constructed based on the `queries` and `fragments` options,
+which are defined in terms of "query definition objects".
 
-  `options` is an object with at least one of the following possible attributes:
+`options` is an object with at least one of the following possible attributes:
+
+- `initialVars`
+
+  An object of initial query variables.
+
+- `getInitialVars`
+
+  A function that returns an object of initial query variables.
+
+- `queries`
+
+  `{ [name]: (params, query, vars) => query definition object }` 
+
+  An object that defines query props in terms of functions that return a query
+  definition object for each prop.  The function arguments are:
   
-  - `initialVars`
-
-    An object of initial query variables.
+    * `params` - the React Router route params object (`/route/:param`) from
+      `props.params`.
   
-  - `getInitialVars`
+    * `query` - the React Router route query object (`?x=y`) from
+      `props.location.query`.
 
-    A function that returns an object of initial query variables.
+    * `vars` - the query variables, described above.
 
-  - `queries`
+- `fragments`
+
+  `{ [name]: query definition object }`
+
+  An object that defines query fragment props in terms of query definition
+  objects.  Fragment props are model props associated with a component that
+  renders data but does not load queries itself, instead being rendered by
+  another component.  A fragment prop definition must be referenced by a query
+  prop definition of the component that renders the fragment prop's component
+  (or another fragment prop definition).
+
+  Fragments enable defining a component with only the pieces of data that it
+  needs to be rendered.
+
+A query definition object can contain any of the following options:
+
+  * `model` - the model or collection to instantiate.
+
+  Options that specify the subject of the query for model queries (as opposed
+  to collection queries):
+
+  * `id` (required for model queries) - the ID of the resource to fetch.
+
+  Options that specify the subject of the query for collection queries:
   
-    `{ [name]: (params, query, vars) => query definition object }` 
+  * `filter` - a string to pass as the JSON API
+    [`filter`](https://jsonapi.org/format/#fetching-filtering) parameter.
 
-    An object that defines query props in terms of functions that return a query
-    definition object for each prop.  The function arguments are:
+  * `sort` - a string to pass as the JSON API 
+    [`sort`](https://jsonapi.org/format/#fetching-sorting) parameter.
+
+  * `page` - a string or object to pass as the JSON API
+    [`page`](https://jsonapi.org/format/#fetching-pagination) parameter.
+
+  Options that specify the data to include for each result in the query:
+
+  * `fields` - an array of names of fields of the subject model to include in
+    the response, used as the JSON API 
+    [`fields`](https://jsonapi.org/format/#fetching-sparse-fieldsets)
+    parameter for the subject model's type.
     
-      * `params` - the React Router route params object (`/route/:param`) from
-        `props.params`.
-    
-      * `query` - the React Router route query object (`?x=y`) from
-        `props.location.query`.
+    If not specified, all fields will be included.
 
-      * `vars` - the query variables, described above.
+  * `relations` - a nested array of objects that correspond to relations of the
+    subject model to include in the response as related resources.  The full
+    paths from the subject model to each relation are passed as the JSON API
+    [`include`](https://jsonapi.org/format/#fetching-includes) parameter.
 
-  - `fragments`
-  
-    `{ [name]: query definition object }`
+    Each object can have the following attributes:
 
-    An object that defines query fragment props in terms of query definition
-    objects.  Fragment props are model props associated with a component that
-    renders data but does not load queries itself, instead being rendered by
-    another component.  A fragment prop definition must be referenced by a query
-    prop definition of the component that renders the fragment prop's component
-    (or another fragment prop definition).
+      - `key` (required) - the string key identifying the relation in the
+        `relations` configuration of the model class
 
-    Fragments enable defining a component with only the pieces of data that it
-    needs to be rendered.
+      - `fields` - an array of names of fields of the relation's model to
+        include in the response, to add to the JSON API `fields` parameter for
+        the related model's type.
 
-  A query definition object can contain any of the following options:
+      - `relations` - an array of the same type of object corresponding to
+        relations of this relation's related model to include in the response.
 
-    * `model` - the model or collection to instantiate.
+      - `fragments` - an array of fragments to include for this relation.  The
+        `fields` and `relations` values from each fragment will be merged into
+        the `fields` and `relations` values for this relation.
 
-    Options that specify the subject of the query for model queries (as opposed
-    to collection queries):
+    If not specified, no relations will be returned.
 
-    * `id` (required for model queries) - the ID of the resource to fetch.
+  * `fragments` - an array of fragments to include in this query.  The
+    `fields` and `relations` values from each fragment will be merged into the
+    `fields` and `relations` values of this query.
 
-    Options that specify the subject of the query for collection queries:
-    
-    * `filter` - a string to pass as the JSON API
-      [`filter`](https://jsonapi.org/format/#fetching-filtering) parameter.
+The decorator also adds these options as static properties to the returned
+component so they can be referenced when defining other components.
 
-    * `sort` - a string to pass as the JSON API 
-      [`sort`](https://jsonapi.org/format/#fetching-sorting) parameter.
+In addition to the query props, the decorated component receives a prop named
+`queries` that has all query props for that component as attributes and
+provides an API for manipulating variables.  `queries` has the following
+additional attributes:
 
-    * `page` - a string or object to pass as the JSON API
-      [`page`](https://jsonapi.org/format/#fetching-pagination) parameter.
+- `vars` - the variables for the currently loaded models.
 
-    Options that specify the data to include for each result in the query:
+- `pendingVars` - the variables used to fetch the pending models.
 
-    * `fields` - an array of names of fields of the subject model to include in
-      the response, used as the JSON API 
-      [`fields`](https://jsonapi.org/format/#fetching-sparse-fieldsets)
-      parameter for the subject model's type.
-      
-      If not specified, all fields will be included.
+- `setVars(vars)` - merge `vars` with the current variables and trigger a refetch.
 
-    * `relations` - a nested array of objects that correspond to relations of the
-      subject model to include in the response as related resources.  The full
-      paths from the subject model to each relation are passed as the JSON API
-      [`include`](https://jsonapi.org/format/#fetching-includes) parameter.
+- `fetching` - whether the queries are currently being fetched.
 
-      Each object can have the following attributes:
-
-        - `key` (required) - the string key identifying the relation in the
-          `relations` configuration of the model class
-
-        - `fields` - an array of names of fields of the relation's model to
-          include in the response, to add to the JSON API `fields` parameter for
-          the related model's type.
-
-        - `relations` - an array of the same type of object corresponding to
-          relations of this relation's related model to include in the response.
-
-        - `fragments` - an array of fragments to include for this relation.  The
-          `fields` and `relations` values from each fragment will be merged into
-          the `fields` and `relations` values for this relation.
-
-      If not specified, no relations will be returned.
-
-    * `fragments` - an array of fragments to include in this query.  The
-      `fields` and `relations` values from each fragment will be merged into the
-      `fields` and `relations` values of this query.
-
-  The decorator also adds these options as static properties to the returned
-  component so they can be referenced when defining other components.
-
-  In addition to the query props, the decorated component receives a prop named
-  `queries` that has all query props for that component as attributes and
-  provides an API for manipulating variables.  `queries` has the following
-  additional attributes:
-
-  - `vars` - the variables for the currently loaded models.
-
-  - `pendingVars` - the variables used to fetch the pending models.
-
-  - `setVars(vars)` - merge `vars` with the current variables and trigger a refetch.
-
-  - `fetching` - whether the queries are currently being fetched.
-
-  - `hasErrors` - whether any of this set of models and collections had an error
-    response on the last request.
+- `hasErrors` - whether any of this set of models and collections had an error
+  response on the last request.
 
 ### Added Backbone attributes
 

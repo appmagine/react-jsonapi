@@ -14,4 +14,3 @@ Visit the following links to learn more about React Router JSON API:
 * [Documentation](http://github.com/appmagine/react-router-jsonapi/tree/master/docs/Main.md)
 * [Demo](http://appmagine.github.io/react-router-json-api/)
 * [License](http://github.com/appmagine/react-router-json-api/tree/master/LICENSE)
-
