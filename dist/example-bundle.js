@@ -39922,7 +39922,7 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
 
             $.mockjax({
                 url: "/articles?include=tags,author&fields[articles]=title&fields[tags]=name&fields[users]=name,username",
-                responseTime: 250,
+                responseTime: 50,
                 responseText: {
                     data: [{
                         type: "articles",
@@ -40025,7 +40025,7 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
 
             $.mockjax({
                 url: "/articles?include=tags,author&fields[articles]=title&fields[tags]=name&fields[users]=name,username&filter=id != 11",
-                responseTime: 250,
+                responseTime: 50,
                 responseText: {
                     data: [{
                         type: "articles",
@@ -40108,7 +40108,7 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
 
             $.mockjax({
                 url: "/articles/10?include=author,author.articles,comments,comments.author&fields[articles]=title,content&fields[users]=name,username&fields[comments]=title,content,date",
-                responseTime: 750,
+                responseTime: 50,
                 responseText: {
                     data: {
                         type: 'articles',
@@ -40197,7 +40197,7 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
 
             $.mockjax({
                 url: "/articles/11?include=author,author.articles,comments,comments.author&fields[articles]=title,content&fields[users]=name,username&fields[comments]=title,content,date",
-                responseTime: 750,
+                responseTime: 50,
                 responseText: {
                     data: {
                         type: 'articles',
@@ -40363,7 +40363,7 @@ System.register('examples/models.js', ['backbone', 'backbone-relational', 'react
 System.register('examples/components.js', ['react', 'create-react-class', 'react-router', 'history', 'react-jsonapi', './models'], function (_export, _context) {
     "use strict";
 
-    var React, createReactClass, Link, Router, Route, createMemoryHistory, APIComponent, AsyncProps, ArticleCollection, Article, Comment, Tag, User, ArticleListItem, ArticleList, CommentItem, ArticleItem, Articles, ArticleSummary;
+    var React, createReactClass, Link, Router, Route, createMemoryHistory, withJsonApi, AsyncProps, ArticleCollection, Article, Comment, Tag, User, ArticleListItem, ArticleList, CommentItem, ArticleItem, Articles, ArticleSummary;
     return {
         setters: [function (_react) {
             React = _react.default;
@@ -40376,7 +40376,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
         }, function (_history) {
             createMemoryHistory = _history.createMemoryHistory;
         }, function (_reactJsonapi) {
-            APIComponent = _reactJsonapi.APIComponent;
+            withJsonApi = _reactJsonapi.withJsonApi;
             AsyncProps = _reactJsonapi.AsyncProps;
         }, function (_models) {
             ArticleCollection = _models.ArticleCollection;
@@ -40386,101 +40386,112 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
             User = _models.User;
         }],
         execute: function () {
-            ArticleListItem = APIComponent(createReactClass({
-                statics: {
-                    fragments: {
-                        article: {
-                            model: Article,
-                            fields: ['title'],
-                            relations: [{
-                                key: 'author',
-                                fields: ['name', 'username']
-                            }]
-                        }
+            ArticleListItem = withJsonApi({
+                fragments: {
+                    article: {
+                        model: Article,
+                        fields: ['title'],
+                        relations: [{
+                            key: 'author',
+                            fields: ['name', 'username']
+                        }]
                     }
-                },
-                render: function render() {
-                    var article = this.props.article;
-
-                    var author = article.get('author');
-
-                    return React.createElement('div', null, React.createElement('h4', null, React.createElement(Link, { to: '/articles/' + article.get('id') }, article.get('title'))), 'by ', author.get('username'), ' (', author.get('name'), ')');
                 }
-            }));
+            })(function ArticleListItem(_ref) {
+                var article = _ref.article;
 
-            _export('ArticleList', ArticleList = APIComponent(createReactClass({
-                statics: {
-                    getInitialVars: function getInitialVars() {
+                var author = article.get('author');
+
+                return React.createElement('div', null, React.createElement('h4', null, React.createElement(Link, { to: '/articles/' + article.get('id') }, article.get('title'))), 'by ', author.get('username'), ' (', author.get('name'), ')');
+            });
+
+            _export('ArticleList', ArticleList = withJsonApi({
+                getInitialVars: function getInitialVars() {
+                    return {
+                        filter: false
+                    };
+                },
+
+                queries: {
+                    articles: function articles(params, query, vars) {
                         return {
-                            filter: false
+                            model: ArticleCollection,
+                            filter: vars.filter ? 'id != 11' : null,
+                            relations: [{
+                                key: 'tags',
+                                fields: ['name']
+                            }],
+                            fragments: [ArticleListItem.fragments.article]
                         };
-                    },
-
-                    queries: {
-                        articles: function articles(params, query, vars) {
-                            return {
-                                model: ArticleCollection,
-                                filter: vars.filter ? 'id != 11' : null,
-                                relations: [{
-                                    key: 'tags',
-                                    fields: ['name']
-                                }],
-                                fragments: [ArticleListItem.fragments.article]
-                            };
-                        }
                     }
-                },
-
-                render: function render() {
-                    var _props = this.props,
-                        articles = _props.articles,
-                        loading = _props.loading,
-                        queries = _props.queries;
-
-                    var tagCounts = {};
-
-                    articles.forEach(function (article) {
-                        article.get('tags').forEach(function (tag) {
-                            var name = tag.get('name');
-                            tagCounts[name] = (tagCounts[name] || 0) + 1;
-                        });
-                    });
-
-                    return React.createElement('div', null, React.createElement('div', { className: 'panel' }, React.createElement('h3', null, 'Articles'), React.createElement('input', { type: 'checkbox', checked: (queries.pendingVars || queries.vars).filter, onChange: function onChange(e) {
-                            queries.setVars({ filter: e.target.checked });
-                        } }), ' Filter', articles.map(function (article) {
-                        return React.createElement(ArticleListItem, { key: article.get('id'), article: article });
-                    }), React.createElement('h4', null, 'Tag counts'), React.createElement('ul', null, _.map(tagCounts, function (count, name) {
-                        return React.createElement('li', { key: name }, name, ': ', count);
-                    }))), React.createElement('div', { style: { float: 'left', maxWidth: '520px' } }, this.props.children), React.createElement('div', { style: { clear: "both" } }));
                 }
-            })));
+            })(function ArticleList(_ref2) {
+                var articles = _ref2.articles,
+                    loading = _ref2.loading,
+                    queries = _ref2.queries,
+                    children = _ref2.children;
+
+                var tagCounts = {};
+
+                articles.forEach(function (article) {
+                    article.get('tags').forEach(function (tag) {
+                        var name = tag.get('name');
+                        tagCounts[name] = (tagCounts[name] || 0) + 1;
+                    });
+                });
+
+                return React.createElement('div', null, React.createElement('div', { className: 'panel' }, React.createElement('h3', null, 'Articles'), React.createElement('input', { type: 'checkbox', checked: (queries.pendingVars || queries.vars).filter, onChange: function onChange(e) {
+                        queries.setVars({ filter: e.target.checked });
+                    } }), ' Filter', articles.map(function (article) {
+                    return React.createElement(ArticleListItem, { key: article.get('id'), article: article });
+                }), React.createElement('h4', null, 'Tag counts'), React.createElement('ul', null, _.map(tagCounts, function (count, name) {
+                    return React.createElement('li', { key: name }, name, ': ', count);
+                }))), React.createElement('div', { style: { float: 'left', maxWidth: '520px' } }, children), React.createElement('div', { style: { clear: "both" } }));
+            }));
 
             _export('ArticleList', ArticleList);
 
-            CommentItem = APIComponent(createReactClass({
-                statics: {
-                    fragments: {
-                        comment: {
-                            model: Comment,
-                            fields: ['title', 'content', 'date'],
-                            relations: [{
-                                key: 'author',
-                                fields: ['username']
-                            }]
-
-                        }
+            CommentItem = withJsonApi({
+                fragments: {
+                    comment: {
+                        model: Comment,
+                        fields: ['title', 'content', 'date'],
+                        relations: [{
+                            key: 'author',
+                            fields: ['username']
+                        }]
 
                     }
-                },
-                render: function render() {
-                    var comment = this.props.comment;
-
-                    return React.createElement('div', null, React.createElement('h4', null, comment.get('title')), comment.error ? React.createElement('p', null, 'Error Saving: ' + comment.error) : '', React.createElement('p', null, comment.get('content')), 'by ', comment.get('author').get('username'), ' at ', comment.get('date'));
                 }
-            }));
+            })(function CommentItem(_ref3) {
+                var comment = _ref3.comment;
 
-            _export('ArticleItem', ArticleItem = APIComponent(createReactClass({
+                return React.createElement('div', null, React.createElement('h4', null, comment.get('title')), comment.error ? React.createElement('p', null, 'Error Saving: ' + comment.error) : '', React.createElement('p', null, comment.get('content')), 'by ', comment.get('author').get('username'), ' at ', comment.get('date'));
+            });
+
+            _export('ArticleItem', ArticleItem = withJsonApi({
+                queries: {
+                    article: function article(params, query, vars) {
+                        return {
+                            model: Article,
+                            id: params.articleId,
+                            fields: ['title', 'content'],
+                            relations: [{
+                                key: 'author',
+                                fields: ['name', 'username'],
+                                relations: [{
+                                    key: 'articles',
+                                    fields: ['title']
+                                }]
+                            }, {
+                                key: 'comments',
+                                fragments: [CommentItem.fragments.comment]
+                            }]
+                        };
+                    }
+                }
+            })(createReactClass({
+                displayName: "ArticleItem",
                 getInitialState: function getInitialState() {
                     var routes = React.createElement(React.Fragment, null, React.createElement(Route, { path: '/', component: function component() {
                             return React.createElement('div', null);
@@ -40493,30 +40504,6 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         routes: routes
                     };
                 },
-
-                statics: {
-                    queries: {
-                        article: function article(params, query, vars) {
-                            return {
-                                model: Article,
-                                id: params.articleId,
-                                fields: ['title', 'content'],
-                                relations: [{
-                                    key: 'author',
-                                    fields: ['name', 'username'],
-                                    relations: [{
-                                        key: 'articles',
-                                        model: Article,
-                                        fields: ['title']
-                                    }]
-                                }, {
-                                    key: 'comments',
-                                    fragments: [CommentItem.fragments.comment]
-                                }]
-                            };
-                        }
-                    }
-                },
                 componentWillMount: function componentWillMount() {
                     this.componentDidUpdate();
                 },
@@ -40525,14 +40512,15 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                     var articleId = this.props.params.articleId;
 
                     var pathname = '/articles/' + articleId;
+
                     if (history.getCurrentLocation().pathname !== pathname) {
                         history.push(pathname);
                     }
                 },
                 render: function render() {
-                    var _props2 = this.props,
-                        article = _props2.article,
-                        loading = _props2.loading;
+                    var _props = this.props,
+                        article = _props.article,
+                        loading = _props.loading;
 
                     var author = article.get('author');
 
@@ -40587,60 +40575,56 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
             _export('ArticleItem', ArticleItem);
 
-            Articles = APIComponent(createReactClass({
-                statics: {
-                    queries: {
-                        articles: function articles(params, query, vars) {
-                            return {
-                                model: ArticleCollection,
-                                filter: vars.filter ? 'id != 11' : null,
-                                relations: [{
-                                    key: 'tags',
-                                    fields: ['name']
-                                }],
-                                fragments: [ArticleListItem.fragments.article]
-                            };
-                        }
+            Articles = withJsonApi({
+                queries: {
+                    articles: function articles(params, query, vars) {
+                        return {
+                            model: ArticleCollection,
+                            filter: vars.filter ? 'id != 11' : null,
+                            relations: [{
+                                key: 'tags',
+                                fields: ['name']
+                            }],
+                            fragments: [ArticleListItem.fragments.article]
+                        };
                     }
-                },
-                render: function render() {
-                    return React.createElement('div', null, this.props.children);
                 }
-            }));
-            ArticleSummary = APIComponent(createReactClass({
-                statics: {
-                    queries: {
-                        article: function article(params, query, vars) {
-                            return {
-                                model: Article,
-                                id: params.articleId,
-                                fields: ['title', 'content'],
+            })(function Articles(_ref4) {
+                var children = _ref4.children;
+
+                return React.createElement('div', null, children);
+            });
+            ArticleSummary = withJsonApi({
+                queries: {
+                    article: function article(params, query, vars) {
+                        return {
+                            model: Article,
+                            id: params.articleId,
+                            fields: ['title', 'content'],
+                            relations: [{
+                                key: 'author',
+                                fields: ['name', 'username'],
                                 relations: [{
-                                    key: 'author',
-                                    fields: ['name', 'username'],
-                                    relations: [{
-                                        key: 'articles',
-                                        model: Article,
-                                        fields: ['title']
-                                    }]
-                                }, {
-                                    key: 'comments',
-                                    fragments: [CommentItem.fragments.comment]
+                                    key: 'articles',
+                                    model: Article,
+                                    fields: ['title']
                                 }]
-                            };
-                        }
+                            }, {
+                                key: 'comments',
+                                fragments: [CommentItem.fragments.comment]
+                            }]
+                        };
                     }
-                },
-                render: function render() {
-                    var article = this.props.article;
-
-                    if (!article) {
-                        return React.createElement('div', null);
-                    }
-
-                    return React.createElement('div', null, article.get('title'), ' by ', article.get('author').get('name'), React.createElement('br', null), article.get('comments').length, ' comments');
                 }
-            }));
+            })(function ArticleSummary(_ref5) {
+                var article = _ref5.article;
+
+                if (!article) {
+                    return React.createElement('div', null);
+                }
+
+                return React.createElement('div', null, article.get('title'), ' by ', article.get('author').get('name'), React.createElement('br', null), article.get('comments').length, ' comments');
+            });
         }
     };
 });
@@ -52955,7 +52939,7 @@ System.registerDynamic("npm:backbone-relational@0.10.0.json", [], true, function
           "backbone",
           "underscore"
         ],
-        "exports": "Backbone.RelationalModel",
+        "exports": "Backbone",
         "format": "global"
       }
     }
@@ -52963,7 +52947,7 @@ System.registerDynamic("npm:backbone-relational@0.10.0.json", [], true, function
 });
 
 System.registerDynamic('npm:backbone-relational@0.10.0/backbone-relational.js', ['backbone', 'underscore'], false, function ($__require, $__exports, $__module) {
-	var _retrieveGlobal = System.registry.get("@@global-helpers").prepareGlobal($__module.id, 'Backbone.RelationalModel', null);
+	var _retrieveGlobal = System.registry.get("@@global-helpers").prepareGlobal($__module.id, 'Backbone', null);
 
 	(function ($__global) {
 		/* vim: set tabstop=4 softtabstop=4 shiftwidth=4 noexpandtab: */
@@ -57190,91 +57174,99 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
 
     var _defineProperty, _extends, React, createReactClass, PropTypes, Backbone, _, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation;
 
-    function APIComponent(WrappedComponent) {
-        var queryPropTypes = WrappedComponent.queries || {};
-        var fragmentPropTypes = WrappedComponent.fragments || {};
+    function withJsonApi(options) {
+        var componentQueries = options.queries || {};
+        var componentFragments = options.fragments || {};
+        var initialVars = options.initialVars;
+        var getInitialVars = options.getInitialVars;
 
-        var WrapperComponent = createReactClass({
-            propTypes: Object.assign({}, WrappedComponent.propTypes, {
-                initialQueries: PropTypes.object
-            }),
+        return function (WrappedComponent) {
+            return createReactClass({
+                displayName: WrappedComponent.displayName,
 
-            statics: {
-                getInitialVars: function getInitialVars() {
-                    if (WrappedComponent.getInitialVars) {
-                        return WrappedComponent.getInitialVars();
-                    } else if (WrappedComponent.initialVars) {
-                        return WrappedComponent.initialVars;
-                    } else {
-                        return {};
+                propTypes: Object.assign({}, WrappedComponent.propTypes, {
+                    initialQueries: PropTypes.object
+                }),
+
+                statics: {
+                    loadProps: function loadProps(_ref, cb) {
+                        var params = _ref.params,
+                            location = _ref.location,
+                            loadContext = _ref.loadContext;
+
+                        var getVars = function getVars() {
+                            if (getInitialVars) {
+                                return getInitialVars();
+                            } else if (initialVars) {
+                                return initialVars;
+                            } else {
+                                return {};
+                            }
+                        };
+
+                        var queries = new Queries(null, getVars(), componentQueries);
+
+                        queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
+                            cb(null, {
+                                initialQueries: queries
+                            });
+                        });
+                    },
+
+                    queries: componentQueries,
+                    fragments: componentFragments,
+                    initialVars: initialVars,
+                    getInitialVars: getInitialVars
+                },
+
+                componentWillMount: function componentWillMount() {
+                    this.fragmentProps = {};
+                    this.componentWillReceiveProps(this.props);
+                },
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                    var isMatch = function isMatch(props1, props2) {
+                        var props1Keys = Object.keys(props1);
+                        return _.isEqual(_.sortBy(props1Keys, _.identity), _.sortBy(Object.keys(props2), _.identity)) && _.all(props1Keys.map(function (key) {
+                            return props1[key] === props2[key];
+                        }));
+                    };
+                    var fragmentProps = _.pick(nextProps, Object.keys(componentFragments));
+                    var hasFragmentProps = Object.keys(fragmentProps).length;
+
+                    if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
+                        if (this.queries) {
+                            this.queries._events._removeHandlers();
+                        }
+                        this.queries = nextProps.initialQueries;
+                        this.queries._element = this.queries._events.element = this;
+                        this.queries._events._addHandlers();
+                    }
+
+                    if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
+                        this.fragmentProps = fragmentProps;
+                        if (this.fragments) {
+                            this.fragments._events._removeHandlers();
+                        }
+                        this.fragments = new QueryFragments(this, fragmentProps, componentFragments);
+                        this.fragments._events._addHandlers();
                     }
                 },
-                loadProps: function loadProps(_ref, cb) {
-                    var params = _ref.params,
-                        location = _ref.location,
-                        loadContext = _ref.loadContext;
-
-                    var queries = new Queries(null, {}, queryPropTypes);
-                    queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
-                        cb(null, {
-                            initialQueries: queries
-                        });
-                    });
-                },
-
-                queries: queryPropTypes,
-                fragments: fragmentPropTypes
-            },
-
-            componentWillMount: function componentWillMount() {
-                this.fragmentProps = {};
-                this.componentWillReceiveProps(this.props);
-            },
-            componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-                var isMatch = function isMatch(props1, props2) {
-                    var props1Keys = Object.keys(props1);
-                    return _.isEqual(_.sortBy(props1Keys, _.identity), _.sortBy(Object.keys(props2), _.identity)) && _.all(props1Keys.map(function (key) {
-                        return props1[key] === props2[key];
-                    }));
-                };
-                var fragmentProps = _.pick(nextProps, Object.keys(fragmentPropTypes));
-                var hasFragmentProps = Object.keys(fragmentProps).length;
-
-                if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
+                componentWillUnmount: function componentWillUnmount() {
                     if (this.queries) {
                         this.queries._events._removeHandlers();
                     }
-                    this.queries = nextProps.initialQueries;
-                    this.queries._element = this.queries._events.element = this;
-                    this.queries._events._addHandlers();
-                }
-
-                if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
-                    this.fragmentProps = fragmentProps;
                     if (this.fragments) {
                         this.fragments._events._removeHandlers();
                     }
-                    this.fragments = new QueryFragments(this, fragmentProps, fragmentPropTypes);
-                    this.fragments._events._addHandlers();
+                },
+                render: function render() {
+                    return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
                 }
-            },
-            componentWillUnmount: function componentWillUnmount() {
-                if (this.queries) {
-                    this.queries._events._removeHandlers();
-                }
-                if (this.fragments) {
-                    this.fragments._events._removeHandlers();
-                }
-            },
-            render: function render() {
-                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
-            }
-        });
-
-        return WrapperComponent;
+            });
+        };
     }
 
-    _export('APIComponent', APIComponent);
+    _export('withJsonApi', withJsonApi);
 
     function Events(props, propOptions, element) {
         this.props = props;
@@ -57506,11 +57498,10 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                     var promise = BackboneSync(method, model, options);
                     promise.done(function (data, textStatus) {
                         model.error = null;
-                        model.textStatus = textStatus;
+
                         resolve(model);
                     }).fail(function (jqXhr, textStatus, errorThrown) {
                         model.error = errorThrown;
-                        model.textStatus = textStatus;
 
                         if (options.allowFail) {
                             reject(model);
@@ -57603,11 +57594,6 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
 
                     this.fetching = true;
 
-                    //if (this._element) {
-                    //this._element.forceUpdate();
-                    //}
-
-                    // ?
                     if (this._events.props) {
                         this._events._removeHandlers();
                     }
@@ -57617,11 +57603,7 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
 
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
-                            // todo: add option to re-use existing models/collections rather than create new ones
-                            // downside is that if something else triggers a re-render during fetching,
-                            // the component may be rendered with partial or inconsistent data.
-                            var optionsFunc = _this5._queryPropTypes[key];
-                            var options = propOptions[key] = optionsFunc(params, location.query, _this5.pendingVars);
+                            var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
                             var model = options.model;
                             var modelOrCollection = model.prototype.model ? new model() : model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
                             model._isInitialized = false;

@@ -187,11 +187,10 @@ Backbone.sync = function (method, model, options) {
         const promise = BackboneSync(method, model, options);
         promise.done((data, textStatus) => {
             model.error = null;
-            model.textStatus = textStatus;
+
             resolve(model);
         }).fail((jqXhr, textStatus, errorThrown) => {
             model.error = errorThrown;
-            model.textStatus = textStatus;
 
             if (options.allowFail) {
                 reject(model);
@@ -233,103 +232,116 @@ const processRelation = (model, relation, path, include, fields) => {
 
 };
 
-export function APIComponent(WrappedComponent) {
-    const queryPropTypes = WrappedComponent.queries || {};
-    const fragmentPropTypes = WrappedComponent.fragments || {};
+export function withJsonApi(options) {
+    const componentQueries = options.queries || {};
+    const componentFragments = options.fragments || {};
+    const initialVars = options.initialVars;
+    const getInitialVars = options.getInitialVars;
 
-    const WrapperComponent = createReactClass({
-        propTypes: Object.assign(
-            {}, 
-            WrappedComponent.propTypes,
-            {
-                initialQueries: PropTypes.object
-            }
-        ),
+    return function (WrappedComponent) {
+        return createReactClass({
+            displayName: WrappedComponent.displayName,
 
-        statics: {
-            getInitialVars() {
-                if (WrappedComponent.getInitialVars) {
-                    return WrappedComponent.getInitialVars();
-                } else if (WrappedComponent.initialVars) {
-                    return WrappedComponent.initialVars;
-                } else {
-                    return {};
+            propTypes: Object.assign(
+                {}, 
+                WrappedComponent.propTypes,
+                {
+                    initialQueries: PropTypes.object
+                }
+            ),
+
+            statics: {
+                loadProps({params, location, loadContext}, cb) {
+                    const getVars = () => {
+                        if (getInitialVars) {
+                            return getInitialVars();
+                        } else if (initialVars) {
+                            return initialVars;
+                        } else {
+                            return {};
+                        }
+                    };
+
+                    const queries = new Queries(
+                        null, 
+                        getVars(),
+                        componentQueries
+                    );
+
+                    queries._fetch({params, location, loadContext}).then(() => {
+                        cb(null, {
+                            initialQueries: queries
+                        });
+                    });
+                },
+                queries: componentQueries,
+                fragments: componentFragments,
+                initialVars: initialVars,
+                getInitialVars: getInitialVars
+            },
+
+            componentWillMount() {
+                this.fragmentProps = {};
+                this.componentWillReceiveProps(this.props);
+            },
+            
+            componentWillReceiveProps(nextProps) {
+                const isMatch = (props1, props2) => {
+                    const props1Keys = Object.keys(props1);
+                    return _.isEqual(
+                        _.sortBy(props1Keys, _.identity),
+                        _.sortBy(Object.keys(props2), _.identity)
+                    ) && _.all(props1Keys.map((key) => {
+                        return props1[key] === props2[key];
+                    }));
+                }
+                const fragmentProps = _.pick(
+                    nextProps, 
+                    Object.keys(componentFragments)
+                );
+                const hasFragmentProps = Object.keys(fragmentProps).length;
+                
+                if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
+                    if (this.queries) {
+                        this.queries._events._removeHandlers();
+                    }
+                    this.queries = nextProps.initialQueries;
+                    this.queries._element = this.queries._events.element = this;
+                    this.queries._events._addHandlers();
+                }
+
+                if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
+                    this.fragmentProps = fragmentProps;
+                    if (this.fragments) {
+                        this.fragments._events._removeHandlers();
+                    }
+                    this.fragments = new QueryFragments(this, fragmentProps, componentFragments);
+                    this.fragments._events._addHandlers();
                 }
             },
-            loadProps({params, location, loadContext}, cb) {
-                const queries = new Queries(null, {}, queryPropTypes);
-                queries._fetch({params, location, loadContext}).then(() => {
-                    cb(null, {
-                        initialQueries: queries
-                    });
-                });
-            },
-            queries: queryPropTypes,
-            fragments: fragmentPropTypes
-        },
 
-        componentWillMount() {
-            this.fragmentProps = {};
-            this.componentWillReceiveProps(this.props);
-        },
-        
-        componentWillReceiveProps(nextProps) {
-            const isMatch = (props1, props2) => {
-                const props1Keys = Object.keys(props1);
-                return _.isEqual(
-                    _.sortBy(props1Keys, _.identity),
-                    _.sortBy(Object.keys(props2), _.identity)
-                ) && _.all(props1Keys.map((key) => {
-                    return props1[key] === props2[key];
-                }));
-            }
-            const fragmentProps = _.pick(
-                nextProps, 
-                Object.keys(fragmentPropTypes)
-            );
-            const hasFragmentProps = Object.keys(fragmentProps).length;
-            
-            if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
+            componentWillUnmount() {
                 if (this.queries) {
                     this.queries._events._removeHandlers();
                 }
-                this.queries = nextProps.initialQueries;
-                this.queries._element = this.queries._events.element = this;
-                this.queries._events._addHandlers();
-            }
-
-            if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
-                this.fragmentProps = fragmentProps;
                 if (this.fragments) {
                     this.fragments._events._removeHandlers();
                 }
-                this.fragments = new QueryFragments(this, fragmentProps, fragmentPropTypes);
-                this.fragments._events._addHandlers();
-            }
-        },
+            },
 
-        componentWillUnmount() {
-            if (this.queries) {
-                this.queries._events._removeHandlers();
+            render() {
+                return (
+                    <WrappedComponent
+                        {...this.props}
+                        {...this.queries ? {queries: this.queries} : {}}
+                        {...this.queries ? this.queries._props : {}}
+                        {...this.fragments ? this.fragments._props : {}}
+                    />
+                );
             }
-            if (this.fragments) {
-                this.fragments._events._removeHandlers();
-            }
-        },
+        });
+    };
 
-        render() {
-            return (
-                <WrappedComponent
-                    {...this.props}
-                    {...this.queries ? {queries: this.queries} : {}}
-                    {...this.queries ? this.queries._props : {}}
-                    {...this.fragments ? this.fragments._props : {}}
-                />
-            );
-        }
-    });
-
-    return WrapperComponent;
 }
 
 function Events(props, propOptions, element) {
@@ -405,11 +417,6 @@ Object.assign(Queries.prototype, {
 
         this.fetching = true;
         
-        //if (this._element) {
-            //this._element.forceUpdate();
-        //}
-
-        // ?
         if (this._events.props) {
             this._events._removeHandlers();
         }
@@ -419,11 +426,7 @@ Object.assign(Queries.prototype, {
 
         const promise = Promise.all(keys.map((key) => {
             return new Promise((resolve) => {
-                // todo: add option to re-use existing models/collections rather than create new ones
-                // downside is that if something else triggers a re-render during fetching,
-                // the component may be rendered with partial or inconsistent data.
-                const optionsFunc = this._queryPropTypes[key];
-                const options = propOptions[key] = optionsFunc(
+                const options = propOptions[key] = this._queryPropTypes[key](
                     params,
                     location.query,
                     this.pendingVars

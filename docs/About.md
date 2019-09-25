@@ -1,47 +1,51 @@
-# React JSON API
+## Table of Contents
 
-React JSON API is a library for [React](https://facebook.github.io/react/) that
-provides declarative co-located data loading for React components from [JSON
-APIs](http://jsonapi.org).  It uses [React
-Router](https://github.com/ReactTraining/react-router/tree/v3) (v3), with data
-loading occurring whenever the current route changes.  You can either write your
-app to load data based on the current URL, or embed a non-top-level router
-instance not connected to the page URL in an inner component to manage
-application/data state without affecting the page URL.
+* [Overview](#overview)
+* [Demo](#demo)
+* [Usage](#usage)
+  * [Using with the application router](#using-with-the-application-router)
+  * [Using inside of a component](#using-inside-of-a-component)
+  * [Variables](#variables)
+* [API](#api)
+  * [Added Backbone attributes](#added-backbone-attributes)
+* [A note about React Router versions](#a-note-about-react-router-versions)
+* [Testing](#testing)
 
-React JSON API is a direct alternative to
-[Relay](http://facebook.github.io/relay/) that uses
-[Backbone](http://backbonejs.org) models that consume a REST API instead of the
-new standard GraphQL upon which Relay is based.  It provides the majority of the
-functionality of Relay/GraphQL except multiple queries in one network request.
+## Overview
 
-React JSON API relies on [Backbone-relational](http://backbonerelational.org),
-a comprehensive solution for managing relational Backbone models.
+React Router JSON API is a library that provides declarative co-located [JSON
+API](http://jsonapi.org) data loading for
+[React](https://facebook.github.io/react/) components using [React
+Router](https://github.com/ReactTraining/react-router/tree/v3) version 3.x.
+
+React Router JSON API loads data into [Backbone](http://backbonejs.org) models
+and uses an object-based query configuration system.
+
+Data loading occurs after each route transition.  React Router JSON API can be
+used in two ways: with the top-level application router in order to load data
+based on the current page URL or with a router defined within a component's
+render function that is connected to a "memory history" instead of the browser
+history in order to manage data loading in part of an application without
+affecting the page URL.
+
+React Router JSON API generates query URLs based on query definitions specified
+in terms of the React Router route information in addition to query variables
+(per-component query parameters that can be modified to trigger an update).
+
+The Backbone model and collection API can be used to update and persist model
+state.  In order to keep the view up-to-date, each component subscribes to
+relevant Backbone events for the models and collections from which it renders
+data.
+
+React Router JSON API relies on
+[Backbone-relational](http://backbonerelational.org), a comprehensive solution
+for managing nested Backbone models.
 
 A demo is available at <http://appmagine.github.io/react-jsonapi/>.
 
-## Functionality
-
-React JSON API works by modifying `Backbone.sync()` to use JSON API URLs 
-generated based on queries specified on components as a function of the route
-params and query, as well as query-level 
-"[variables](https://facebook.github.io/relay/docs/en/classic/classic-guides-containers.html#requesting-different-data)".
-
-In order to keep the view reflecting the state of the models, all relevant 
-Backbone events are subscribed to when models are loaded and cause
-the view to update when triggered.
-
-Instead of requiring a custom layer for defining 
-"[mutations](https://facebook.github.io/relay/docs/mutations.html)" like Relay, 
-you can simply use the standard Backbone API as normal (`new Model()`, `model.set()`, 
-`model.save()`, `collection.add()`, and `collection.sync()`).
-
 ## Usage
 
-### Example
-
-This example loads data based on the current URL.  For an example of managing
-data not connected to the visible page URL, see below.
+### Using With the Application Router
 
 ```javascript
 import Backbone from 'backbone';
@@ -49,8 +53,11 @@ import 'backbone-relational';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import createReactClass from 'create-react-class';
 import { Router, Route, browserHistory } from 'react-router';
-import { APIComponent, AsyncProps } from 'react-jsonapi';
+import { withJsonApi, AsyncProps } from 'react-router-jsonapi';
+
+/* First some Backbone models are defined. */
 
 const Filling = Backbone.RelationalModel.extend({
     urlRoot: '/fillings',
@@ -74,81 +81,73 @@ const TacoCollection = Backbone.Collection.extend({
     urlRoot: '/tacos'
 });
 
-const TacoItem = APIComponent(React.createClass({
-    statics: {
-        fragments: {
-            taco: {
-                model: Taco,
-                fields: ['amount']
-                relations: [
-                    {
-                        key: 'fillings',
-                        fields: ['name', 'amount']
-                    }
-                ]
-            }
-        }
-    },
-    render() {
-        const {taco} = this.props;
+/* This example uses function components.  React Router JSON API also works with
+   React components created using createReactClass() and ES6 classes. */ 
 
-        return <div>
+const TacoItem = withJsonApi({
+    fragments: {
+        taco: {
+            model: Taco,
+            fields: ['amount']
+            relations: [
+                {
+                    key: 'fillings',
+                    fields: ['name', 'amount']
+                }
+            ]
+        }
+    }
+})(function TacoItem({ taco }) {
+    return (
+        <div>
             Amount: {taco.get('amount')}
             <h4>Fillings</h4>
             <ul>
-            {taco.get('fillings').map((filling) => {
-                return <li key={filling.id}>
-                    Name: {filling.get('name')},
-                    Amount: {filling.get('ammount')}
-                </li>;
-            })}
+                {taco.get('fillings').map((filling) => {
+                    return (
+                        <li key={filling.id}>
+                            Name: {filling.get('name')},
+                            Amount: {filling.get('amount')}
+                        </li>
+                    );
+                })}
             </ul>
-        </div>;
-    
-    }
-}));
+        </div>
+    );
+});
 
-const TacoList = APIComponent(React.createClass({
-    statics: {
-        getInitialVars() {
+const TacoList = withJsonApi({
+    queries: {
+        tacos: (params, query, vars) => {
             return {
-                includeDescription: true
+                model: TacoCollection,
+                fields: ['name'],
+                fragments: [
+                    TacoItem.fragments.taco
+                ]
             };
-        },
-        queries: {
-            tacos(params, query, vars) {
-                return {
-                    model: TacoCollection,
-                    // modify the model query based on a URL query parameter
-                    filter: query.filter,
-                    // Parameterize the query based on a variable
-                    fields: vars.includeDescription ? ['name', 'description'] : ['name'],
-                    fragments: [
-                        TacoItem.fragments.taco
-                    ]
-                }
-                
-            }
         }
-    },
-    render() {
-        const {tacos, queries} = this.props;
-
-        if (queries.loading) {
-            return <div>Loading...</div>
-        }
-
-        return <div>
-            {tacos.map((taco) => {
-                return <div key={taco.id}>
-                    Name: {taco.get('name')},
-                    Description: {queries.vars.includeDescription ? taco.get('description') : ''}
-                    <TacoItem taco={taco} />
-                </div>;
-            })}
-        </div>;    
     }
-}));
+})(function TacoList({ tacos, queries }) {
+    if (queries.loading) {
+        return (
+            <div>Loading...</div>
+        );
+    }
+
+    return (
+        <div>
+            {tacos.map((taco) => {
+                return (
+                    <div key={taco.id}>
+                        Name: {taco.get('name')},
+                        <TacoItem taco={taco} />
+                    </div>
+                );
+            })}
+        </div>
+    );
+});
 
 ReactDOM.render((
     <Router
@@ -160,61 +159,277 @@ ReactDOM.render((
 ));
 ```
 
-### API Exports
+### Using Inside of a Component
 
-#### AsyncProps
+To handle the loading of data in parts of an application whose state is not
+connected to the page URL, render an instance of the React Router `Router` that
+uses a history object created with React Router's `createMemoryHistory` inside
+of another component.
 
-A middleware for React Router that handles loading query results before the
-initial render of a route transition.  This must be passed as the render prop of
-`<Router>` as seen above.
+The router `history` and `routes` values must be managed at the component level.
 
-#### APIComponent
+For a working example of this usage pattern, see the examples directory.
 
-A higher-order component that manages queries.  It accepts the static properties
-`queries` and `fragments` defined on the wrapped component, where:
+```javascript
+// ...
+import { Router, Route, createMemoryHistory } from 'react-router';
+import { withJsonApi, AsyncProps } from 'react-router-jsonapi';
 
-- `queries` is an object that maps prop names to functions that describe how to
-  construct a query for each prop as a function of the React Router route 
-  information `(params, query, vars)`, where `params` is the route params
-  (`props.params`), `query` is the route query (`props.location.query`), 
-  and `vars` are the query variables.  The return value should be an object that
-  can contain any of the following fields:
+const ItemList = createReactClass({
+    getInitialState() {
+        const routes = (
+            <React.Fragment>
+                <Route path="/" component={() => <div>Loading...</div>} />
+                <Route path="/item/:itemId" component={Item} />,
+            </React.Fragment>
+        );
 
-  * `model` - the collection or model to fetch.  Optional for fragments since
-    the model is defined by what the relation is.
-  * `fields` - a list of field names that are rendered in the component, to be
-    passed as the JSON-API `fields` parameter
-  * `filter` - a string to be passed as the JSON-API `filter` parameter
-  * `relations` - a nested array of objects with at least `{key: 'relationKey'}`
-    corresponding to a Backbone-relational relation, to be passed as the
-    JSON-API `include` parameter.  Additional fields in each entry can be of
-    the same structure as an object returned in `queries` for
-    nesting.
-  * `fragments` - a list of fragments to merge into this query
-  * `id` - for model queries only (not collection queries), the id of the
-    model to fetch
+        return {
+            itemId: this.props.itemId,
+            history: createMemoryHistory("/"),
+            routes,
+        };
+    },
+    componentWillMount() {
+        this.componentDidUpdate();
+    },
+    componentDidUpdate() {
+        const { itemId, history } = this.state;
+        const pathname = `/item/${itemId}`;
 
-- `fragments` is an object mapping prop names to objects of the same type as
-  returned by the functions in `queries` above (excluding the `fragments`
-  property)
+        if (history.getCurrentLocation().pathname !== pathname) {
+            history.push(pathname)
+        }
+    },
+    render() {
+        return (
+            <Router
+                history={this.state.history}
+                render={(props) => <AsyncProps {...props} />}
+                routes={this.state.routes}
+            />
+        );
+    }
+});
 
-The router middleware causes an additional prop `queries` to be passed to 
-top-level `APIComponent`s, which is a container for all query results (Backbone
-collections and models) belonging to that component.  This prop an be explicitly
-passed down the component hierarchy in order to access parent collections or 
-models in a child component, or to use one of the following special attributes
-on `queries`:
+const Item = withJsonApi({
+    queries: {
+        item: (params, query, vars) => {
+            return {
+                model: Item,
+                id: params.itemId,
+                fields: ['name']
+            };
+        }
+    }
+})(function Item({ item }) {
+    return (
+        <div>
+            Name: {item.get('name')}
+        </div>
+    );
+});
+```
 
-- `vars` - the variables for the currently loaded model or collection (these 
-   work exactly the same as in Relay, so see the 
-   [Relay documentation](https://facebook.github.io/relay/docs/en/classic/classic-guides-containers.html#requesting-different-data)
-   for an explanation)
-- `pendingVars` - the variables used to fetch the pending model or collection
-- `setVars(vars)` - merge `vars` with the current variables and trigger a refetch
-- `fetching` - whether the queries are currently being fetched
-- `hasErrors` - whether any of this set of models and collections had an error
-  response on the last request
+### Variables
+
+It can be useful to define queries in terms of not only the route information
+but also other values that change over time.  This is possible using the third
+argument to a query definition function, named `vars` in the examples shown
+here. 
+
+These are called "variables".  One set of variables is shared between all
+queries belonging to a component, and can be accessed using the following
+attributes of the `queries` prop:
   
+  - `vars` - the variables for the currently loaded models
+
+  - `pendingVars` - the variables used to fetch the pending models
+
+  - `setVars(vars)` - merge `vars` with the current variables and trigger a
+    refetch, in the same manner as React's `setState()`
+
+Here is an example of variables in action:
+
+```javascript
+const ItemSearch = withJsonApi({
+    initialVars: {
+        includeDescription: true,
+    },
+    queries: {
+        items: (params, query, vars) => {
+            return {
+                model: ItemCollection,
+                fields: vars.includeDescription 
+                    ? ['name', 'description']
+                    : ['name']
+            };
+        }
+    }
+})(function ( { items, queries } ) {
+    const { vars, setVars } = queries;
+
+    return (
+        <div>
+            Include Description:
+
+            <input type="checkbox" checked={vars.includeDescription} 
+                onChange={(event) => setVars({
+                    includeDescription: event.target.checked
+                })} />
+
+            Results:
+
+            {items.map((item) => {
+                return (
+                    <div>
+                        <p>Name: {item.get('name')}</p>
+                        {vars.includeDescription 
+                            ? <p>Description: {item.get('description')}</p>
+                            : null}
+                    </div>
+                );
+            })}
+        </div>
+    );
+});
+```
+ 
+## API
+
+React Router JSON API has two exports:
+
+- `AsyncProps`
+
+  A middleware for React Router that loads data for the components for each
+  matched route in the route tree before each render trigger by a route
+  transition.  This must be passed as the `render` prop of `Router` as seen
+  above.
+
+- `withJsonApi(options)`
+
+  A decorator for React components that returns a new component that implements
+  the loading interface required by the `AsyncProps` middleware, renders the
+  decorated component with query models passed as props, and manages Backbone
+  event handlers.
+
+  The query props are constructed based on the `queries` and `fragments`
+  options, which are defined in terms of "query definition objects".
+
+  `options` is an object with at least one of the following possible attributes:
+  
+  - `initialVars`
+
+    An object of initial query variables.
+  
+  - `getInitialVars`
+
+    A function that returns an object of initial query variables.
+
+  - `queries`
+  
+    `{ [name]: (params, query, vars) => query definition object }` 
+
+    An object that defines query props in terms of functions that return a query
+    definition object for each prop.  The function arguments are:
+    
+      * `params` - the React Router route params object (`/route/:param`) from
+        `props.params`.
+    
+      * `query` - the React Router route query object (`?x=y`) from
+        `props.location.query`.
+
+      * `vars` - the query variables, described above.
+
+  - `fragments`
+  
+    `{ [name]: query definition object }`
+
+    An object that defines query fragment props in terms of query definition
+    objects.  Fragment props are model props associated with a component that
+    renders data but does not load queries itself, instead being rendered by
+    another component.  A fragment prop definition must be referenced by a query
+    prop definition of the component that renders the fragment prop's component
+    (or another fragment prop definition).
+
+    Fragments enable defining a component with only the pieces of data that it
+    needs to be rendered.
+
+  A query definition object can contain any of the following options:
+
+    * `model` - the model or collection to instantiate.
+
+    Options that specify the subject of the query for model queries (as opposed
+    to collection queries):
+
+    * `id` (required for model queries) - the ID of the resource to fetch.
+
+    Options that specify the subject of the query for collection queries:
+    
+    * `filter` - a string to pass as the JSON API
+      [`filter`](https://jsonapi.org/format/#fetching-filtering) parameter.
+
+    * `sort` - a string to pass as the JSON API 
+      [`sort`](https://jsonapi.org/format/#fetching-sorting) parameter.
+
+    * `page` - a string or object to pass as the JSON API
+      [`page`](https://jsonapi.org/format/#fetching-pagination) parameter.
+
+    Options that specify the data to include for each result in the query:
+
+    * `fields` - an array of names of fields of the subject model to include in
+      the response, used as the JSON API 
+      [`fields`](https://jsonapi.org/format/#fetching-sparse-fieldsets)
+      parameter for the subject model's type.
+      
+      If not specified, all fields will be included.
+
+    * `relations` - a nested array of objects that correspond to relations of the
+      subject model to include in the response as related resources.  The full
+      paths from the subject model to each relation are passed as the JSON API
+      [`include`](https://jsonapi.org/format/#fetching-includes) parameter.
+
+      Each object can have the following attributes:
+
+        - `key` (required) - the string key identifying the relation in the
+          `relations` configuration of the model class
+
+        - `fields` - an array of names of fields of the relation's model to
+          include in the response, to add to the JSON API `fields` parameter for
+          the related model's type.
+
+        - `relations` - an array of the same type of object corresponding to
+          relations of this relation's related model to include in the response.
+
+        - `fragments` - an array of fragments to include for this relation.  The
+          `fields` and `relations` values from each fragment will be merged into
+          the `fields` and `relations` values for this relation.
+
+      If not specified, no relations will be returned.
+
+    * `fragments` - an array of fragments to include in this query.  The
+      `fields` and `relations` values from each fragment will be merged into the
+      `fields` and `relations` values of this query.
+
+  The decorator also adds these options as static properties to the returned
+  component so they can be referenced when defining other components.
+
+  In addition to the query props, the decorated component receives a prop named
+  `queries` that has all query props for that component as attributes and
+  provides an API for manipulating variables.  `queries` has the following
+  additional attributes:
+
+  - `vars` - the variables for the currently loaded models.
+
+  - `pendingVars` - the variables used to fetch the pending models.
+
+  - `setVars(vars)` - merge `vars` with the current variables and trigger a refetch.
+
+  - `fetching` - whether the queries are currently being fetched.
+
+  - `hasErrors` - whether any of this set of models and collections had an error
+    response on the last request.
+
 ### Added Backbone attributes
 
 Some additional convenience attributes are added to each instance of `Backbone.Model` 
@@ -228,133 +443,22 @@ to add model classes to a global registry if `defaults.type` is defined
 (see example).  The value of this property is used where a type is expected 
 in JSON-API URLs.
 
-### A note about React Router versions
+## A note about React Router versions
 
 This library incorporates the
 [AsyncProps](https://github.com/ryanflorence/async-props) middleware for React
-Router. It is only compatible with React Router up to v3.x, so you will not be
-able to use React Router v4 with this library.
+Router. It is only compatible with React Router up to version 3.x, so this
+library cannot be used with React Router version 4 or later.
 
-React Router v3 introduced asynchronous route definition via `getChildRoutes()`
-and `getComponents()`, which is incompatible with co-located data loading.  Avoid
-using these features if you want to use React JSON API.
+React Router version 3 introduced asynchronous route definition via
+`getChildRoutes()` and `getComponents()`, which is incompatible with co-located
+data loading.  Avoid using these features when using React Router JSON API.
 
-### Using separately from the page URL
-
-To manage the loading of data in parts of your application whose state is not
-connected to the page URL, render an instance of the React Router `Router` that
-uses React Router's `createMemoryHistory` inside of another component to avoid
-interacting with the page URL but still keep data in sync with application
-state in the same way.
-
-React JSON API depends on React Router v3, which is compatible with the
-[`history`](https://github.com/ReactTraining/history) library up to v3.x.
-Specifying `Router` `history` and/or `routes` by value in the `render()` method
-is incorrect, so it is recommended to store your routes as state and create and
-access your `history` object in the component lifecycle and store it as state as
-well, and reference these values when defining a `Router` in the `render()`
-method, as seen below.
-
-For a working example of this usage pattern, see the examples directory.
-
-```javascript
-import { Router, Route, createMemoryHistory } from 'react-router';
-import { APIComponent, AsyncProps } from 'react-jsonapi';
-
-// ...
-
-const ItemList = createReactClass({
-    getInitialState() {
-        const routes = <React.Fragment>
-            <Route path="/" component={() => <div>Loading...</div>} />
-            <Route path="/item/:itemId" component={Item} />,
-        </React.Fragment>;
-
-        return {
-            history: createMemoryHistory("/"),
-            routes
-        };
-    },
-    componentWillMount() {
-        this.componentDidUpdate();
-    },
-    componentDidUpdate() {
-        const {history} = this.state;
-        const pathname = `/item/${this.props.itemId}`;
-        if (history.getCurrentLocation().pathname !== pathname) {
-            history.push(pathname)
-        }
-    },
-    render() {
-        return <div>
-            {tacos.map((taco) => {
-                return <div key={taco.id}>
-                    <Router
-                        history={this.state.history}
-                        render={(props) => <AsyncProps {...props} />}
-                        routes={this.state.routes}
-                    />
-                </div>;
-            })}
-        </div>;    
-    }
-});
-
-const FooList = createReactClass({
-    statics: {
-        fragments: {
-            itemWithFoos: {
-                model: Item,
-                relations: [
-                    {
-                        key: 'foos',
-                        fields: ['field1', 'field2']
-                    }
-                ]
-            }
-        }
-    },
-    render() {
-        const {queries: {item}} = this.props;
-        return <div>
-            <ul>
-            Foos:
-            {item.get('foos').map((foo) => {
-                return <li key={foo.id}>
-                    Foo: {foo.get('field1')}, {foo.get('field2')}
-                </li>;
-            })}
-            </ul>
-        </div>;
-    }
-});
-
-const Item = APIComponent(createReactClass({
-    statics: {
-        queries: {
-            item(params, query, vars): {
-                model: Item,
-                id: params.itemId,
-                fields: ['name'],
-                fragments: [
-                  FooList.fragments.itemWithFoos
-                ]
-            }
-        }
-    },
-    render() {
-        const {item, queries} = this.props;
-
-        return <div>
-            Name: {item.get('name')}
-            {React.Children.map(
-                this.props.children, 
-                (child) => React.cloneElement(child, { queries })
-            }
-        </div>;
-    }
-}));
-```
+The [`history`](https://github.com/ReactTraining/history) library provides the
+`createMemoryHistory` function necessary when using this library inside of a
+component.  React Router JSON API depends on React Router version 3.x, which is
+compatible with the `history` library up to version 3.x.  React Router version
+3.x will not work with version 4 or later of the `history` library.
 
 ## Testing
 

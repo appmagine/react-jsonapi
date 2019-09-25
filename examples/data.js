@@ -3,7 +3,7 @@ import 'jquery-mockjax';
 
 $.mockjax({
     url: "/articles?include=tags,author&fields[articles]=title&fields[tags]=name&fields[users]=name,username",
-    responseTime: 250,
+    responseTime: 50,
     responseText: {
         data: [
             {
@@ -125,7 +125,7 @@ $.mockjax({
 
 $.mockjax({
     url: "/articles?include=tags,author&fields[articles]=title&fields[tags]=name&fields[users]=name,username&filter=id != 11",
-    responseTime: 250,
+    responseTime: 50,
     responseText: {
         data: [
             {
@@ -223,7 +223,7 @@ $.mockjax({
 
 $.mockjax({
     url: "/articles/10?include=author,author.articles,comments,comments.author&fields[articles]=title,content&fields[users]=name,username&fields[comments]=title,content,date",
-    responseTime: 750,
+    responseTime: 50,
     responseText: {
         data: {
             type: 'articles',
@@ -326,7 +326,7 @@ $.mockjax({
 
 $.mockjax({
     url: "/articles/11?include=author,author.articles,comments,comments.author&fields[articles]=title,content&fields[users]=name,username&fields[comments]=title,content,date",
-    responseTime: 750,
+    responseTime: 50,
     responseText: {
         data: {
             type: 'articles',

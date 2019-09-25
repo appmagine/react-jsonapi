@@ -2398,82 +2398,90 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         };else return null;
     }
 
-    function APIComponent(WrappedComponent) {
-        var queryPropTypes = WrappedComponent.queries || {};
-        var fragmentPropTypes = WrappedComponent.fragments || {};
+    function withJsonApi(options) {
+        var componentQueries = options.queries || {};
+        var componentFragments = options.fragments || {};
+        var initialVars = options.initialVars;
+        var getInitialVars = options.getInitialVars;
 
-        var WrapperComponent = createReactClass({
-            propTypes: Object.assign({}, WrappedComponent.propTypes, {
-                initialQueries: PropTypes.object
-            }),
+        return function (WrappedComponent) {
+            return createReactClass({
+                displayName: WrappedComponent.displayName,
 
-            statics: {
-                getInitialVars: function getInitialVars() {
-                    if (WrappedComponent.getInitialVars) {
-                        return WrappedComponent.getInitialVars();
-                    } else if (WrappedComponent.initialVars) {
-                        return WrappedComponent.initialVars;
-                    } else {
-                        return {};
+                propTypes: Object.assign({}, WrappedComponent.propTypes, {
+                    initialQueries: PropTypes.object
+                }),
+
+                statics: {
+                    loadProps: function loadProps(_ref, cb) {
+                        var params = _ref.params,
+                            location = _ref.location,
+                            loadContext = _ref.loadContext;
+
+                        var getVars = function getVars() {
+                            if (getInitialVars) {
+                                return getInitialVars();
+                            } else if (initialVars) {
+                                return initialVars;
+                            } else {
+                                return {};
+                            }
+                        };
+
+                        var queries = new Queries(null, getVars(), componentQueries);
+
+                        queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
+                            cb(null, {
+                                initialQueries: queries
+                            });
+                        });
+                    },
+
+                    queries: componentQueries,
+                    fragments: componentFragments,
+                    initialVars: initialVars,
+                    getInitialVars: getInitialVars
+                },
+
+                componentWillMount: function componentWillMount() {
+                    this.fragmentProps = {};
+                    this.componentWillReceiveProps(this.props);
+                },
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                    var fragmentProps = _.pick(nextProps, Object.keys(componentFragments));
+                    var hasFragmentProps = Object.keys(fragmentProps).length;
+
+                    if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
+                        if (this.queries) {
+                            this.queries._events._removeHandlers();
+                        }
+                        this.queries = nextProps.initialQueries;
+                        this.queries._element = this.queries._events.element = this;
+                        this.queries._events._addHandlers();
+                    }
+
+                    if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
+                        this.fragmentProps = fragmentProps;
+                        if (this.fragments) {
+                            this.fragments._events._removeHandlers();
+                        }
+                        this.fragments = new QueryFragments(this, fragmentProps, componentFragments);
+                        this.fragments._events._addHandlers();
                     }
                 },
-                loadProps: function loadProps(_ref, cb) {
-                    var params = _ref.params,
-                        location = _ref.location,
-                        loadContext = _ref.loadContext;
-
-                    var queries = new Queries(null, {}, queryPropTypes);
-                    queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
-                        cb(null, {
-                            initialQueries: queries
-                        });
-                    });
-                },
-
-                queries: queryPropTypes,
-                fragments: fragmentPropTypes
-            },
-
-            componentWillMount: function componentWillMount() {
-                this.fragmentProps = {};
-                this.componentWillReceiveProps(this.props);
-            },
-            componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-                var fragmentProps = _.pick(nextProps, Object.keys(fragmentPropTypes));
-                var hasFragmentProps = Object.keys(fragmentProps).length;
-
-                if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
+                componentWillUnmount: function componentWillUnmount() {
                     if (this.queries) {
                         this.queries._events._removeHandlers();
                     }
-                    this.queries = nextProps.initialQueries;
-                    this.queries._element = this.queries._events.element = this;
-                    this.queries._events._addHandlers();
-                }
-
-                if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
-                    this.fragmentProps = fragmentProps;
                     if (this.fragments) {
                         this.fragments._events._removeHandlers();
                     }
-                    this.fragments = new QueryFragments(this, fragmentProps, fragmentPropTypes);
-                    this.fragments._events._addHandlers();
+                },
+                render: function render() {
+                    return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
                 }
-            },
-            componentWillUnmount: function componentWillUnmount() {
-                if (this.queries) {
-                    this.queries._events._removeHandlers();
-                }
-                if (this.fragments) {
-                    this.fragments._events._removeHandlers();
-                }
-            },
-            render: function render() {
-                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
-            }
-        });
-
-        return WrapperComponent;
+            });
+        };
     }
 
     function Events(props, propOptions, element) {
@@ -2993,11 +3001,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     var promise = BackboneSync(method, model, options);
                     promise.done(function (data, textStatus) {
                         model.error = null;
-                        model.textStatus = textStatus;
+
                         resolve(model);
                     }).fail(function (jqXhr, textStatus, errorThrown) {
                         model.error = errorThrown;
-                        model.textStatus = textStatus;
 
                         if (options.allowFail) {
                             reject(model);
@@ -3090,11 +3097,6 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
                     this.fetching = true;
 
-                    //if (this._element) {
-                    //this._element.forceUpdate();
-                    //}
-
-                    // ?
                     if (this._events.props) {
                         this._events._removeHandlers();
                     }
@@ -3104,11 +3106,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
-                            // todo: add option to re-use existing models/collections rather than create new ones
-                            // downside is that if something else triggers a re-render during fetching,
-                            // the component may be rendered with partial or inconsistent data.
-                            var optionsFunc = _this5._queryPropTypes[key];
-                            var options = propOptions[key] = optionsFunc(params, location.query, _this5.pendingVars);
+                            var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
                             var model = options.model;
                             var modelOrCollection = model.prototype.model ? new model() : model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
                             model._isInitialized = false;
@@ -3146,7 +3144,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 }
             });
 
-            _export('APIComponent', APIComponent);
+            _export('withJsonApi', withJsonApi);
 
             _export('AsyncProps', AsyncProps);
         }

@@ -2,142 +2,154 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import { Link, Router, Route } from 'react-router';
 import { createMemoryHistory } from 'history';
-import { APIComponent, AsyncProps } from 'react-jsonapi';
+import { withJsonApi, AsyncProps } from 'react-jsonapi';
 import { ArticleCollection, Article, Comment, Tag, User } from './models';
 
-const ArticleListItem = APIComponent(createReactClass({
-    statics: {
-        fragments: {
-            article: {
-                model: Article,
-                fields: ['title'],
-                relations: [
-                    {
-                        key: 'author',
-                        fields: ['name', 'username']
-                    }
-                ]
-            }
+const ArticleListItem = withJsonApi({
+    fragments: {
+        article: {
+            model: Article,
+            fields: ['title'],
+            relations: [
+                {
+                    key: 'author',
+                    fields: ['name', 'username']
+                }
+            ]
         }
-    },
-    render() {
-        const {article} = this.props;
-        const author = article.get('author');
-
-        return (
-            <div>
-                <h4>
-                    <Link to={`/articles/${article.get('id')}`}>
-                        {article.get('title')}
-                    </Link>
-                </h4>
-                
-                by {author.get('username')} ({author.get('name')})
-            </div>
-        );
-    
     }
-}));
+})(function ArticleListItem({ article }) {
+    const author = article.get('author');
 
-export const ArticleList = APIComponent(createReactClass({
-    statics: {
-        getInitialVars() {
-            return {
-                filter: false 
-            };
-        },
-        queries: {
-            articles(params, query, vars) {
-                return {
-                    model: ArticleCollection,
-                    filter: vars.filter ? 'id != 11': null,
-                    relations: [
-                        {
-                            key: 'tags',
-                            fields: ['name']
-                        }
-                    ],
-                    fragments: [
-                        ArticleListItem.fragments.article
-                    ]
-                };
-            }
-        }
-    },
-
-    render() {
-        const {articles, loading, queries} = this.props;
-        const tagCounts = {};
-
-        articles.forEach((article) => {
-            article.get('tags').forEach((tag) => {
-                const name = tag.get('name');
-                tagCounts[name] = (tagCounts[name] || 0) + 1;
-            });
-        });
-
-        return (
-            <div>
-                <div className="panel">
-                    <h3>Articles</h3>
-                    <input type="checkbox" checked={(queries.pendingVars || queries.vars).filter} onChange={(e) => {
-                        queries.setVars({filter: e.target.checked});
-                    }}/> Filter
-                    {articles.map((article) => {
-                        return <ArticleListItem key={article.get('id')} article={article} />;
-                    })}
-
-                    <h4>Tag counts</h4>
-                    <ul>
-                        {_.map(tagCounts, (count, name) => {
-                            return <li key={name}>{name}: {count}</li>;
-                        })}
-                    </ul>
-                </div>
-                <div style={{float: 'left', maxWidth: '520px'}}>
-                    {this.props.children}
-                </div>
-                <div style={{clear: "both"}}></div>
-            </div>
-        );
-    }
-}));
-
-
-const CommentItem = APIComponent(createReactClass({
-    statics: {
-        fragments: {
-            comment: {
-                model: Comment,
-                fields: ['title', 'content', 'date'],
-                relations: [
-                    {
-                        key: 'author',
-                        fields: ['username']
-                    }
-                ]
+    return (
+        <div>
+            <h4>
+                <Link to={`/articles/${article.get('id')}`}>
+                    {article.get('title')}
+                </Link>
+            </h4>
             
-            }
+            by {author.get('username')} ({author.get('name')})
+        </div>
+    );
+});
+
+export const ArticleList = withJsonApi({
+    getInitialVars() {
+        return {
+            filter: false 
+        };
+    },
+    queries: {
+        articles(params, query, vars) {
+            return {
+                model: ArticleCollection,
+                filter: vars.filter ? 'id != 11': null,
+                relations: [
+                    {
+                        key: 'tags',
+                        fields: ['name']
+                    }
+                ],
+                fragments: [
+                    ArticleListItem.fragments.article
+                ]
+            };
+        }
+    }
+})(function ArticleList({ articles, loading, queries, children }) {
+    const tagCounts = {};
+
+    articles.forEach((article) => {
+        article.get('tags').forEach((tag) => {
+            const name = tag.get('name');
+            tagCounts[name] = (tagCounts[name] || 0) + 1;
+        });
+    });
+
+    return (
+        <div>
+            <div className="panel">
+                <h3>Articles</h3>
+                <input type="checkbox" checked={(queries.pendingVars || queries.vars).filter} onChange={(e) => {
+                    queries.setVars({filter: e.target.checked});
+                }}/> Filter
+                {articles.map((article) => {
+                    return <ArticleListItem key={article.get('id')} article={article} />;
+                })}
+
+                <h4>Tag counts</h4>
+                <ul>
+                    {_.map(tagCounts, (count, name) => {
+                        return <li key={name}>{name}: {count}</li>;
+                    })}
+                </ul>
+            </div>
+            <div style={{float: 'left', maxWidth: '520px'}}>
+                {children}
+            </div>
+            <div style={{clear: "both"}}></div>
+        </div>
+    );
+});
+
+const CommentItem = withJsonApi({
+    fragments: {
+        comment: {
+            model: Comment,
+            fields: ['title', 'content', 'date'],
+            relations: [
+                {
+                    key: 'author',
+                    fields: ['username']
+                }
+            ]
         
         }
-    },
-    render() {
-        const {comment} = this.props;
-        return (
-            <div>
-                <h4>{comment.get('title')}</h4>
-                {comment.error ? <p>{`Error Saving: ${comment.error}`}</p> : ''}
-                <p>
-                    {comment.get('content')}
-                </p>
-                by {comment.get('author').get('username')} at {comment.get('date')}
-            </div>
-        );
     }
+})(function CommentItem({ comment }) {
+    return (
+        <div>
+            <h4>{comment.get('title')}</h4>
+            {comment.error ? <p>{`Error Saving: ${comment.error}`}</p> : ''}
+            <p>
+                {comment.get('content')}
+            </p>
+            by {comment.get('author').get('username')} at {comment.get('date')}
+        </div>
+    );
+});
 
-}));
-
-export const ArticleItem = APIComponent(createReactClass({
+export const ArticleItem = withJsonApi({
+    queries: {
+        article(params, query, vars) {
+            return {
+                model: Article,
+                id: params.articleId,
+                fields: ['title', 'content'],
+                relations: [
+                    {
+                        key: 'author',
+                        fields: ['name', 'username'],
+                        relations: [
+                            {
+                                key: 'articles',
+                                fields: ['title']
+                            }
+                        ]
+                    },
+                    {
+                        key: 'comments',
+                        fragments: [
+                            CommentItem.fragments.comment
+                        ]
+                    }
+                ]
+            };
+        }
+    }
+})(createReactClass({
+    displayName: "ArticleItem",
     getInitialState() {
         const routes = <React.Fragment>
             <Route path="/" component={() => <div></div>} />
@@ -153,43 +165,14 @@ export const ArticleItem = APIComponent(createReactClass({
             routes
         };
     },
-    statics: {
-        queries: {
-            article(params, query, vars) {
-                return {
-                    model: Article,
-                    id: params.articleId,
-                    fields: ['title', 'content'],
-                    relations: [
-                        {
-                            key: 'author',
-                            fields: ['name', 'username'],
-                            relations: [
-                                {
-                                    key: 'articles',
-                                    model: Article,
-                                    fields: ['title']
-                                }
-                            ]
-                        },
-                        {
-                            key: 'comments',
-                            fragments: [
-                                CommentItem.fragments.comment
-                            ]
-                        }
-                    ]
-                };
-            }
-        }
-    },
     componentWillMount() {
         this.componentDidUpdate();
     },
     componentDidUpdate() {
-        const {history} = this.state;
-        const {articleId} = this.props.params;
+        const { history } = this.state;
+        const { articleId } = this.props.params;
         const pathname = `/articles/${articleId}`;
+
         if (history.getCurrentLocation().pathname !== pathname) {
             history.push(pathname)
         }
@@ -212,7 +195,7 @@ export const ArticleItem = APIComponent(createReactClass({
         );
     },
     renderArticle() {
-        const {article} = this.props;
+        const { article } = this.props;
         const author = article.get('author');
 
         return (
@@ -231,7 +214,6 @@ export const ArticleItem = APIComponent(createReactClass({
                         {author.get('articles').map((article) => {
                             if (!article.get) {
                                 return <li></li>;
-                            
                             }
                             return <li key={article.get('id')}>
                                 {article.get('title')}
@@ -291,76 +273,73 @@ export const ArticleItem = APIComponent(createReactClass({
     }
 }));
 
-const Articles = APIComponent(createReactClass({
-    statics: {
-        queries: {
-            articles(params, query, vars) {
-                return {
-                    model: ArticleCollection,
-                    filter: vars.filter ? 'id != 11': null,
-                    relations: [
-                        {
-                            key: 'tags',
-                            fields: ['name']
-                        }
-                    ],
-                    fragments: [
-                        ArticleListItem.fragments.article
-                    ]
-                };
-            }
+const Articles = withJsonApi({
+    queries: {
+        articles(params, query, vars) {
+            return {
+                model: ArticleCollection,
+                filter: vars.filter ? 'id != 11': null,
+                relations: [
+                    {
+                        key: 'tags',
+                        fields: ['name']
+                    }
+                ],
+                fragments: [
+                    ArticleListItem.fragments.article
+                ]
+            };
         }
-    },
-    render() {
-        return <div>
-            {this.props.children}
-        </div>;
-    
     }
-}));
+})(function Articles({ children }) {
+    return (
+        <div>
+            {children}
+        </div>
+    );
+});
 
-const ArticleSummary = APIComponent(createReactClass({
-    statics: {
-        queries: {
-            article(params, query, vars) {
-                return {
-                    model: Article,
-                    id: params.articleId,
-                    fields: ['title', 'content'],
-                    relations: [
-                        {
-                            key: 'author',
-                            fields: ['name', 'username'],
-                            relations: [
-                                {
-                                    key: 'articles',
-                                    model: Article,
-                                    fields: ['title']
-                                }
-                            ]
-                        },
-                        {
-                            key: 'comments',
-                            fragments: [
-                                CommentItem.fragments.comment
-                            ]
-                        }
-                    ]
-                };
-            }
+const ArticleSummary = withJsonApi({
+    queries: {
+        article(params, query, vars) {
+            return {
+                model: Article,
+                id: params.articleId,
+                fields: ['title', 'content'],
+                relations: [
+                    {
+                        key: 'author',
+                        fields: ['name', 'username'],
+                        relations: [
+                            {
+                                key: 'articles',
+                                model: Article,
+                                fields: ['title']
+                            }
+                        ]
+                    },
+                    {
+                        key: 'comments',
+                        fragments: [
+                            CommentItem.fragments.comment
+                        ]
+                    }
+                ]
+            };
         }
-    },
-    render() {
-        const {article} = this.props;
+    }
+})(function ArticleSummary({ article }) {
+    if (!article) {
+        return (
+            <div></div>
+        );
+    }
 
-        if (!article) {
-            return <div></div>;
-        }
-
-        return <div>
+    return (
+        <div>
             {article.get('title')} by {article.get('author').get('name')}
             <br/>
             {article.get('comments').length} comments
-        </div>;
-    }
-}));
+        </div>
+    );
+});

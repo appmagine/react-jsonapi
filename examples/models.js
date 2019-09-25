@@ -32,9 +32,9 @@ export const Comment = Backbone.RelationalModel.extend({
 
 export const Article = Backbone.RelationalModel.extend({
     urlRoot: '/articles',
-	defaults: {
-		type: 'articles'
-	},
+    defaults: {
+            type: 'articles'
+    },
     relations: [
         {
             type: Backbone.HasOne,

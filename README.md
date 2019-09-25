@@ -1,13 +1,15 @@
-# React JSON API
+# React Router JSON API
 
-React JSON API is a library for [React](https://facebook.github.io/react/) that
-provides declarative co-located data loading for React components from [JSON
-APIs](http://jsonapi.org).
+React Router JSON API is a library for
+[React](https://facebook.github.io/react/) applications that provides
+declarative co-located data loading for React components using [JSON
+API](http://jsonapi.org) APIs and [React
+Router](https://github.com/ReactTraining/react-router/tree/v3) version 3.x.
 
-It is based on [Backbone-relational](http://backbonerelational.org/) and [React
-Router](https://github.com/ReactTraining/react-router/tree/v3) (v3).
+React Router JSON API loads data into [Backbone](http://backbonejs.org) models
+and uses an object-based configuration system for queries.
 
-Links:
+Visit the following links to learn more about React Router JSON API:
 
 * [Documentation](http://github.com/appmagine/react-jsonapi/tree/master/docs/About.md)
 * [Demo](http://appmagine.github.io/react-jsonapi/)
