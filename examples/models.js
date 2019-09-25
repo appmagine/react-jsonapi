@@ -1,6 +1,5 @@
 import Backbone from 'backbone';
 import 'backbone-relational';
-import 'react-jsonapi';
 
 import './data';
 

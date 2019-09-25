@@ -40286,14 +40286,14 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
         }
     };
 });
-System.register('examples/models.js', ['backbone', 'backbone-relational', 'react-jsonapi', './data'], function (_export, _context) {
+System.register('examples/models.js', ['backbone', 'backbone-relational', './data'], function (_export, _context) {
     "use strict";
 
     var Backbone, Tag, User, Comment, Article, ArticleCollection;
     return {
         setters: [function (_backbone) {
             Backbone = _backbone.default;
-        }, function (_backboneRelational) {}, function (_reactJsonapi) {}, function (_data) {}],
+        }, function (_backboneRelational) {}, function (_data) {}],
         execute: function () {
             _export('Tag', Tag = Backbone.RelationalModel.extend({
                 defaults: {
@@ -40360,7 +40360,7 @@ System.register('examples/models.js', ['backbone', 'backbone-relational', 'react
         }
     };
 });
-System.register('examples/components.js', ['react', 'create-react-class', 'react-router', 'history', 'react-jsonapi', './models'], function (_export, _context) {
+System.register('examples/components.js', ['react', 'create-react-class', 'react-router', 'history', 'react-router-json-api', './models'], function (_export, _context) {
     "use strict";
 
     var React, createReactClass, Link, Router, Route, createMemoryHistory, withJsonApi, AsyncProps, ArticleCollection, Article, Comment, Tag, User, ArticleListItem, ArticleList, CommentItem, ArticleItem, Articles, ArticleSummary;
@@ -40375,9 +40375,9 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
             Route = _reactRouter.Route;
         }, function (_history) {
             createMemoryHistory = _history.createMemoryHistory;
-        }, function (_reactJsonapi) {
-            withJsonApi = _reactJsonapi.withJsonApi;
-            AsyncProps = _reactJsonapi.AsyncProps;
+        }, function (_reactRouterJsonApi) {
+            withJsonApi = _reactRouterJsonApi.withJsonApi;
+            AsyncProps = _reactRouterJsonApi.AsyncProps;
         }, function (_models) {
             ArticleCollection = _models.ArticleCollection;
             Article = _models.Article;
@@ -56693,7 +56693,7 @@ System.registerDynamic('npm:underscore@1.9.1/underscore.js', [], false, function
 
   return _retrieveGlobal();
 });
-System.register('react-jsonapi/backbone-relational-jsonapi.js', ['backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
+System.register('react-router-json-api/backbone-relational-jsonapi.js', ['backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
 	"use strict";
 
 	var Backbone, _, _extend, ModelFactory;
@@ -56837,7 +56837,7 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutPro
     }
   };
 });
-System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js', 'react', 'react-router/lib/RouterContext', 'react-router/lib/computeChangedRoutes', 'create-react-class', 'prop-types'], function (_export, _context) {
+System.register('react-router-json-api/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js', 'react', 'react-router/lib/RouterContext', 'react-router/lib/computeChangedRoutes', 'create-react-class', 'prop-types'], function (_export, _context) {
   "use strict";
 
   var _extends, _objectWithoutProperties, React, RouterContext, computeChangedRoutes, createReactClass, PropTypes, array, func, object, AsyncPropsContainer, AsyncProps;
@@ -57169,7 +57169,7 @@ System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.2
     }
   };
 });
-System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'react', 'create-react-class', 'prop-types', 'backbone', 'backbone-relational', 'underscore', './backbone-relational-jsonapi', './AsyncProps'], function (_export, _context) {
+System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'react', 'create-react-class', 'prop-types', 'backbone', 'backbone-relational', 'underscore', './backbone-relational-jsonapi', './AsyncProps'], function (_export, _context) {
     "use strict";
 
     var _defineProperty, _extends, React, createReactClass, PropTypes, Backbone, _, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation;
@@ -67623,7 +67623,7 @@ System.registerDynamic('npm:history@3.3.0/lib/index.js', ['./LocationUtils', './
   exports.useQueries = _useQueries3.default;
   exports.Actions = _Actions;
 });
-System.register('examples/main.js', ['react', 'react-dom', 'create-react-class', './components', 'react-jsonapi', 'react-router', 'history'], function (_export, _context) {
+System.register('examples/main.js', ['react', 'react-dom', 'create-react-class', './components', 'react-router-json-api', 'react-router', 'history'], function (_export, _context) {
     "use strict";
 
     var React, ReactDOM, createReactClass, ArticleList, ArticleItem, AsyncProps, Link, Router, Route, browserHistory, useBasename, Home;
@@ -67637,8 +67637,8 @@ System.register('examples/main.js', ['react', 'react-dom', 'create-react-class',
         }, function (_components) {
             ArticleList = _components.ArticleList;
             ArticleItem = _components.ArticleItem;
-        }, function (_reactJsonapi) {
-            AsyncProps = _reactJsonapi.AsyncProps;
+        }, function (_reactRouterJsonApi) {
+            AsyncProps = _reactRouterJsonApi.AsyncProps;
         }, function (_reactRouter) {
             Link = _reactRouter.Link;
             Router = _reactRouter.Router;

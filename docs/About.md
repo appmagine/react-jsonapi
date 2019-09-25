@@ -55,7 +55,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import createReactClass from 'create-react-class';
 import { Router, Route, browserHistory } from 'react-router';
-import { withJsonApi, AsyncProps } from 'react-router-jsonapi';
+import { withJsonApi, AsyncProps } from 'react-router-json-api';
 
 /* First some Backbone models are defined. */
 
@@ -173,7 +173,7 @@ For a working example of this usage pattern, see the examples directory.
 ```javascript
 // ...
 import { Router, Route, createMemoryHistory } from 'react-router';
-import { withJsonApi, AsyncProps } from 'react-router-jsonapi';
+import { withJsonApi, AsyncProps } from 'react-router-json-api';
 
 const ItemList = createReactClass({
     getInitialState() {

@@ -1,9 +1,9 @@
 {
-  "name": "react-jsonapi",
+  "name": "react-router-json-api",
   "version": "0.0.1",
   "scripts": {
     "postinstall": "jspm install",
-    "build": "jspm build src/index.js dist/react-jsonapi.js --externals backbone backbone-relational react react-router/lib/RouterContext react-router/lib/computeChangedRoutes underscore --format cjs --global-name reactJsonApi --skip-source-maps",
+    "build": "jspm build src/index.js dist/react-router-json-api.js --externals backbone backbone-relational react react-router/lib/RouterContext react-router/lib/computeChangedRoutes underscore --format cjs --global-name reactRouterJsonApi --skip-source-maps",
     "build-example": "jspm bundle examples/index.js dist/example-bundle.js --skip-source-maps"
   },
   "dependencies": {
@@ -21,7 +21,7 @@
   },
   "registry": "jspm",
   "jspm": {
-    "name": "react-jsonapi",
+    "name": "react-router-json-api",
     "dependencies": {
       "backbone": "npm:backbone@^1.4.0",
       "backbone-relational": "npm:backbone-relational@^0.10.0",

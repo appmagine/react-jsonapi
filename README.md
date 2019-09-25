@@ -11,7 +11,7 @@ and uses an object-based configuration system for queries.
 
 Visit the following links to learn more about React Router JSON API:
 
-* [Documentation](http://github.com/appmagine/react-jsonapi/tree/master/docs/About.md)
-* [Demo](http://appmagine.github.io/react-jsonapi/)
-* [License](http://github.com/appmagine/react-jsonapi/tree/master/LICENSE)
+* [Documentation](http://github.com/appmagine/react-router-jsonapi/tree/master/docs/Main.md)
+* [Demo](http://appmagine.github.io/react-router-json-api/)
+* [License](http://github.com/appmagine/react-router-json-api/tree/master/LICENSE)
 
