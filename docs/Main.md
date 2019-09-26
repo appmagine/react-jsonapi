@@ -128,13 +128,7 @@ const TacoList = withJsonApi({
             };
         }
     }
-})(function TacoList({ tacos, queries }) {
-    if (queries.loading) {
-        return (
-            <div>Loading...</div>
-        );
-    }
-
+})(function TacoList({ tacos }) {
     return (
         <div>
             {tacos.map((taco) => {
