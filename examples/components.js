@@ -45,12 +45,6 @@ export const ArticleList = withJsonApi({
             return {
                 model: ArticleCollection,
                 filter: vars.filter ? 'id != 11': null,
-                relations: [
-                    {
-                        key: 'tags',
-                        fields: ['name']
-                    }
-                ],
                 fragments: [
                     ArticleListItem.fragments.article
                 ]
@@ -58,15 +52,6 @@ export const ArticleList = withJsonApi({
         }
     }
 })(function ArticleList({ articles, loading, queries, children }) {
-    const tagCounts = {};
-
-    articles.forEach((article) => {
-        article.get('tags').forEach((tag) => {
-            const name = tag.get('name');
-            tagCounts[name] = (tagCounts[name] || 0) + 1;
-        });
-    });
-
     return (
         <div>
             <div className="panel">
@@ -77,13 +62,6 @@ export const ArticleList = withJsonApi({
                 {articles.map((article) => {
                     return <ArticleListItem key={article.get('id')} article={article} />;
                 })}
-
-                <h4>Tag counts</h4>
-                <ul>
-                    {_.map(tagCounts, (count, name) => {
-                        return <li key={name}>{name}: {count}</li>;
-                    })}
-                </ul>
             </div>
             <div style={{float: 'left', maxWidth: '520px'}}>
                 {children}
@@ -272,32 +250,6 @@ export const ArticleItem = withJsonApi({
         );
     }
 }));
-
-const Articles = withJsonApi({
-    queries: {
-        articles(params, query, vars) {
-            return {
-                model: ArticleCollection,
-                filter: vars.filter ? 'id != 11': null,
-                relations: [
-                    {
-                        key: 'tags',
-                        fields: ['name']
-                    }
-                ],
-                fragments: [
-                    ArticleListItem.fragments.article
-                ]
-            };
-        }
-    }
-})(function Articles({ children }) {
-    return (
-        <div>
-            {children}
-        </div>
-    );
-});
 
 const ArticleSummary = withJsonApi({
     queries: {

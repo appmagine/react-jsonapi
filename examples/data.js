@@ -2,7 +2,7 @@ import $ from 'jquery';
 import 'jquery-mockjax';
 
 $.mockjax({
-    url: "/articles?include=tags,author&fields[articles]=title&fields[tags]=name&fields[users]=name,username",
+    url: "/articles?include=author&fields[articles]=title&fields[users]=name,username",
     responseTime: 50,
     responseText: {
         data: [
@@ -13,14 +13,6 @@ $.mockjax({
                     title: "Article 9"
                 },
                 relationships: {
-                    tags: {
-                        data: [
-                            {
-                                type: 'tags',
-                                id: '1'
-                            }
-                        ]
-                    },
                     author: {
                         data: {
                             type: 'users',
@@ -36,23 +28,6 @@ $.mockjax({
                     title: "Article 10"
                 },
                 relationships: {
-                    tags: {
-                        data: [
-                            {
-                                type: 'tags',
-                                id: "1"
-                            },
-                            {
-                                type: 'tags',
-                                id: "2"
-                            },
-                            {
-                                type: 'tags',
-                                id: "3"
-                            }
-                        ]
-                    
-                    },
                     author: {
                         data: {
                             type: 'users',
@@ -69,14 +44,6 @@ $.mockjax({
                     title: "Article 11"
                 },
                 relationships: {
-                    tags: {
-                        data: [
-                            {
-                                type: 'tags',
-                                id: '1'
-                            }
-                        ]
-                    },
                     author: {
                         data: {
                             type: 'users',
@@ -87,27 +54,6 @@ $.mockjax({
             },
         ],
         included: [
-            {
-                type: 'tags',
-                id: '1',
-                attributes: {
-                    name: 'tag1'
-                }
-            },
-            {
-                type: 'tags',
-                id: '2',
-                attributes: {
-                    name: 'tag2'
-                }
-            },
-            {
-                type: 'tags',
-                id: '3',
-                attributes: {
-                    name: 'tag3'
-                }
-            },
             {
                 type: 'users',
                 id: '1',
@@ -124,7 +70,7 @@ $.mockjax({
 
 
 $.mockjax({
-    url: "/articles?include=tags,author&fields[articles]=title&fields[tags]=name&fields[users]=name,username&filter=id != 11",
+    url: "/articles?include=author&fields[articles]=title&fields[users]=name,username&filter=id != 11",
     responseTime: 50,
     responseText: {
         data: [
@@ -135,14 +81,6 @@ $.mockjax({
                     title: "Article 9"
                 },
                 relationships: {
-                    tags: {
-                        data: [
-                            {
-                                type: 'tags',
-                                id: '1'
-                            }
-                        ]
-                    },
                     author: {
                         data: {
                             type: 'users',
@@ -158,23 +96,6 @@ $.mockjax({
                     title: "Article 10"
                 },
                 relationships: {
-                    tags: {
-                        data: [
-                            {
-                                type: 'tags',
-                                id: "1"
-                            },
-                            {
-                                type: 'tags',
-                                id: "2"
-                            },
-                            {
-                                type: 'tags',
-                                id: "3"
-                            }
-                        ]
-                    
-                    },
                     author: {
                         data: {
                             type: 'users',
@@ -186,27 +107,6 @@ $.mockjax({
             }
         ],
         included: [
-            {
-                type: 'tags',
-                id: '1',
-                attributes: {
-                    name: 'tag1'
-                }
-            },
-            {
-                type: 'tags',
-                id: '2',
-                attributes: {
-                    name: 'tag2'
-                }
-            },
-            {
-                type: 'tags',
-                id: '3',
-                attributes: {
-                    name: 'tag3'
-                }
-            },
             {
                 type: 'users',
                 id: '1',

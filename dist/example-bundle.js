@@ -39921,7 +39921,7 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
         execute: function () {
 
             $.mockjax({
-                url: "/articles?include=tags,author&fields[articles]=title&fields[tags]=name&fields[users]=name,username",
+                url: "/articles?include=author&fields[articles]=title&fields[users]=name,username",
                 responseTime: 50,
                 responseText: {
                     data: [{
@@ -39931,12 +39931,6 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
                             title: "Article 9"
                         },
                         relationships: {
-                            tags: {
-                                data: [{
-                                    type: 'tags',
-                                    id: '1'
-                                }]
-                            },
                             author: {
                                 data: {
                                     type: 'users',
@@ -39951,19 +39945,6 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
                             title: "Article 10"
                         },
                         relationships: {
-                            tags: {
-                                data: [{
-                                    type: 'tags',
-                                    id: "1"
-                                }, {
-                                    type: 'tags',
-                                    id: "2"
-                                }, {
-                                    type: 'tags',
-                                    id: "3"
-                                }]
-
-                            },
                             author: {
                                 data: {
                                     type: 'users',
@@ -39979,12 +39960,6 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
                             title: "Article 11"
                         },
                         relationships: {
-                            tags: {
-                                data: [{
-                                    type: 'tags',
-                                    id: '1'
-                                }]
-                            },
                             author: {
                                 data: {
                                     type: 'users',
@@ -39994,24 +39969,6 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
                         }
                     }],
                     included: [{
-                        type: 'tags',
-                        id: '1',
-                        attributes: {
-                            name: 'tag1'
-                        }
-                    }, {
-                        type: 'tags',
-                        id: '2',
-                        attributes: {
-                            name: 'tag2'
-                        }
-                    }, {
-                        type: 'tags',
-                        id: '3',
-                        attributes: {
-                            name: 'tag3'
-                        }
-                    }, {
                         type: 'users',
                         id: '1',
                         attributes: {
@@ -40024,7 +39981,7 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
             });
 
             $.mockjax({
-                url: "/articles?include=tags,author&fields[articles]=title&fields[tags]=name&fields[users]=name,username&filter=id != 11",
+                url: "/articles?include=author&fields[articles]=title&fields[users]=name,username&filter=id != 11",
                 responseTime: 50,
                 responseText: {
                     data: [{
@@ -40034,12 +39991,6 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
                             title: "Article 9"
                         },
                         relationships: {
-                            tags: {
-                                data: [{
-                                    type: 'tags',
-                                    id: '1'
-                                }]
-                            },
                             author: {
                                 data: {
                                     type: 'users',
@@ -40054,19 +40005,6 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
                             title: "Article 10"
                         },
                         relationships: {
-                            tags: {
-                                data: [{
-                                    type: 'tags',
-                                    id: "1"
-                                }, {
-                                    type: 'tags',
-                                    id: "2"
-                                }, {
-                                    type: 'tags',
-                                    id: "3"
-                                }]
-
-                            },
                             author: {
                                 data: {
                                     type: 'users',
@@ -40077,24 +40015,6 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
                         }
                     }],
                     included: [{
-                        type: 'tags',
-                        id: '1',
-                        attributes: {
-                            name: 'tag1'
-                        }
-                    }, {
-                        type: 'tags',
-                        id: '2',
-                        attributes: {
-                            name: 'tag2'
-                        }
-                    }, {
-                        type: 'tags',
-                        id: '3',
-                        attributes: {
-                            name: 'tag3'
-                        }
-                    }, {
                         type: 'users',
                         id: '1',
                         attributes: {
@@ -40363,7 +40283,7 @@ System.register('examples/models.js', ['backbone', 'backbone-relational', './dat
 System.register('examples/components.js', ['react', 'create-react-class', 'react-router', 'history', 'react-router-json-api', './models'], function (_export, _context) {
     "use strict";
 
-    var React, createReactClass, Link, Router, Route, createMemoryHistory, withJsonApi, AsyncProps, ArticleCollection, Article, Comment, Tag, User, ArticleListItem, ArticleList, CommentItem, ArticleItem, Articles, ArticleSummary;
+    var React, createReactClass, Link, Router, Route, createMemoryHistory, withJsonApi, AsyncProps, ArticleCollection, Article, Comment, Tag, User, ArticleListItem, ArticleList, CommentItem, ArticleItem, ArticleSummary;
     return {
         setters: [function (_react) {
             React = _react.default;
@@ -40417,10 +40337,6 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         return {
                             model: ArticleCollection,
                             filter: vars.filter ? 'id != 11' : null,
-                            relations: [{
-                                key: 'tags',
-                                fields: ['name']
-                            }],
                             fragments: [ArticleListItem.fragments.article]
                         };
                     }
@@ -40431,22 +40347,11 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                     queries = _ref2.queries,
                     children = _ref2.children;
 
-                var tagCounts = {};
-
-                articles.forEach(function (article) {
-                    article.get('tags').forEach(function (tag) {
-                        var name = tag.get('name');
-                        tagCounts[name] = (tagCounts[name] || 0) + 1;
-                    });
-                });
-
                 return React.createElement('div', null, React.createElement('div', { className: 'panel' }, React.createElement('h3', null, 'Articles'), React.createElement('input', { type: 'checkbox', checked: (queries.pendingVars || queries.vars).filter, onChange: function onChange(e) {
                         queries.setVars({ filter: e.target.checked });
                     } }), ' Filter', articles.map(function (article) {
                     return React.createElement(ArticleListItem, { key: article.get('id'), article: article });
-                }), React.createElement('h4', null, 'Tag counts'), React.createElement('ul', null, _.map(tagCounts, function (count, name) {
-                    return React.createElement('li', { key: name }, name, ': ', count);
-                }))), React.createElement('div', { style: { float: 'left', maxWidth: '520px' } }, children), React.createElement('div', { style: { clear: "both" } }));
+                })), React.createElement('div', { style: { float: 'left', maxWidth: '520px' } }, children), React.createElement('div', { style: { clear: "both" } }));
             }));
 
             _export('ArticleList', ArticleList);
@@ -40575,25 +40480,6 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
             _export('ArticleItem', ArticleItem);
 
-            Articles = withJsonApi({
-                queries: {
-                    articles: function articles(params, query, vars) {
-                        return {
-                            model: ArticleCollection,
-                            filter: vars.filter ? 'id != 11' : null,
-                            relations: [{
-                                key: 'tags',
-                                fields: ['name']
-                            }],
-                            fragments: [ArticleListItem.fragments.article]
-                        };
-                    }
-                }
-            })(function Articles(_ref4) {
-                var children = _ref4.children;
-
-                return React.createElement('div', null, children);
-            });
             ArticleSummary = withJsonApi({
                 queries: {
                     article: function article(params, query, vars) {
@@ -40616,8 +40502,8 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         };
                     }
                 }
-            })(function ArticleSummary(_ref5) {
-                var article = _ref5.article;
+            })(function ArticleSummary(_ref4) {
+                var article = _ref4.article;
 
                 if (!article) {
                     return React.createElement('div', null);
