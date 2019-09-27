@@ -251,6 +251,26 @@ export const ArticleItem = withJsonApi({
     }
 }));
 
+const Articles = withJsonApi({
+    queries: {
+        articles(params, query, vars) {
+            return {
+                model: ArticleCollection,
+                filter: vars.filter ? 'id != 11': null,
+                fragments: [
+                    ArticleListItem.fragments.article
+                ]
+            };
+        }
+    }
+})(function Articles({ children }) {
+    return (
+        <div>
+            {children}
+        </div>
+    );
+});
+
 const ArticleSummary = withJsonApi({
     queries: {
         article(params, query, vars) {

@@ -40283,7 +40283,7 @@ System.register('examples/models.js', ['backbone', 'backbone-relational', './dat
 System.register('examples/components.js', ['react', 'create-react-class', 'react-router', 'history', 'react-router-json-api', './models'], function (_export, _context) {
     "use strict";
 
-    var React, createReactClass, Link, Router, Route, createMemoryHistory, withJsonApi, AsyncProps, ArticleCollection, Article, Comment, Tag, User, ArticleListItem, ArticleList, CommentItem, ArticleItem, ArticleSummary;
+    var React, createReactClass, Link, Router, Route, createMemoryHistory, withJsonApi, AsyncProps, ArticleCollection, Article, Comment, Tag, User, ArticleListItem, ArticleList, CommentItem, ArticleItem, Articles, ArticleSummary;
     return {
         setters: [function (_react) {
             React = _react.default;
@@ -40480,6 +40480,21 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
             _export('ArticleItem', ArticleItem);
 
+            Articles = withJsonApi({
+                queries: {
+                    articles: function articles(params, query, vars) {
+                        return {
+                            model: ArticleCollection,
+                            filter: vars.filter ? 'id != 11' : null,
+                            fragments: [ArticleListItem.fragments.article]
+                        };
+                    }
+                }
+            })(function Articles(_ref4) {
+                var children = _ref4.children;
+
+                return React.createElement('div', null, children);
+            });
             ArticleSummary = withJsonApi({
                 queries: {
                     article: function article(params, query, vars) {
@@ -40502,8 +40517,8 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         };
                     }
                 }
-            })(function ArticleSummary(_ref4) {
-                var article = _ref4.article;
+            })(function ArticleSummary(_ref5) {
+                var article = _ref5.article;
 
                 if (!article) {
                     return React.createElement('div', null);
