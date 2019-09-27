@@ -1,6 +1,6 @@
 # React Router JSON API
 
-React Router JSON API is a library that provides declarative co-located [JSON
+React Router JSON API provides declarative co-located [JSON
 API](http://jsonapi.org) data loading for
 [React](https://facebook.github.io/react/) components using [React
 Router](https://github.com/ReactTraining/react-router/tree/v3) version 3.x.
