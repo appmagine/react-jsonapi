@@ -121,17 +121,8 @@ const getRelations = (options) => {
 
 const getRelated = (model, relation) => {
     let r = model.getRelation(relation.key);
-    // Use reverseRelation.type to have relation automatically added without
-    // need for below code.
-    //if (!relation) {
-        //const relatedModel = relation.model;
-        //r = _.find(relatedModel.prototype.relations, (r) => {
-            //return r.reverseRelation.key === relation.key;
-        //});
-    //}
     return r.related;
 };
-    
             
 const BackboneSync = Backbone.sync;
 Backbone.sync = function (method, model, options) {
@@ -223,7 +214,6 @@ Backbone.sync = function (method, model, options) {
             model.trigger('change');
         })
     });
-
 };
 
 const processRelation = (model, relation, path, include, fields) => {

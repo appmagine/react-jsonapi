@@ -74,6 +74,7 @@ Backbone.Collection.prototype.parse = function(response) {
 		return response;
 	}
 
+
 	return response.data;
 };
 

@@ -173,7 +173,11 @@ $.mockjax({
                                 type: 'articles',
                                 id: '11'
                             }
-                        ]
+                        ],
+                        links: {
+                            related: "/users/1/articles",
+                            self: "/users/1/relationships/articles"
+                        }
                     },
                 }
             },
