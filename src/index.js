@@ -157,20 +157,40 @@ Backbone.sync = function (method, model, options) {
         );
 
         const params = [];
+
         if (include.length) {
             const includes = _.uniq(include.map((include) => {
                 return include.join('.');
             }));
             params.push(`include=${includes.join(',')}`);
         }
+
         _.each(fields, (fields, type) => {
             params.push(`fields[${type}]=${_.uniq(fields).join(',')}`);
         });
+
         if (fetchOptions.sort) {
             params.push(`sort=${fetchOptions.sort.join(',')}`);
         }
+
         if (fetchOptions.filter) {
-            params.push(`filter=${fetchOptions.filter}`);
+            if (typeof fetchOptions.filter === "object") {
+                _.each(fetchOptions.filter, (val, key) => {
+                    params.push(`filter[${key}]=${val}`);
+                });
+            } else {
+                params.push(`filter=${fetchOptions.filter}`);
+            }
+        }
+
+        if (fetchOptions.page) {
+            if (typeof fetchOptions.page === "object") {
+                _.each(fetchOptions.page, (val, key) => {
+                    params.push(`page[${key}]=${val}`);
+                });
+            } else {
+                params.push(`page=${fetchOptions.page}`);
+            }
         }
 
         if (params.length) {

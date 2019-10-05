@@ -2972,20 +2972,40 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                         processRelation(model.model ? model.model : model.constructor, fetchOptions, [], include, fields);
 
                         var params = [];
+
                         if (include.length) {
                             var includes = _.uniq(include.map(function (include) {
                                 return include.join('.');
                             }));
                             params.push('include=' + includes.join(','));
                         }
+
                         _.each(fields, function (fields, type) {
                             params.push('fields[' + type + ']=' + _.uniq(fields).join(','));
                         });
+
                         if (fetchOptions.sort) {
                             params.push('sort=' + fetchOptions.sort.join(','));
                         }
+
                         if (fetchOptions.filter) {
-                            params.push('filter=' + fetchOptions.filter);
+                            if (typeof fetchOptions.filter === "object") {
+                                _.each(fetchOptions.filter, function (val, key) {
+                                    params.push('filter[' + key + ']=' + val);
+                                });
+                            } else {
+                                params.push('filter=' + fetchOptions.filter);
+                            }
+                        }
+
+                        if (fetchOptions.page) {
+                            if (typeof fetchOptions.page === "object") {
+                                _.each(fetchOptions.page, function (val, key) {
+                                    params.push('page[' + key + ']=' + val);
+                                });
+                            } else {
+                                params.push('page=' + fetchOptions.page);
+                            }
                         }
 
                         if (params.length) {

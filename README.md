@@ -367,7 +367,7 @@ Options that specify the resource to return for a *model query*:
 Options that specify the collection to return for a *collection query*:
 
   * `model` - the collection class to use.
-  * `filter` - a string to pass as the JSON API
+  * `filter` - a string or object to pass as the JSON API
     [`filter`](https://jsonapi.org/format/#fetching-filtering) parameter.
   * `sort` - a string to pass as the JSON API 
     [`sort`](https://jsonapi.org/format/#fetching-sorting) parameter.
