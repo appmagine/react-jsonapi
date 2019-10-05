@@ -40070,7 +40070,11 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
                                 }, {
                                     type: 'articles',
                                     id: '11'
-                                }]
+                                }],
+                                links: {
+                                    related: "/users/1/articles",
+                                    self: "/users/1/relationships/articles"
+                                }
                             }
                         }
                     }, {
@@ -40429,7 +40433,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
                     var author = article.get('author');
 
-                    return React.createElement('div', null, React.createElement('div', null, loading ? 'Loading...' : ''), article.error ? React.createElement('div', null, 'Error: ', article.error) : this.renderArticle());
+                    return React.createElement('div', null, loading ? React.createElement('div', { className: 'panel' }, 'Loading...') : null, article.error ? React.createElement('div', { className: 'panel' }, 'Error: ', article.error) : this.renderArticle());
                 },
                 renderArticle: function renderArticle() {
                     var _this = this;
@@ -57339,14 +57343,6 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
 
             getRelated = function getRelated(model, relation) {
                 var r = model.getRelation(relation.key);
-                // Use reverseRelation.type to have relation automatically added without
-                // need for below code.
-                //if (!relation) {
-                //const relatedModel = relation.model;
-                //r = _.find(relatedModel.prototype.relations, (r) => {
-                //return r.reverseRelation.key === relation.key;
-                //});
-                //}
                 return r.related;
             };
 
@@ -57370,20 +57366,40 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                         processRelation(model.model ? model.model : model.constructor, fetchOptions, [], include, fields);
 
                         var params = [];
+
                         if (include.length) {
                             var includes = _.uniq(include.map(function (include) {
                                 return include.join('.');
                             }));
                             params.push('include=' + includes.join(','));
                         }
+
                         _.each(fields, function (fields, type) {
                             params.push('fields[' + type + ']=' + _.uniq(fields).join(','));
                         });
+
                         if (fetchOptions.sort) {
                             params.push('sort=' + fetchOptions.sort.join(','));
                         }
+
                         if (fetchOptions.filter) {
-                            params.push('filter=' + fetchOptions.filter);
+                            if (typeof fetchOptions.filter === "object") {
+                                _.each(fetchOptions.filter, function (val, key) {
+                                    params.push('filter[' + key + ']=' + val);
+                                });
+                            } else {
+                                params.push('filter=' + fetchOptions.filter);
+                            }
+                        }
+
+                        if (fetchOptions.page) {
+                            if (typeof fetchOptions.page === "object") {
+                                _.each(fetchOptions.page, function (val, key) {
+                                    params.push('page[' + key + ']=' + val);
+                                });
+                            } else {
+                                params.push('page=' + fetchOptions.page);
+                            }
                         }
 
                         if (params.length) {
@@ -67567,7 +67583,7 @@ System.register('examples/main.js', ['react', 'react-dom', 'create-react-class',
                 render: function render(props) {
                     return React.createElement(AsyncProps, props);
                 }
-            }, React.createElement(Route, { path: '/', component: Home }), React.createElement(Route, { path: '/articles', component: ArticleList }, React.createElement(Route, { path: ':articleId', component: ArticleItem }))), document.getElementById('container'));
+            }, React.createElement(Route, { path: '/', component: Home }), React.createElement(Route, { path: '/articles', component: ArticleList }, React.createElement(Route, { path: ':articleId', component: ArticleItem }))), document.getElementById('main'));
         }
     };
 });

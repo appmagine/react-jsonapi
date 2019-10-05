@@ -32,4 +32,4 @@ ReactDOM.render((
             <Route path=":articleId" component={ArticleItem} />
         </Route>
     </Router>
-), document.getElementById('container'));
+), document.getElementById('main'));

@@ -161,11 +161,13 @@ export const ArticleItem = withJsonApi({
 
         return (
             <div>
-                <div>
-                    {loading ? 'Loading...' : ''}
-                </div>
+                {loading 
+                    ? <div className="panel">
+                        Loading...
+                    </div>
+                    : null}
                 {article.error ? 
-                    <div>
+                    <div className="panel">
                         Error: {article.error}
                     </div> :
                     this.renderArticle()}
