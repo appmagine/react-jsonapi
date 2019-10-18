@@ -15,11 +15,11 @@ in order to manage data loading in part of an application separately from the
 browser URL.
 
 React Router JSON API generates query URLs based on query definitions specified
-in terms of the route information in addition to query variables (per-component
-query parameters that can be modified to trigger an update).
+in terms of the route information in addition to per-component state known as
+"[variables](#variables)".
 
-The Backbone model and collection API can be used to update and persist model
-state.  In order to keep the view up-to-date, each component is subscribed to
+The Backbone Model and Collection API can be used to update and persist model
+state.  In order to keep the view in sync, each component is subscribed to
 relevant Backbone events for the models and collections from which it renders
 data.
 
@@ -29,12 +29,13 @@ for managing nested Backbone models.
 
 A demo is available at <http://appmagine.github.io/react-router-json-api/>.
 
-**Table of Contents**
+### Table of Contents
 
 * [Usage](#usage)
-  * [Using with the application router](#using-with-the-application-router)
-  * [Using inside of a component](#using-inside-of-a-component)
+  * [Getting started](#getting-started)
+  * [Fragments](#fragments)
   * [Variables](#variables)
+  * [Using inside of a component](#using-inside-of-a-component)
 * [API](#api)
   * [`AsyncProps`](#asyncprops)
   * [`withJsonApi(options)`](#withjsonapioptions)
@@ -50,57 +51,82 @@ These examples use the decorator syntax from the ES [decorators
 proposal](https://github.com/tc39/proposal-decorators) that can be enabled
 using
 [@babel/plugin-proposal-decorators](https://babeljs.io/docs/en/babel-plugin-proposal-decorators).  This syntax can be replaced with
-`Component = withJsonApi(options)(function Component() {/*...*/})` to achieve
+`Component = withJsonApi(options)(function Component() {})` to achieve
 the same effect.
 
-### Using with the application Router
+These examples use function components.  React Router JSON API also works with
+React components created using
+[create-react-class](https://reactjs.org/docs/react-without-es6.html) and ES6
+classes. 
+
+### Getting started
+
+This example demonstrates the simplest possible usage of React Router JSON API
+with the application-level router, connecting a component that renders data from
+a model instance queried by ID to a route with an ID URL parameter.
 
 ```javascript
 import Backbone from 'backbone';
 import 'backbone-relational';
 
-import React from 'react';
 import ReactDOM from 'react-dom';
-import createReactClass from 'create-react-class';
 import { Router, Route, browserHistory } from 'react-router';
 import { withJsonApi, AsyncProps } from 'react-router-json-api';
-
-/* First some Backbone models are defined. */
-
-const Filling = Backbone.RelationalModel.extend({
-    urlRoot: '/fillings',
-    defaults: { type: 'fillings' }
-});
 
 const Taco = Backbone.RelationalModel.extend({
     urlRoot: '/tacos',
     defaults: { type: 'tacos' },
-    relations: [
-        {
-            type: Backbone.HasMany,
-            key: 'fillings',
-            relatedModel: Filling
+});
+
+@withJsonApi({
+    queries: {
+        taco: (params, query, vars) => {
+            return {
+                model: Taco,
+                id: params.tacoId,
+                fields: ['name']
+            };
         }
-    ]
-});
+    }
+})
+function TacoItem({ taco }) {
+    return (
+        <div>
+            {taco.get('name')}
+        </div>
+    );
+}
 
-const TacoCollection = Backbone.Collection.extend({
-    model: Taco,
-    urlRoot: '/tacos'
-});
+ReactDOM.render((
+    <Router
+        history={browserHistory}
+        render={(props) => <AsyncProps {...props} />}
+    >
+        <Route path="/taco/:tacoId" component={TacoItem} />
+    </Router>
+));
+```
 
-/* This example uses function components.  React Router JSON API also works with
-   React components created using createReactClass() and ES6 classes. */ 
+### Fragments
 
+A fragment is a partial query definition that can be referenced in a full query
+definition.  The fields and relations defined by a fragment are merged into the
+definition of the referencing query.
+
+Fragments enable components to be defined with queries that only specify the
+results to include in the query and the fields and relations that are directly
+used by the component, while fields and relations used only by child components
+are specified alongside the definition of the child components.
+
+```javascript
 @withJsonApi({
     fragments: {
         taco: {
             model: Taco,
-            fields: ['amount']
             relations: [
                 {
                     key: 'fillings',
-                    fields: ['name', 'amount']
+                    fields: ['name']
                 }
             ]
         }
@@ -109,14 +135,12 @@ const TacoCollection = Backbone.Collection.extend({
 function TacoItem({ taco }) {
     return (
         <div>
-            Amount: {taco.get('amount')}
             <h4>Fillings</h4>
             <ul>
                 {taco.get('fillings').map((filling) => {
                     return (
                         <li key={filling.id}>
                             Name: {filling.get('name')},
-                            Amount: {filling.get('amount')}
                         </li>
                     );
                 })}
@@ -152,17 +176,71 @@ function TacoList({ tacos }) {
         </div>
     );
 }
-
-ReactDOM.render((
-    <Router
-        history={browserHistory}
-        render={(props) => <AsyncProps {...props} />}
-    >
-        <Route path="/" component={TacoList} />
-    </Router>
-));
 ```
 
+### Variables
+
+It can be useful to define queries in terms of not only the route information
+but also other values that change over time.  This is possible using the third
+argument to a query definition function, named `vars` in the examples shown
+here. 
+
+These are called "variables".  One set of variables is shared between all
+queries belonging to a component, and can be accessed using the following
+attributes of the `queries` prop:
+
+  - `vars` - the variables for the currently loaded models
+  - `pendingVars` - the variables used to fetch the pending models
+  - `setVars(vars)` - merge `vars` with the current variables and trigger a
+    refetch, in the same manner as React's `setState()`
+
+Here is an example of variables in action:
+
+```javascript
+@withJsonApi({
+    initialVars: {
+        includeDescription: true,
+    },
+    queries: {
+        items: (params, query, vars) => {
+            return {
+                model: ItemCollection,
+                fields: vars.includeDescription 
+                    ? ['name', 'description']
+                    : ['name']
+            };
+        }
+    }
+})
+function ItemSearch({ items, queries }) {
+    const { vars, setVars } = queries;
+
+    return (
+        <div>
+            Include Description:
+
+            <input type="checkbox" checked={vars.includeDescription} 
+                onChange={(event) => setVars({
+                    includeDescription: event.target.checked
+                })} />
+
+            Results:
+
+            {items.map((item) => {
+                return (
+                    <div>
+                        <p>Name: {item.get('name')}</p>
+                        {vars.includeDescription 
+                            ? <p>Description: {item.get('description')}</p>
+                            : null}
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+```
+ 
 ### Using inside of a component
 
 To handle the loading of data in parts of an application whose state is not
@@ -236,69 +314,6 @@ function Item({ item }) {
 }
 ```
 
-### Variables
-
-It can be useful to define queries in terms of not only the route information
-but also other values that change over time.  This is possible using the third
-argument to a query definition function, named `vars` in the examples shown
-here. 
-
-These are called "variables".  One set of variables is shared between all
-queries belonging to a component, and can be accessed using the following
-attributes of the `queries` prop:
-  
-  - `vars` - the variables for the currently loaded models
-  - `pendingVars` - the variables used to fetch the pending models
-  - `setVars(vars)` - merge `vars` with the current variables and trigger a
-    refetch, in the same manner as React's `setState()`
-
-Here is an example of variables in action:
-
-```javascript
-@withJsonApi({
-    initialVars: {
-        includeDescription: true,
-    },
-    queries: {
-        items: (params, query, vars) => {
-            return {
-                model: ItemCollection,
-                fields: vars.includeDescription 
-                    ? ['name', 'description']
-                    : ['name']
-            };
-        }
-    }
-})
-function ItemSearch({ items, queries }) {
-    const { vars, setVars } = queries;
-
-    return (
-        <div>
-            Include Description:
-
-            <input type="checkbox" checked={vars.includeDescription} 
-                onChange={(event) => setVars({
-                    includeDescription: event.target.checked
-                })} />
-
-            Results:
-
-            {items.map((item) => {
-                return (
-                    <div>
-                        <p>Name: {item.get('name')}</p>
-                        {vars.includeDescription 
-                            ? <p>Description: {item.get('description')}</p>
-                            : null}
-                    </div>
-                );
-            })}
-        </div>
-    );
-}
-```
- 
 ## API
 
 React Router JSON API has two exports:
