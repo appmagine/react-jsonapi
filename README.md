@@ -31,39 +31,24 @@ A demo is available at <http://appmagine.github.io/react-router-json-api/>.
 
 ### Table of Contents
 
-* [Usage](#usage)
-  * [Getting started](#getting-started)
-  * [Fragments](#fragments)
-  * [Variables](#variables)
-  * [Using inside of a component](#using-inside-of-a-component)
+* [Getting started](#getting-started)
+* [Fragments](#fragments)
+* [Variables](#variables)
+* [Using inside of a component](#using-inside-of-a-component)
 * [API](#api)
   * [`AsyncProps`](#asyncprops)
-  * [`withJsonApi(options)`](#withjsonapioptions)
+  * [`withJsonApi`](#withjsonapi)
     * [Query definition objects](#query-definition-objects)
     * [The `queries` prop](#the-queries-prop)
   * [Added Backbone attributes](#added-backbone-attributes)
 * [A note about React Router versions](#a-note-about-react-router-versions)
 * [Testing](#testing)
 
-## Usage
-
-These examples use the decorator syntax from the ES [decorators
-proposal](https://github.com/tc39/proposal-decorators) that can be enabled
-using
-[@babel/plugin-proposal-decorators](https://babeljs.io/docs/en/babel-plugin-proposal-decorators).  This syntax can be replaced with
-`Component = withJsonApi(options)(function Component() {})` to achieve
-the same effect.
-
-These examples use function components.  React Router JSON API also works with
-React components created using
-[create-react-class](https://reactjs.org/docs/react-without-es6.html) and ES6
-classes. 
-
-### Getting started
+## Getting started
 
 This example demonstrates the simplest possible usage of React Router JSON API
 with the application-level router, connecting a component that renders data from
-a model instance queried by ID to a route with an ID URL parameter.
+a model instance queried by ID to a route with an ID parameter.
 
 ```javascript
 import Backbone from 'backbone';
@@ -78,7 +63,7 @@ const Taco = Backbone.RelationalModel.extend({
     defaults: { type: 'tacos' },
 });
 
-@withJsonApi({
+const TacoItem = withJsonApi({
     queries: {
         taco: (params, query, vars) => {
             return {
@@ -88,14 +73,13 @@ const Taco = Backbone.RelationalModel.extend({
             };
         }
     }
-})
-function TacoItem({ taco }) {
+}, function ({ taco }) {
     return (
         <div>
             {taco.get('name')}
         </div>
     );
-}
+});
 
 ReactDOM.render((
     <Router
@@ -107,19 +91,19 @@ ReactDOM.render((
 ));
 ```
 
-### Fragments
+## Fragments
 
 A fragment is a partial query definition that can be referenced in a full query
 definition.  The fields and relations defined by a fragment are merged into the
 definition of the referencing query.
 
 Fragments enable components to be defined with queries that only specify the
-results to include in the query and the fields and relations that are directly
-used by the component, while fields and relations used only by child components
-are specified alongside the definition of the child components.
+fields and relations that are directly used by the component, while fields and
+relations used only by child components are specified alongside the definition
+of the child components.
 
 ```javascript
-@withJsonApi({
+const TacoItem = withJsonApi({
     fragments: {
         taco: {
             model: Taco,
@@ -131,8 +115,7 @@ are specified alongside the definition of the child components.
             ]
         }
     }
-})
-function TacoItem({ taco }) {
+}, function ({ taco }) {
     return (
         <div>
             <h4>Fillings</h4>
@@ -147,9 +130,9 @@ function TacoItem({ taco }) {
             </ul>
         </div>
     );
-}
+});
 
-@withJsonApi({
+const TacoItemList = withJsonApi({
     queries: {
         tacos: (params, query, vars) => {
             return {
@@ -161,8 +144,7 @@ function TacoItem({ taco }) {
             };
         }
     }
-})
-function TacoList({ tacos }) {
+}, function ({ tacos }) {
     return (
         <div>
             {tacos.map((taco) => {
@@ -175,10 +157,10 @@ function TacoList({ tacos }) {
             })}
         </div>
     );
-}
+});
 ```
 
-### Variables
+## Variables
 
 It can be useful to define queries in terms of not only the route information
 but also other values that change over time.  This is possible using the third
@@ -197,7 +179,7 @@ attributes of the `queries` prop:
 Here is an example of variables in action:
 
 ```javascript
-@withJsonApi({
+const ItemSearch = withJsonApi({
     initialVars: {
         includeDescription: true,
     },
@@ -211,8 +193,7 @@ Here is an example of variables in action:
             };
         }
     }
-})
-function ItemSearch({ items, queries }) {
+}, function ({ items, queries }) {
     const { vars, setVars } = queries;
 
     return (
@@ -238,10 +219,10 @@ function ItemSearch({ items, queries }) {
             })}
         </div>
     );
-}
+});
 ```
  
-### Using inside of a component
+## Using inside of a component
 
 To handle the loading of data in parts of an application whose state is not
 connected to the page URL, render an instance of the React Router `Router` that
@@ -294,7 +275,7 @@ const ItemList = createReactClass({
     }
 });
 
-@withJsonApi({
+const Item = withJsonApi({
     queries: {
         item: (params, query, vars) => {
             return {
@@ -304,14 +285,13 @@ const ItemList = createReactClass({
             };
         }
     }
-})
-function Item({ item }) {
+}, function ({ item }) {
     return (
         <div>
             Name: {item.get('name')}
         </div>
     );
-}
+});
 ```
 
 ## API
@@ -320,43 +300,38 @@ React Router JSON API has two exports:
 
 #### `AsyncProps`
 
+\- `<AsyncProps {...props} />`
+
 A middleware for React Router that loads data for the components for each
 matched route in the route tree before each render trigger by a route
 transition.  This must be passed as the `render` prop of `Router` as seen above.
 
-#### `withJsonApi(options)`
+#### `withJsonApi`
+
+\- `withJsonApi(options, Component)`
 
 A higher-order component that wraps a component in a new component that
 implements the loading interface required by the `AsyncProps` middleware,
 renders the decorated component with query models passed as props, and manages
 Backbone event handlers.
 
-The query props are constructed based on the `queries` and `fragments` options,
-which are defined in terms of *query definition objects*.
-
-Options:
+The query props are constructed based on the following options:
 
 - `queries` - `{ [name]: (params, query, vars) => query definition object }` 
 
-  An object that defines query props in terms of functions that return a query
-  definition object for each prop.  The function arguments are:
+  An object that defines query props in terms of functions that return a **query
+  definition object** for each prop.  The function arguments are:
   
     * `params` - the React Router route params object (/route/:param) from
       `props.params`.
     * `query` - the React Router route query object (?x=y) from
       `props.location.query`.
-    * `vars` - the query variables, described above.
+    * `vars` - the query [variables](#variables).
 
 - `fragments` - `{ [name]: query definition object }`
 
-  An object that defines query fragment props in terms of query definition
-  objects.  Fragment props are model props associated with a component that
-  renders data but does not load queries itself, instead being rendered by
-  another component.  A fragment prop definition must be referenced in the
-  queries or fragments definition of the parent component.
-
-  Fragments enable defining a component with only the pieces of data that it
-  needs to be rendered.
+  An object that defines query [fragment](#fragments) props in terms of query
+  definition objects.
 
 - `initialVars` - An object of initial query variables.
 
@@ -374,12 +349,12 @@ Model and collection queries share the same options related to the parts of
 the URL that define what data to include for each model resource but have
 different options related to the other parts of the URL.
 
-Options that specify the resource to return for a *model query*:
+Options that specify the resource to return for a **model query**:
 
   * `model` - the model class to use.
   * `id` (required) - the ID of the resource to fetch.
 
-Options that specify the collection to return for a *collection query*:
+Options that specify the resources to return for a **collection query**:
 
   * `model` - the collection class to use.
   * `filter` - a string or object to pass as the JSON API
@@ -407,14 +382,11 @@ Options that specify the data to include for each resource returned by the query
 
       - `key` (required) - the string key identifying the relation in the
         `relations` configuration of the model class
-
       - `fields` - an array of names of fields of the relation's model to
         include in the response, to add to the JSON API `fields` parameter for
         the related model's type.
-
       - `relations` - an array of the same type of object corresponding to
         relations of this relation's related model to include in the response.
-
       - `fragments` - an array of fragments to include for this relation.  The
         `fields` and `relations` values from each fragment will be merged into
         the `fields` and `relations` values for this relation.
