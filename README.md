@@ -1,22 +1,18 @@
 # React Router JSON API
 
 React Router JSON API provides declarative co-located [JSON
-API](http://jsonapi.org) data loading for
-[React](https://facebook.github.io/react/) components using [React
-Router](https://github.com/ReactTraining/react-router/tree/v3) version 3.x.
+API](http://jsonapi.org) data loading for React components using [React
+Router](https://github.com/ReactTraining/react-router/tree/v3) v3.x.
 
 React Router JSON API loads data into [Backbone](http://backbonejs.org) models
 and uses an object-based query configuration system.
 
-Data loading occurs after each route transition.  React Router JSON API can be
-used in two ways: with the top-level application router in order to load data
-based on the browser URL or with a "memory history" router inside of a component
-in order to manage data loading in part of an application separately from the
-browser URL.
+Data loading occurs after each route transition.  Data can be loaded either
+at the application level based on the page URL or in individual components.
 
-React Router JSON API generates query URLs based on query definitions specified
-in terms of the route information in addition to per-component state known as
-"[variables](#variables)".
+Query URLs are generated based on query definitions specified in terms of the
+route information in addition to per-component state known as
+[variables](#variables).
 
 The Backbone Model and Collection API can be used to update and persist model
 state.  In order to keep the view in sync, each component is subscribed to
@@ -87,7 +83,8 @@ ReactDOM.render((
         render={(props) => <AsyncProps {...props} />}
     >
         <Route path="/taco/:tacoId" component={TacoItem} />
-    </Router>
+    </Router>,
+    document.getElementById('container')
 ));
 ```
 
@@ -200,7 +197,9 @@ const ItemSearch = withJsonApi({
         <div>
             Include Description:
 
-            <input type="checkbox" checked={vars.includeDescription} 
+            <input 
+                type="checkbox" 
+                checked={vars.includeDescription} 
                 onChange={(event) => setVars({
                     includeDescription: event.target.checked
                 })} />
@@ -234,30 +233,23 @@ The router `history` and `routes` values must be managed at the component level.
 For a working example of this usage pattern, see the examples directory.
 
 ```javascript
-// ...
 import { Router, Route, createMemoryHistory } from 'react-router';
-import { withJsonApi, AsyncProps } from 'react-router-json-api';
 
-const ItemList = createReactClass({
-    getInitialState() {
-        const routes = (
+const ItemContainer = createReactClass({
+    componentWillMount() {
+        this.history = createMemoryHistory("/");
+        this.routes = (
             <React.Fragment>
                 <Route path="/" component={() => <div>Loading...</div>} />
                 <Route path="/item/:itemId" component={Item} />,
             </React.Fragment>
         );
 
-        return {
-            itemId: this.props.itemId,
-            history: createMemoryHistory("/"),
-            routes,
-        };
-    },
-    componentWillMount() {
         this.componentDidUpdate();
     },
     componentDidUpdate() {
-        const { itemId, history } = this.state;
+        const { history } = this;
+        const { itemId } = this.props;
         const pathname = `/item/${itemId}`;
 
         if (history.getCurrentLocation().pathname !== pathname) {
@@ -267,9 +259,9 @@ const ItemList = createReactClass({
     render() {
         return (
             <Router
-                history={this.state.history}
+                history={this.history}
                 render={(props) => <AsyncProps {...props} />}
-                routes={this.state.routes}
+                routes={this.routes}
             />
         );
     }
@@ -310,9 +302,10 @@ transition.  This must be passed as the `render` prop of `Router` as seen above.
 
 \- `withJsonApi(options, Component)`
 
-A higher-order component that wraps a component in a new component that
+A [higher-order
+component](https://reactjs.org/docs/higher-order-components.html) that
 implements the loading interface required by the `AsyncProps` middleware,
-renders the decorated component with query models passed as props, and manages
+renders `Component` with query models passed as props, and manages
 Backbone event handlers.
 
 The query props are constructed based on the following options:
@@ -336,6 +329,9 @@ The query props are constructed based on the following options:
 - `initialVars` - An object of initial query variables.
 
 - `getInitialVars` - A function that returns an object of initial query variables.
+
+These options are also added as static properties to the returned component so
+they can be referenced when defining other components.
 
 ##### Query definition objects
 
@@ -396,9 +392,6 @@ Options that specify the data to include for each resource returned by the query
   * `fragments` - an array of fragments to include in this query.  The
     `fields` and `relations` values from each fragment will be merged into the
     `fields` and `relations` values of this query.
-
-The decorator also adds these options as static properties to the wrapper
-component so they can be referenced when defining other components.
 
 ##### The `queries` prop
 
