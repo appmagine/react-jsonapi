@@ -18,7 +18,7 @@ const ArticleListItem = withJsonApi({
             ]
         }
     }
-})(function ArticleListItem({ article }) {
+}, function ArticleListItem({ article }) {
     const author = article.get('author');
 
     return (
@@ -51,7 +51,7 @@ export const ArticleList = withJsonApi({
             };
         }
     }
-})(function ArticleList({ articles, loading, queries, children }) {
+}, function ArticleList({ articles, loading, queries, children }) {
     return (
         <div>
             <div className="panel">
@@ -85,7 +85,7 @@ const CommentItem = withJsonApi({
         
         }
     }
-})(function CommentItem({ comment }) {
+}, function CommentItem({ comment }) {
     return (
         <div>
             <h4>{comment.get('title')}</h4>
@@ -126,7 +126,7 @@ export const ArticleItem = withJsonApi({
             };
         }
     }
-})(createReactClass({
+}, createReactClass({
     displayName: "ArticleItem",
     getInitialState() {
         const routes = <React.Fragment>
@@ -265,7 +265,7 @@ const Articles = withJsonApi({
             };
         }
     }
-})(function Articles({ children }) {
+}, function Articles({ children }) {
     return (
         <div>
             {children}
@@ -302,7 +302,7 @@ const ArticleSummary = withJsonApi({
             };
         }
     }
-})(function ArticleSummary({ article }) {
+}, function ArticleSummary({ article }) {
     if (!article) {
         return (
             <div></div>

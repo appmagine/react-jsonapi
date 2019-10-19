@@ -40321,7 +40321,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         }]
                     }
                 }
-            })(function ArticleListItem(_ref) {
+            }, function ArticleListItem(_ref) {
                 var article = _ref.article;
 
                 var author = article.get('author');
@@ -40345,7 +40345,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         };
                     }
                 }
-            })(function ArticleList(_ref2) {
+            }, function ArticleList(_ref2) {
                 var articles = _ref2.articles,
                     loading = _ref2.loading,
                     queries = _ref2.queries,
@@ -40372,7 +40372,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
                     }
                 }
-            })(function CommentItem(_ref3) {
+            }, function CommentItem(_ref3) {
                 var comment = _ref3.comment;
 
                 return React.createElement('div', null, React.createElement('h4', null, comment.get('title')), comment.error ? React.createElement('p', null, 'Error Saving: ' + comment.error) : '', React.createElement('p', null, comment.get('content')), 'by ', comment.get('author').get('username'), ' at ', comment.get('date'));
@@ -40399,7 +40399,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         };
                     }
                 }
-            })(createReactClass({
+            }, createReactClass({
                 displayName: "ArticleItem",
                 getInitialState: function getInitialState() {
                     var routes = React.createElement(React.Fragment, null, React.createElement(Route, { path: '/', component: function component() {
@@ -40494,7 +40494,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         };
                     }
                 }
-            })(function Articles(_ref4) {
+            }, function Articles(_ref4) {
                 var children = _ref4.children;
 
                 return React.createElement('div', null, children);
@@ -40521,7 +40521,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         };
                     }
                 }
-            })(function ArticleSummary(_ref5) {
+            }, function ArticleSummary(_ref5) {
                 var article = _ref5.article;
 
                 if (!article) {
@@ -57079,98 +57079,96 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
 
     var _defineProperty, _extends, React, createReactClass, PropTypes, Backbone, _, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation;
 
-    function withJsonApi(options) {
+    function withJsonApi(options, WrappedComponent) {
         var componentQueries = options.queries || {};
         var componentFragments = options.fragments || {};
         var initialVars = options.initialVars;
         var getInitialVars = options.getInitialVars;
 
-        return function (WrappedComponent) {
-            var displayName = WrappedComponent.displayName || WrappedComponent.name;
+        var displayName = WrappedComponent.displayName || WrappedComponent.name;
 
-            return createReactClass({
-                displayName: 'withJsonApi(' + displayName + ')',
+        return createReactClass({
+            displayName: 'withJsonApi(' + displayName + ')',
 
-                propTypes: Object.assign({}, WrappedComponent.propTypes, {
-                    initialQueries: PropTypes.object
-                }),
+            propTypes: Object.assign({}, WrappedComponent.propTypes, {
+                initialQueries: PropTypes.object
+            }),
 
-                statics: {
-                    loadProps: function loadProps(_ref, cb) {
-                        var params = _ref.params,
-                            location = _ref.location,
-                            loadContext = _ref.loadContext;
+            statics: {
+                loadProps: function loadProps(_ref, cb) {
+                    var params = _ref.params,
+                        location = _ref.location,
+                        loadContext = _ref.loadContext;
 
-                        var getVars = function getVars() {
-                            if (getInitialVars) {
-                                return getInitialVars();
-                            } else if (initialVars) {
-                                return initialVars;
-                            } else {
-                                return {};
-                            }
-                        };
-
-                        var queries = new Queries(null, getVars(), componentQueries);
-
-                        queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
-                            cb(null, {
-                                initialQueries: queries
-                            });
-                        });
-                    },
-
-                    queries: componentQueries,
-                    fragments: componentFragments,
-                    initialVars: initialVars,
-                    getInitialVars: getInitialVars
-                },
-
-                componentWillMount: function componentWillMount() {
-                    this.fragmentProps = {};
-                    this.componentWillReceiveProps(this.props);
-                },
-                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-                    var isMatch = function isMatch(props1, props2) {
-                        var props1Keys = Object.keys(props1);
-                        return _.isEqual(_.sortBy(props1Keys, _.identity), _.sortBy(Object.keys(props2), _.identity)) && _.all(props1Keys.map(function (key) {
-                            return props1[key] === props2[key];
-                        }));
+                    var getVars = function getVars() {
+                        if (getInitialVars) {
+                            return getInitialVars();
+                        } else if (initialVars) {
+                            return initialVars;
+                        } else {
+                            return {};
+                        }
                     };
-                    var fragmentProps = _.pick(nextProps, Object.keys(componentFragments));
-                    var hasFragmentProps = Object.keys(fragmentProps).length;
 
-                    if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
-                        if (this.queries) {
-                            this.queries._events._removeHandlers();
-                        }
-                        this.queries = nextProps.initialQueries;
-                        this.queries._element = this.queries._events.element = this;
-                        this.queries._events._addHandlers();
-                    }
+                    var queries = new Queries(null, getVars(), componentQueries);
 
-                    if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
-                        this.fragmentProps = fragmentProps;
-                        if (this.fragments) {
-                            this.fragments._events._removeHandlers();
-                        }
-                        this.fragments = new QueryFragments(this, fragmentProps, componentFragments);
-                        this.fragments._events._addHandlers();
-                    }
+                    queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
+                        cb(null, {
+                            initialQueries: queries
+                        });
+                    });
                 },
-                componentWillUnmount: function componentWillUnmount() {
+
+                queries: componentQueries,
+                fragments: componentFragments,
+                initialVars: initialVars,
+                getInitialVars: getInitialVars
+            },
+
+            componentWillMount: function componentWillMount() {
+                this.fragmentProps = {};
+                this.componentWillReceiveProps(this.props);
+            },
+            componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                var isMatch = function isMatch(props1, props2) {
+                    var props1Keys = Object.keys(props1);
+                    return _.isEqual(_.sortBy(props1Keys, _.identity), _.sortBy(Object.keys(props2), _.identity)) && _.all(props1Keys.map(function (key) {
+                        return props1[key] === props2[key];
+                    }));
+                };
+                var fragmentProps = _.pick(nextProps, Object.keys(componentFragments));
+                var hasFragmentProps = Object.keys(fragmentProps).length;
+
+                if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
                     if (this.queries) {
                         this.queries._events._removeHandlers();
                     }
+                    this.queries = nextProps.initialQueries;
+                    this.queries._element = this.queries._events.element = this;
+                    this.queries._events._addHandlers();
+                }
+
+                if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
+                    this.fragmentProps = fragmentProps;
                     if (this.fragments) {
                         this.fragments._events._removeHandlers();
                     }
-                },
-                render: function render() {
-                    return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
+                    this.fragments = new QueryFragments(this, fragmentProps, componentFragments);
+                    this.fragments._events._addHandlers();
                 }
-            });
-        };
+            },
+            componentWillUnmount: function componentWillUnmount() {
+                if (this.queries) {
+                    this.queries._events._removeHandlers();
+                }
+                if (this.fragments) {
+                    this.fragments._events._removeHandlers();
+                }
+            },
+            render: function render() {
+                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
+            }
+        });
     }
 
     _export('withJsonApi', withJsonApi);

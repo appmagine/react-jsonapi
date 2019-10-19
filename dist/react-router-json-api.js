@@ -2398,92 +2398,90 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         };else return null;
     }
 
-    function withJsonApi(options) {
+    function withJsonApi(options, WrappedComponent) {
         var componentQueries = options.queries || {};
         var componentFragments = options.fragments || {};
         var initialVars = options.initialVars;
         var getInitialVars = options.getInitialVars;
 
-        return function (WrappedComponent) {
-            var displayName = WrappedComponent.displayName || WrappedComponent.name;
+        var displayName = WrappedComponent.displayName || WrappedComponent.name;
 
-            return createReactClass({
-                displayName: 'withJsonApi(' + displayName + ')',
+        return createReactClass({
+            displayName: 'withJsonApi(' + displayName + ')',
 
-                propTypes: Object.assign({}, WrappedComponent.propTypes, {
-                    initialQueries: PropTypes.object
-                }),
+            propTypes: Object.assign({}, WrappedComponent.propTypes, {
+                initialQueries: PropTypes.object
+            }),
 
-                statics: {
-                    loadProps: function loadProps(_ref, cb) {
-                        var params = _ref.params,
-                            location = _ref.location,
-                            loadContext = _ref.loadContext;
+            statics: {
+                loadProps: function loadProps(_ref, cb) {
+                    var params = _ref.params,
+                        location = _ref.location,
+                        loadContext = _ref.loadContext;
 
-                        var getVars = function getVars() {
-                            if (getInitialVars) {
-                                return getInitialVars();
-                            } else if (initialVars) {
-                                return initialVars;
-                            } else {
-                                return {};
-                            }
-                        };
+                    var getVars = function getVars() {
+                        if (getInitialVars) {
+                            return getInitialVars();
+                        } else if (initialVars) {
+                            return initialVars;
+                        } else {
+                            return {};
+                        }
+                    };
 
-                        var queries = new Queries(null, getVars(), componentQueries);
+                    var queries = new Queries(null, getVars(), componentQueries);
 
-                        queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
-                            cb(null, {
-                                initialQueries: queries
-                            });
+                    queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
+                        cb(null, {
+                            initialQueries: queries
                         });
-                    },
-
-                    queries: componentQueries,
-                    fragments: componentFragments,
-                    initialVars: initialVars,
-                    getInitialVars: getInitialVars
+                    });
                 },
 
-                componentWillMount: function componentWillMount() {
-                    this.fragmentProps = {};
-                    this.componentWillReceiveProps(this.props);
-                },
-                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-                    var fragmentProps = _.pick(nextProps, Object.keys(componentFragments));
-                    var hasFragmentProps = Object.keys(fragmentProps).length;
+                queries: componentQueries,
+                fragments: componentFragments,
+                initialVars: initialVars,
+                getInitialVars: getInitialVars
+            },
 
-                    if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
-                        if (this.queries) {
-                            this.queries._events._removeHandlers();
-                        }
-                        this.queries = nextProps.initialQueries;
-                        this.queries._element = this.queries._events.element = this;
-                        this.queries._events._addHandlers();
-                    }
+            componentWillMount: function componentWillMount() {
+                this.fragmentProps = {};
+                this.componentWillReceiveProps(this.props);
+            },
+            componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                var fragmentProps = _.pick(nextProps, Object.keys(componentFragments));
+                var hasFragmentProps = Object.keys(fragmentProps).length;
 
-                    if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
-                        this.fragmentProps = fragmentProps;
-                        if (this.fragments) {
-                            this.fragments._events._removeHandlers();
-                        }
-                        this.fragments = new QueryFragments(this, fragmentProps, componentFragments);
-                        this.fragments._events._addHandlers();
-                    }
-                },
-                componentWillUnmount: function componentWillUnmount() {
+                if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
                     if (this.queries) {
                         this.queries._events._removeHandlers();
                     }
+                    this.queries = nextProps.initialQueries;
+                    this.queries._element = this.queries._events.element = this;
+                    this.queries._events._addHandlers();
+                }
+
+                if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
+                    this.fragmentProps = fragmentProps;
                     if (this.fragments) {
                         this.fragments._events._removeHandlers();
                     }
-                },
-                render: function render() {
-                    return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
+                    this.fragments = new QueryFragments(this, fragmentProps, componentFragments);
+                    this.fragments._events._addHandlers();
                 }
-            });
-        };
+            },
+            componentWillUnmount: function componentWillUnmount() {
+                if (this.queries) {
+                    this.queries._events._removeHandlers();
+                }
+                if (this.fragments) {
+                    this.fragments._events._removeHandlers();
+                }
+            },
+            render: function render() {
+                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
+            }
+        });
     }
 
     function Events(props, propOptions, element) {
@@ -2941,14 +2939,6 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
             getRelated = function getRelated(model, relation) {
                 var r = model.getRelation(relation.key);
-                // Use reverseRelation.type to have relation automatically added without
-                // need for below code.
-                //if (!relation) {
-                //const relatedModel = relation.model;
-                //r = _.find(relatedModel.prototype.relations, (r) => {
-                //return r.reverseRelation.key === relation.key;
-                //});
-                //}
                 return r.related;
             };
 
