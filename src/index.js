@@ -161,7 +161,7 @@ Backbone.sync = function (method, model, options) {
         });
 
         if (fetchOptions.sort) {
-            params.push(`sort=${fetchOptions.sort.join(',')}`);
+            params.push(`sort=${fetchOptions.sort}`);
         }
 
         if (fetchOptions.filter) {

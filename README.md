@@ -257,11 +257,13 @@ const ItemContainer = createReactClass({
         }
     },
     render() {
+        const { history, routes } = this;
+
         return (
             <Router
-                history={this.history}
+                history={history}
                 render={(props) => <AsyncProps {...props} />}
-                routes={this.routes}
+                routes={routes}
             />
         );
     }
