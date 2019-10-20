@@ -2,8 +2,8 @@ import $ from 'jquery';
 import 'jquery-mockjax';
 
 $.mockjax({
-    url: "/articles?include=author&fields[articles]=title&fields[users]=name,username",
-    responseTime: 50,
+    url: "/articles?include=author&fields[articles]=title&fields[users]=username",
+    responseTime: 200,
     responseText: {
         data: [
             {
@@ -58,8 +58,7 @@ $.mockjax({
                 type: 'users',
                 id: '1',
                 attributes: {
-                    name: 'John Doe',
-                    username: 'jdoe'
+                    username: 'user'
                 }
             }
         
@@ -70,8 +69,8 @@ $.mockjax({
 
 
 $.mockjax({
-    url: "/articles?include=author&fields[articles]=title&fields[users]=name,username&filter=id != 11",
-    responseTime: 50,
+    url: "/articles?include=author&fields[articles]=title&fields[users]=username&filter=id != 11",
+    responseTime: 200,
     responseText: {
         data: [
             {
@@ -111,8 +110,7 @@ $.mockjax({
                 type: 'users',
                 id: '1',
                 attributes: {
-                    name: 'John Doe',
-                    username: 'jdoe'
+                    username: 'user'
                 }
             }
         
@@ -123,7 +121,7 @@ $.mockjax({
 
 $.mockjax({
     url: "/articles/10?include=author,author.articles,comments,comments.author&fields[articles]=content,title&fields[comments]=content,date,title&fields[users]=name,username",
-    responseTime: 50,
+    responseTime: 200,
     responseText: {
         data: {
             type: 'articles',
@@ -155,8 +153,8 @@ $.mockjax({
                 type: 'users',
                 id: '1',
                 attributes: {
-                    name: 'John Doe',
-                    username: 'jdoe'
+                    name: 'User',
+                    username: 'user'
                 },
                 relationships: {
                     articles: {
@@ -230,7 +228,7 @@ $.mockjax({
 
 $.mockjax({
     url: "/articles/11?include=author,author.articles,comments,comments.author&fields[articles]=content,title&fields[comments]=content,date,title&fields[users]=name,username",
-    responseTime: 50,
+    responseTime: 200,
     responseText: {
         data: {
             type: 'articles',
@@ -262,8 +260,8 @@ $.mockjax({
                 type: 'users',
                 id: '1',
                 attributes: {
-                    name: 'John Doe',
-                    username: 'jdoe'
+                    name: 'User',
+                    username: 'user'
                 },
                 relationships: {
                     articles: {

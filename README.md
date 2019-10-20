@@ -334,27 +334,39 @@ The query props are constructed based on the following options:
 
 - `getInitialVars` - A function that returns an object of initial query variables.
 
+- `loadFromCache` - A value to use as the default value for the
+  `loadFromCache` option of all queries defined by `queries`.
+
+- `alwaysFetch` - A value to use as the default value for the `alwaysFetch`
+  option of all queries defined by `queries`.
+
+- `updateCache` - A value to use as the default value for the `updateCache`
+  option of all queries defined by `queries`.
+
 These options are also added as static properties to the returned component so
 they can be referenced when defining other components.
 
 ##### Query definition objects
 
-A query definition object defines either a model or collection query.  A model
-query instantiates a model class and requests a single model
+A query definition object defines either a model or collection query or
+fragment.  A model query instantiates a model class and requests a single model
 [resource](https://jsonapi.org/format/#document-resource-objects) like
 `/articles/1`.  A collection query instantiates a collection class and requests
 a collection of model resources like `/articles`.
 
 Model and collection queries share the same options related to the parts of
-the URL that define what data to include for each model resource but have
-different options related to the other parts of the URL.
+the URL that specify what data to include for each model resource but have
+different options related to the parts of the URL that specify which top-level
+resource or resources to return.
 
-Options that specify the resource to return for a **model query**:
+Options that specify the top-level resource to return for a **model query** or
+fragment:
 
   * `model` - the model class to use.
   * `id` (required) - the ID of the resource to fetch.
 
-Options that specify the resources to return for a **collection query**:
+Options that specify the top-level resources to return for a **collection
+query** or fragment:
 
   * `model` - the collection class to use.
   * `filter` - a string or object to pass as the JSON API
@@ -396,6 +408,25 @@ Options that specify the data to include for each resource returned by the query
   * `fragments` - an array of fragments to include in this query.  The
     `fields` and `relations` values from each fragment will be merged into the
     `fields` and `relations` values of this query.
+
+React Router JSON API maintains a cache of previously loaded query results.
+The following query-only options control how the cache is used:
+
+  * `loadFromCache` - whether to load cached results for this query if complete
+    results for the query exist in the cache.
+
+    Default: `true`.
+
+  * `alwaysFetch` - whether to fetch new results for a query whose initial
+    results were loaded from the cache.
+
+    Default: `true`.
+
+  * `updateCache` - whether to update the cache with the results returned for
+    this query.
+
+    Default: `true`.
+
 
 ##### The `queries` prop
 

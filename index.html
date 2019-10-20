@@ -22,16 +22,20 @@
       border: 1px solid #DDD;
       border-radius: 5px;
       padding: 15px 30px;
+      padding-bottom: 0;
       margin: 30px auto;
     }
     #main {
       background-color: #fbfbfb;
       border: 1px solid #DDD;
       border-radius: 5px;
-      padding: 1em;
-      padding-left: 0;
+      padding: 10px 15px;
+      padding-left: 5px;
       margin: 2em 0;
       max-width: 260px;
+    }
+    #main h3 {
+      margin-top: .5em;
     }
     @media (min-width: 832px) {
       #main {
@@ -53,22 +57,33 @@
       border-radius: 5px;
     }
 
+    .article-panel {
+      width: 210px;
+    }
+
     h4 {
       margin-top: 2em;
     }
-
-    @media (min-width: 832px) {
-      .panel {
-        min-height: 440px;
-      }
+    .panel h4 {
+      margin-top: initial;
     }
 
+    @media (min-width: 832px) {
+      .article-panel {
+        min-height: 380px;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="container">
     <a href="https://github.com/appmagine/react-router-json-api"><img alt="Fork me on GitHub" src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png" style="position: absolute; top: 0px; right: 0px; border: 0px none;"></a>
-    <h3>React Router JSON API</h3>
+    <h3>React Router JSON API
+      <span style="font-weight: normal; font-size: 12pt;"> &bull; <a 
+          href="http://github.com/appmagine/react-router-json-api"
+          >docs</a>
+      </span>
+    </h3>
     <p>
       Declarative co-located <a href="http://jsonapi.org/">JSON API</a> data loading for <a
         href="https://facebook.github.io/react/">React</a> components based on
@@ -76,13 +91,11 @@
         Router</a> v3.x.
     </p>
     <p>
-      View the <a href="http://github.com/appmagine/react-router-json-api">
-        README</a>.
     </p>
     <h4>Demo
-      <span style="font-weight: normal;">(<a
+      <span style="font-weight: normal; font-size: 12pt;"> &bull; <a
         href="https://github.com/appmagine/react-router-json-api/tree/master/examples"
-        >source</a>)
+        >source</a>
       </span>
     </h4>
     <div id="main">

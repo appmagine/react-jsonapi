@@ -158,14 +158,18 @@ Backbone.sync = function (method, model, options) {
 };
 
 function getUrl(model, fetchOptions) {
+    fetchOptions = fetchOptions || {};
     const urlRoot = model.urlRoot;
 
     if (!urlRoot) {
         throw new Error("Missing urlRoot", model);
     }
     let url = urlRoot;
-    if (model instanceof Backbone.Model && fetchOptions.id) {
-        url += `/${fetchOptions.id}`;
+    if (model instanceof Backbone.Model) {
+        const id = fetchOptions.id || model.get(model.idAttribute);
+        if (id) {
+            url += `/${id}`;
+        }
     }
 
     const include = [];
@@ -273,7 +277,7 @@ export function withJsonApi(options, WrappedComponent) {
         ),
 
         statics: {
-            loadProps({params, location, loadContext}, cb) {
+            loadProps({ params, location, loadContext }, cb) {
                 const getVars = () => {
                     if (getInitialVars) {
                         return getInitialVars();
@@ -284,13 +288,13 @@ export function withJsonApi(options, WrappedComponent) {
                     }
                 };
 
-                const queries = new Queries(
-                    null, 
-                    getVars(),
-                    componentQueries
-                );
+                const queries = new Queries({
+                    element: null, 
+                    vars: getVars(),
+                    propTypes: componentQueries
+                });
 
-                queries._fetch({params, location, loadContext}).then(() => {
+                queries._fetch({ params, location, loadContext }).then(() => {
                     cb(null, {
                         initialQueries: queries
                     });
@@ -337,7 +341,11 @@ export function withJsonApi(options, WrappedComponent) {
                 if (this.fragments) {
                     this.fragments._events._removeHandlers();
                 }
-                this.fragments = new QueryFragments(this, fragmentProps, componentFragments);
+                this.fragments = new QueryFragments({
+                    element: this, 
+                    props: fragmentProps, 
+                    propTypes: componentFragments
+                });
                 this.fragments._events._addHandlers();
             }
         },
@@ -394,7 +402,7 @@ Object.assign(Events.prototype, {
     }
 });
 
-function QueryFragments(element, props, propTypes) {
+function QueryFragments({ element, props, propTypes }) {
     this._events = new Events(props, propTypes, element);
 
     this._element = element;
@@ -403,7 +411,10 @@ function QueryFragments(element, props, propTypes) {
     this._propTypes = propTypes;
 }
 
-function Queries(element, vars, propTypes) {
+function Queries({ 
+    element, vars, propTypes, 
+    loadFromCache, alwaysFetch, updateCache 
+}) {
     this._events = new Events(null, propTypes, element);
 
     this._element = element;
@@ -413,6 +424,9 @@ function Queries(element, vars, propTypes) {
     this.pendingVars = {};
 
     this._queryPropTypes = propTypes;
+    this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
+    this.alwaysFetch = !_.isUndefined(alwaysFetch) ? alwaysFetch : true;
+    this.updateCache = !_.isUndefined(updateCache) ? updateCache : true;
 
     this._addedHandlers = false;
 }
@@ -421,15 +435,28 @@ const collectionCache = {};
 
 function findOrCreateCollection(model, fetchOptions) {
     const url = getUrl(model.prototype, fetchOptions);
+    let isNew = false;
 
     if (!collectionCache[url]) {
         collectionCache[url] = new model();
+        isNew = true;
     }
 
-    return collectionCache[url];
+    return { isNew, collection: collectionCache[url] };
 }
 
 Object.assign(Queries.prototype, {
+    getCacheOption(options, name) {
+        const option = options[name];
+        const thisVal = this[name];
+
+        return !_.isUndefined(option)
+            ? option
+            : (!_.isUndefined(thisVal)
+                    ? thisVal
+                    : true);
+    },
+
     /**
      * Set the current vars to `vars` and trigger a re-fetch.  Once fetching is
      * initiated, the component will re-render with the previous vars as
@@ -440,8 +467,9 @@ Object.assign(Queries.prototype, {
         this._fetch(this._element.props);
     },
 
-    _fetch({params, location, loadContext}) {
+    _fetch({ params, location, loadContext }) {
         const keys = Object.keys(this._queryPropTypes);
+
         if (!keys.length) {
             return Promise.resolve();
         }
@@ -464,14 +492,40 @@ Object.assign(Queries.prototype, {
                     location.query,
                     this.pendingVars
                 );
+
                 const model = options.model;
-                const modelOrCollection = model.prototype.model 
-                    ? findOrCreateCollection(model, options)
-                    : model.findOrCreate({[model.prototype.idAttribute]: options.id});
+                let instance, isNew;
 
-                modelOrCollection._isInitialized = false;
+                if (model.prototype.model) {
+                    if (this.getCacheOption(options, 'updateCache')) {
+                        ({ 
+                          collection: instance, 
+                          isNew 
+                        } = findOrCreateCollection(model, options));
+                    } else {
+                        instance = new model();
+                        instance.fetchOptions = options;
+                        isNew = true;
+                    }
+                } else {
+                    instance = model.findOrCreate({
+                        [model.prototype.idAttribute]: options.id
+                    });
+                }
 
-                const existingFetchPromise = modelOrCollection.fetchPromise;
+                instance._isInitialized = false;
+                fetchingProps[key] = instance;
+
+                let loadedFromCache = false;
+
+                if (this.getCacheOption(options, 'loadFromCache')) {
+                    if (model.prototype.model && !isNew) {
+                        loadedFromCache = true;
+                        resolve();
+                    }
+                }
+
+                const existingFetchPromise = instance.fetchPromise;
 
                 if (existingFetchPromise) {
                     existingFetchPromise.then(() => {
@@ -480,20 +534,24 @@ Object.assign(Queries.prototype, {
                         resolve();
                     });
                 } else {
-                    modelOrCollection.fetchOptions = options;
+                    if (loadedFromCache && !this.getCacheOption(
+                        options, 'alwaysFetch'
+                    )) {
+                        return;
+                    }
 
-                    fetchingProps[key] = modelOrCollection;
+                    instance.fetchOptions = options;
 
-                    const fetchPromise = modelOrCollection.fetch();
+                    const fetchPromise = instance.fetch();
 
-                    modelOrCollection.fetchPromise = fetchPromise;
+                    instance.fetchPromise = fetchPromise;
 
                     fetchPromise.catch(() => {
                         this.hasErrors = true;
-                        modelOrCollection.fetchPromise = null;
+                        instance.fetchPromise = null;
                         resolve();
                     }).then(() => {
-                        modelOrCollection.fetchPromise = null;
+                        instance.fetchPromise = null;
                         resolve();
                     });
                 }

@@ -13,7 +13,7 @@ const ArticleListItem = withJsonApi({
             relations: [
                 {
                     key: 'author',
-                    fields: ['name', 'username']
+                    fields: ['username']
                 }
             ]
         }
@@ -23,14 +23,17 @@ const ArticleListItem = withJsonApi({
 
     return (
         <div>
-            <h4>
-                <Link to={`/articles/${article.get('id')}`}
-                    activeStyle={{textDecoration: 'none', color: 'black'}}>
-                    {article.get('title')}
-                </Link>
-            </h4>
-            
-            by {author.get('username')} ({author.get('name')})
+            <Link 
+                to={`/articles/${article.get('id')}`}
+                activeStyle={{textDecoration: 'none', color: 'black'}}
+            >
+                <strong>{article.get('title')}</strong>
+            </Link>
+            <br/>
+        
+            by {author.get('username')}
+            <br/>
+            <br/>
         </div>
     );
 });
@@ -45,21 +48,24 @@ export const ArticleList = withJsonApi({
         articles(params, query, vars) {
             return {
                 model: ArticleCollection,
-                filter: vars.filter ? 'id != 11': null,
+                filter: vars.filter ? 'id != 11' : null,
                 fragments: [
                     ArticleListItem.fragments.article
-                ]
+                ],
+                loadExistingData: true
             };
         }
     }
 }, function ArticleList({ articles, loading, queries, children }) {
     return (
         <div>
-            <div className="panel">
+            <div className="panel" style={{width: "120px"}}>
                 <h3>Articles</h3>
                 <input type="checkbox" checked={(queries.pendingVars || queries.vars).filter} onChange={(e) => {
                     queries.setVars({filter: e.target.checked});
                 }}/> Filter
+                <br/>
+                <br/>
                 {articles.map((article) => {
                     return <ArticleListItem key={article.get('id')} article={article} />;
                 })}
@@ -89,12 +95,13 @@ const CommentItem = withJsonApi({
 }, function CommentItem({ comment }) {
     return (
         <div>
-            <h4>{comment.get('title')}</h4>
+            <u>{comment.get('title')}</u>
             {comment.error ? <p>{`Error Saving: ${comment.error}`}</p> : ''}
             <p>
                 {comment.get('content')}
             </p>
             by {comment.get('author').get('username')} at {comment.get('date')}
+            <br/>
         </div>
     );
 });
@@ -157,17 +164,16 @@ export const ArticleItem = withJsonApi({
         }
     },
     render() {
-        const {article, loading} = this.props;
-        const author = article.get('author');
+        const { article } = this.props;
 
         return (
             <div>
-                {loading 
-                    ? <div className="panel">
+                {!article
+                    ? <div className="panel article-panel">
                         Loading...
                     </div>
                     : article.error ? 
-                        <div className="panel">
+                        <div className="panel article-panel">
                             Error: {article.error}
                         </div> :
                         this.renderArticle()}
@@ -175,7 +181,7 @@ export const ArticleItem = withJsonApi({
         );
     },
     renderArticle() {
-        const { article } = this.props;
+        const { article, loading } = this.props;
         const author = article.get('author');
 
         return (
@@ -183,13 +189,22 @@ export const ArticleItem = withJsonApi({
                 <div className="panel article-panel">
                     <h3>{article.get('title')}</h3>
                     by {author.get('name')}
+                    <br/>
+                    <br/>
                     <div>
-                        <h4>Content</h4>
+                        {loading 
+                            ? <React.Fragment>
+                                <span>Loading...</span>
+                                <br/>
+                                <br/>
+                            </React.Fragment>
+                            : null}
+                        <u>Content</u>
                         <p>
                             {article.get('content')}
                         </p>
                     </div>
-                    <h4>More by this author</h4>
+                    <u>More by this author</u>
                     <ul>
                         {author.get('articles').map((article) => {
                             if (!article.get) {
@@ -209,20 +224,24 @@ export const ArticleItem = withJsonApi({
                 </div>
                 <div className="panel article-panel">
                     <h3>Comments</h3>
-                    {article.get('comments').map((comment) => {
-                        return <CommentItem key={comment.get('id')} comment={comment} />;
+                    {article.get('comments').map((comment, i) => {
+                        return (
+                            <React.Fragment>
+                                {i ? <br/> : null}
+                                <CommentItem key={comment.get('id')} comment={comment} />
+                            </React.Fragment>
+                        );
                     })}
                     <br/>
                     {!this.state.addingComment ? 
-                            <a href="#" 
+                            <input type="button"
+                                value="Add Comment"
                                 onClick={(e) => { 
                                     e.preventDefault();
                                     this.setState({
                                         addingComment: true
                                     });
-                                }}>
-                                Add Comment
-                            </a> :
+                                }} /> :
                             <div>
                                 <textarea value={this.state.commentText} onChange={(e) => {
                                     this.setState({
@@ -309,11 +328,13 @@ const ArticleSummary = withJsonApi({
         );
     }
 
+    const commentsCount = article.get('comments').length;
+
     return (
         <div>
             {article.get('title')} by {article.get('author').get('name')}
             <br/>
-            {article.get('comments').length} comments
+            {commentsCount} {commentsCount == 1 ? 'comment' : 'comments'}
         </div>
     );
 });

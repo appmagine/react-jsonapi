@@ -2399,14 +2399,18 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
     }
 
     function getUrl(model, fetchOptions) {
+        fetchOptions = fetchOptions || {};
         var urlRoot = model.urlRoot;
 
         if (!urlRoot) {
             throw new Error("Missing urlRoot", model);
         }
         var url = urlRoot;
-        if (model instanceof Backbone.Model && fetchOptions.id) {
-            url += '/' + fetchOptions.id;
+        if (model instanceof Backbone.Model) {
+            var id = fetchOptions.id || model.get(model.idAttribute);
+            if (id) {
+                url += '/' + id;
+            }
         }
 
         var include = [];
@@ -2414,9 +2418,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
         processRelation(model.model ? model.model : model.constructor, fetchOptions, [], include, fields);
 
-        var sort = fetchOptions.sort,
-            filter = fetchOptions.filter,
-            page = fetchOptions.page;
+        var _fetchOptions = fetchOptions,
+            sort = _fetchOptions.sort,
+            filter = _fetchOptions.filter,
+            page = _fetchOptions.page;
 
         var params = [];
 
@@ -2474,7 +2479,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         var displayName = WrappedComponent.displayName || WrappedComponent.name;
 
         return createReactClass({
-            displayName: 'withJsonApi(' + displayName + ')',
+            displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
 
             propTypes: Object.assign({}, WrappedComponent.propTypes, {
                 initialQueries: PropTypes.object
@@ -2496,7 +2501,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                         }
                     };
 
-                    var queries = new Queries(null, getVars(), componentQueries);
+                    var queries = new Queries({
+                        element: null,
+                        vars: getVars(),
+                        propTypes: componentQueries
+                    });
 
                     queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
                         cb(null, {
@@ -2533,7 +2542,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     if (this.fragments) {
                         this.fragments._events._removeHandlers();
                     }
-                    this.fragments = new QueryFragments(this, fragmentProps, componentFragments);
+                    this.fragments = new QueryFragments({
+                        element: this,
+                        props: fragmentProps,
+                        propTypes: componentFragments
+                    });
                     this.fragments._events._addHandlers();
                 }
             },
@@ -2557,7 +2570,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         this.element = element;
     }
 
-    function QueryFragments(element, props, propTypes) {
+    function QueryFragments(_ref2) {
+        var element = _ref2.element,
+            props = _ref2.props,
+            propTypes = _ref2.propTypes;
+
         this._events = new Events(props, propTypes, element);
 
         this._element = element;
@@ -2566,7 +2583,14 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         this._propTypes = propTypes;
     }
 
-    function Queries(element, vars, propTypes) {
+    function Queries(_ref3) {
+        var element = _ref3.element,
+            vars = _ref3.vars,
+            propTypes = _ref3.propTypes,
+            loadFromCache = _ref3.loadFromCache,
+            alwaysFetch = _ref3.alwaysFetch,
+            updateCache = _ref3.updateCache;
+
         this._events = new Events(null, propTypes, element);
 
         this._element = element;
@@ -2576,18 +2600,23 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         this.pendingVars = {};
 
         this._queryPropTypes = propTypes;
+        this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
+        this.alwaysFetch = !_.isUndefined(alwaysFetch) ? alwaysFetch : true;
+        this.updateCache = !_.isUndefined(updateCache) ? updateCache : true;
 
         this._addedHandlers = false;
     }
 
     function findOrCreateCollection(model, fetchOptions) {
         var url = getUrl(model.prototype, fetchOptions);
+        var isNew = false;
 
         if (!collectionCache[url]) {
             collectionCache[url] = new model();
+            isNew = true;
         }
 
-        return collectionCache[url];
+        return { isNew: isNew, collection: collectionCache[url] };
     }
 
     return {
@@ -3107,6 +3136,13 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 }
             });collectionCache = {};
             Object.assign(Queries.prototype, {
+                getCacheOption: function getCacheOption(options, name) {
+                    var option = options[name];
+                    var thisVal = this[name];
+
+                    return !_.isUndefined(option) ? option : !_.isUndefined(thisVal) ? thisVal : true;
+                },
+
                 /**
                  * Set the current vars to `vars` and trigger a re-fetch.  Once fetching is
                  * initiated, the component will re-render with the previous vars as
@@ -3116,14 +3152,15 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     this.pendingVars = Object.assign({}, this.vars, vars);
                     this._fetch(this._element.props);
                 },
-                _fetch: function _fetch(_ref2) {
+                _fetch: function _fetch(_ref4) {
                     var _this5 = this;
 
-                    var params = _ref2.params,
-                        location = _ref2.location,
-                        loadContext = _ref2.loadContext;
+                    var params = _ref4.params,
+                        location = _ref4.location,
+                        loadContext = _ref4.loadContext;
 
                     var keys = Object.keys(this._queryPropTypes);
+
                     if (!keys.length) {
                         return Promise.resolve();
                     }
@@ -3142,12 +3179,39 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
                             var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
+
                             var model = options.model;
-                            var modelOrCollection = model.prototype.model ? findOrCreateCollection(model, options) : model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
+                            var instance = void 0,
+                                isNew = void 0;
 
-                            modelOrCollection._isInitialized = false;
+                            if (model.prototype.model) {
+                                if (_this5.getCacheOption(options, 'updateCache')) {
+                                    var _findOrCreateCollecti = findOrCreateCollection(model, options);
 
-                            var existingFetchPromise = modelOrCollection.fetchPromise;
+                                    instance = _findOrCreateCollecti.collection;
+                                    isNew = _findOrCreateCollecti.isNew;
+                                } else {
+                                    instance = new model();
+                                    instance.fetchOptions = options;
+                                    isNew = true;
+                                }
+                            } else {
+                                instance = model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
+                            }
+
+                            instance._isInitialized = false;
+                            fetchingProps[key] = instance;
+
+                            var loadedFromCache = false;
+
+                            if (_this5.getCacheOption(options, 'loadFromCache')) {
+                                if (model.prototype.model && !isNew) {
+                                    loadedFromCache = true;
+                                    resolve();
+                                }
+                            }
+
+                            var existingFetchPromise = instance.fetchPromise;
 
                             if (existingFetchPromise) {
                                 existingFetchPromise.then(function () {
@@ -3156,20 +3220,22 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                                     resolve();
                                 });
                             } else {
-                                modelOrCollection.fetchOptions = options;
+                                if (loadedFromCache && !_this5.getCacheOption(options, 'alwaysFetch')) {
+                                    return;
+                                }
 
-                                fetchingProps[key] = modelOrCollection;
+                                instance.fetchOptions = options;
 
-                                var fetchPromise = modelOrCollection.fetch();
+                                var fetchPromise = instance.fetch();
 
-                                modelOrCollection.fetchPromise = fetchPromise;
+                                instance.fetchPromise = fetchPromise;
 
                                 fetchPromise.catch(function () {
                                     _this5.hasErrors = true;
-                                    modelOrCollection.fetchPromise = null;
+                                    instance.fetchPromise = null;
                                     resolve();
                                 }).then(function () {
-                                    modelOrCollection.fetchPromise = null;
+                                    instance.fetchPromise = null;
                                     resolve();
                                 });
                             }
