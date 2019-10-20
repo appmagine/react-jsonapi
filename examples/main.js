@@ -7,9 +7,9 @@ import { AsyncProps } from 'react-router-json-api';
 import { Link, Router, Route, browserHistory } from 'react-router';
 import { useBasename } from 'history';
 
-const Home = createReactClass({
-    render() {
-        return <div>
+function Home() {
+    return (
+        <div>
             <p>
                 <Link to={"/articles"}>Link</Link>
             </p>
@@ -17,8 +17,8 @@ const Home = createReactClass({
                 <Link to={"/articles/10"}>Deep Link</Link>
             </p>
         </div>
-    }
-});
+    );
+}
 
 ReactDOM.render((
     <Router 

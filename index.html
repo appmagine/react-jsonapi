@@ -21,8 +21,7 @@
       background-color: white;
       border: 1px solid #DDD;
       border-radius: 5px;
-      padding: 30px;
-      padding-top: 15px;
+      padding: 15px 30px;
       margin: 30px auto;
     }
     #main {
@@ -38,38 +37,6 @@
       #main {
         max-width: 720px;
       }
-    }
-
-    #source {
-      margin-top: 10px;
-    }
-
-    #menu {
-      list-style-type: none;
-    }
-    #menu > li {
-      display: inline;
-      border: 1px solid #DDD;
-      background-color: #fbfbfb;
-      border-radius: 5px;
-      margin-right: 5px;
-      padding: 5px;
-    }
-
-    #menu > li > a {
-      color: black;
-      text-decoration: none;
-    }
-
-    #menu > li > a.active {
-      font-weight: bold;
-    }
-
-    .CodeMirror {
-      margin-top: 1em;
-      border: 1px solid #DDD;
-      border-radius: 15px;
-      padding: 5px;
     }
 
     p {
@@ -112,26 +79,20 @@
       View the <a href="http://github.com/appmagine/react-router-json-api">
         README</a>.
     </p>
-    <h4>Demo</h4>
+    <h4>Demo
+      <span style="font-weight: normal;">(<a
+        href="https://github.com/appmagine/react-router-json-api/tree/master/examples"
+        >source</a>)
+      </span>
+    </h4>
     <div id="main">
       <p>
         Loading modules...
       </p>
     </div>
-
-    <h4>Source</h4>
-    <ul id="menu" style="list-style-type: none; margin: 0; padding: 0">
-      <li><a id="default" href="#">main.js</a></li>
-      <li><a href="#">components.js</a></li>
-      <li><a href="#">models.js</a></li>
-      <li><a href="#">data.js</a></li>
-    </ul>
-
-      <textarea id="codemirror" style="display:none">
-        </textarea>
   </div>
   <script>
 
-    SystemJS.import('examples/index');
+    SystemJS.import('examples/main');
   </script>
 </body>

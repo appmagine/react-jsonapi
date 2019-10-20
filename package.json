@@ -4,7 +4,7 @@
   "scripts": {
     "postinstall": "jspm install",
     "build": "jspm build src/index.js dist/react-router-json-api.js --externals backbone backbone-relational react react-router/lib/RouterContext react-router/lib/computeChangedRoutes underscore --format cjs --global-name reactRouterJsonApi --skip-source-maps",
-    "build-example": "jspm bundle examples/index.js dist/example-bundle.js --skip-source-maps"
+    "build-example": "jspm bundle examples/main.js dist/example-bundle.js --skip-source-maps"
   },
   "dependencies": {
     "backbone": "^1.3.3",
