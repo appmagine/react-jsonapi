@@ -4,15 +4,13 @@ React Router JSON API provides declarative co-located [JSON
 API](http://jsonapi.org) data loading for React components using [React
 Router](https://github.com/ReactTraining/react-router/tree/v3) v3.x.
 
-React Router JSON API loads data into [Backbone](http://backbonejs.org) models
-and uses an object-based query configuration system.
-
+React Router JSON API loads data into [Backbone](http://backbonejs.org) models.
 Data loading occurs after each route transition.  Data can be loaded either
 at the application level based on the page URL or in individual components.
 
-Query URLs are generated based on query definitions specified in terms of the
-route information in addition to per-component state known as
-[variables](#variables).
+Query URLs are generated based on query definitions specified as JavaScript
+objects in terms of the route information in addition to per-component state
+known as [variables](#variables).
 
 The Backbone Model and Collection API can be used to update and persist model
 state.  In order to keep the view in sync, each component is subscribed to
@@ -300,6 +298,10 @@ A middleware for React Router that loads data for the components for each
 matched route in the route tree before each render trigger by a route
 transition.  This must be passed as the `render` prop of `Router` as seen above.
 
+React Router version 3 introduced asynchronous route definition via
+`getChildRoutes()` and `getComponents()`, which is incompatible with co-located
+data loading.  Avoid using these features when using React Router JSON API.
+
 #### `withJsonApi`
 
 \- `withJsonApi(options, Component)`
@@ -421,23 +423,6 @@ The factory function `Backbone.RelationalModel.extend()` is monkey-patched
 to add model classes to a global registry if `defaults.type` is defined 
 (see example).  The value of this property is used where a type is expected 
 in JSON-API URLs.
-
-## A note about React Router versions
-
-This library incorporates the
-[AsyncProps](https://github.com/ryanflorence/async-props) middleware for React
-Router. It is only compatible with React Router up to version 3.x, so this
-library cannot be used with React Router version 4 or later.
-
-React Router version 3 introduced asynchronous route definition via
-`getChildRoutes()` and `getComponents()`, which is incompatible with co-located
-data loading.  Avoid using these features when using React Router JSON API.
-
-The [`history`](https://github.com/ReactTraining/history) library provides the
-`createMemoryHistory` function necessary when using this library inside of a
-component.  React Router JSON API depends on React Router version 3.x, which is
-compatible with the `history` library up to version 3.x.  React Router version
-3.x will not work with version 4 or later of the `history` library.
 
 ## Testing
 
