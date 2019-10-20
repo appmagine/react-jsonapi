@@ -24,7 +24,8 @@ const ArticleListItem = withJsonApi({
     return (
         <div>
             <h4>
-                <Link to={`/articles/${article.get('id')}`}>
+                <Link to={`/articles/${article.get('id')}`}
+                    activeStyle={{textDecoration: 'none', color: 'black'}}>
                     {article.get('title')}
                 </Link>
             </h4>
@@ -63,7 +64,7 @@ export const ArticleList = withJsonApi({
                     return <ArticleListItem key={article.get('id')} article={article} />;
                 })}
             </div>
-            <div style={{float: 'left', maxWidth: '520px'}}>
+            <div key="right" style={{float: 'left', maxWidth: '520px'}}>
                 {children}
             </div>
             <div style={{clear: "both"}}></div>

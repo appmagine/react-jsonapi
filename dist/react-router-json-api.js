@@ -2295,7 +2295,7 @@ $__System.registerDynamic('1b', ['16', '19', '1a', 'c'], true, function ($__requ
 $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], function (_export, _context) {
     "use strict";
 
-    var Backbone, _, React, RouterContext, computeChangedRoutes, createReactClass, PropTypes, _defineProperty, _extends, _extend, ModelFactory, _objectWithoutProperties, array, func, object, AsyncPropsContainer, AsyncProps, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation;
+    var Backbone, _, React, RouterContext, computeChangedRoutes, createReactClass, PropTypes, _defineProperty, _extends, _extend, ModelFactory, _objectWithoutProperties, array, func, object, AsyncPropsContainer, AsyncProps, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation, collectionCache;
 
     function eachComponents(components, iterator) {
         for (var i = 0, l = components.length; i < l; i++) {
@@ -2396,6 +2396,73 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
             propsArray: __ASYNC_PROPS__,
             componentsArray: filterAndFlattenComponents(props.components)
         };else return null;
+    }
+
+    function getUrl(model, fetchOptions) {
+        var urlRoot = model.urlRoot;
+
+        if (!urlRoot) {
+            throw new Error("Missing urlRoot", model);
+        }
+        var url = urlRoot;
+        if (model instanceof Backbone.Model && fetchOptions.id) {
+            url += '/' + fetchOptions.id;
+        }
+
+        var include = [];
+        var fields = {};
+
+        processRelation(model.model ? model.model : model.constructor, fetchOptions, [], include, fields);
+
+        var sort = fetchOptions.sort,
+            filter = fetchOptions.filter,
+            page = fetchOptions.page;
+
+        var params = [];
+
+        if (include.length) {
+            var includes = _.sortBy(_.uniq(include.map(function (include) {
+                return include.join('.');
+            })), _.identity);
+            params.push('include=' + includes.join(','));
+        }
+
+        _.each(_.sortBy(_.keys(fields), _.identity), function (type) {
+            var typeFields = _.sortBy(_.uniq(fields[type]), _.identity);
+            params.push('fields[' + type + ']=' + typeFields.join(','));
+        });
+
+        if (sort) {
+            params.push('sort=' + sort);
+        }
+
+        if (filter) {
+            if (typeof filter === "object") {
+                _.each(_.sortBy(_.keys(filter), _.identity), function (key) {
+                    var keyVal = filter[key];
+                    params.push('filter[' + key + ']=' + keyVal);
+                });
+            } else {
+                params.push('filter=' + filter);
+            }
+        }
+
+        if (page) {
+            if (typeof page === "object") {
+                _.each(_.sortBy(_.keys(page), _.identity), function (key) {
+                    var keyVal = page[key];
+                    params.push('page[' + key + ']=' + keyVal);
+                });
+            } else {
+                params.push('page=' + page);
+            }
+        }
+
+        if (params.length) {
+            url += '?' + params.join('&');
+        }
+
+        return url;
     }
 
     function withJsonApi(options, WrappedComponent) {
@@ -2512,6 +2579,17 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
         this._addedHandlers = false;
     }
+
+    function findOrCreateCollection(model, fetchOptions) {
+        var url = getUrl(model.prototype, fetchOptions);
+
+        if (!collectionCache[url]) {
+            collectionCache[url] = new model();
+        }
+
+        return collectionCache[url];
+    }
+
     return {
         setters: [function (_c) {
             Backbone = _c.default;
@@ -2878,6 +2956,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
             modelEvents = 'change invalid error request sync';
             collectionEvents = 'update reset sort error request sync';
 
+
             Backbone.Collection.prototype.bindRelationEvents = function (callback, context, options) {
                 this.on(collectionEvents, callback, context);
                 this.models.forEach(function (model) {
@@ -2944,66 +3023,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
             BackboneSync = Backbone.sync;
 
+
             Backbone.sync = function (method, model, options) {
                 if (!options.url) {
-                    (function () {
-                        var fetchOptions = model.fetchOptions || {};
-                        if (!model.urlRoot) {
-                            throw new Error();
-                        }
-                        var url = model.urlRoot;
-                        if (model instanceof Backbone.Model && fetchOptions.id) {
-                            url += '/' + fetchOptions.id;
-                        }
-
-                        var include = [];
-                        var fields = {};
-
-                        processRelation(model.model ? model.model : model.constructor, fetchOptions, [], include, fields);
-
-                        var params = [];
-
-                        if (include.length) {
-                            var includes = _.uniq(include.map(function (include) {
-                                return include.join('.');
-                            }));
-                            params.push('include=' + includes.join(','));
-                        }
-
-                        _.each(fields, function (fields, type) {
-                            params.push('fields[' + type + ']=' + _.uniq(fields).join(','));
-                        });
-
-                        if (fetchOptions.sort) {
-                            params.push('sort=' + fetchOptions.sort.join(','));
-                        }
-
-                        if (fetchOptions.filter) {
-                            if (typeof fetchOptions.filter === "object") {
-                                _.each(fetchOptions.filter, function (val, key) {
-                                    params.push('filter[' + key + ']=' + val);
-                                });
-                            } else {
-                                params.push('filter=' + fetchOptions.filter);
-                            }
-                        }
-
-                        if (fetchOptions.page) {
-                            if (typeof fetchOptions.page === "object") {
-                                _.each(fetchOptions.page, function (val, key) {
-                                    params.push('page[' + key + ']=' + val);
-                                });
-                            } else {
-                                params.push('page=' + fetchOptions.page);
-                            }
-                        }
-
-                        if (params.length) {
-                            url += '?' + params.join('&');
-                        }
-
-                        options.url = url;
-                    })();
+                    options.url = getUrl(model, model.fetchOptions);
                 }
 
                 return new Promise(function (resolve, reject) {
@@ -3030,7 +3053,6 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     });
                 });
             };
-
             processRelation = function processRelation(model, relation, path, include, fields) {
                 var fragments = relation.fragments || [];
                 var relationRelations = relation.relations || [];
@@ -3083,7 +3105,8 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                         _this4.props[key].unbindRelationEvents(_this4.element, _this4.propOptions[key]);
                     });
                 }
-            });Object.assign(Queries.prototype, {
+            });collectionCache = {};
+            Object.assign(Queries.prototype, {
                 /**
                  * Set the current vars to `vars` and trigger a re-fetch.  Once fetching is
                  * initiated, the component will re-render with the previous vars as
@@ -3120,19 +3143,36 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                         return new Promise(function (resolve) {
                             var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
                             var model = options.model;
-                            var modelOrCollection = model.prototype.model ? new model() : model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
-                            model._isInitialized = false;
+                            var modelOrCollection = model.prototype.model ? findOrCreateCollection(model, options) : model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
 
-                            modelOrCollection.fetchOptions = options;
+                            modelOrCollection._isInitialized = false;
 
-                            fetchingProps[key] = modelOrCollection;
+                            var existingFetchPromise = modelOrCollection.fetchPromise;
 
-                            modelOrCollection.fetch().then(function () {
-                                resolve();
-                            }).catch(function () {
-                                _this5.hasErrors = true;
-                                resolve();
-                            });
+                            if (existingFetchPromise) {
+                                existingFetchPromise.then(function () {
+                                    resolve();
+                                }).catch(function () {
+                                    resolve();
+                                });
+                            } else {
+                                modelOrCollection.fetchOptions = options;
+
+                                fetchingProps[key] = modelOrCollection;
+
+                                var fetchPromise = modelOrCollection.fetch();
+
+                                modelOrCollection.fetchPromise = fetchPromise;
+
+                                fetchPromise.catch(function () {
+                                    _this5.hasErrors = true;
+                                    modelOrCollection.fetchPromise = null;
+                                    resolve();
+                                }).then(function () {
+                                    modelOrCollection.fetchPromise = null;
+                                    resolve();
+                                });
+                            }
                         });
                     }));
 

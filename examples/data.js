@@ -122,7 +122,7 @@ $.mockjax({
 });
 
 $.mockjax({
-    url: "/articles/10?include=author,author.articles,comments,comments.author&fields[articles]=title,content&fields[users]=name,username&fields[comments]=title,content,date",
+    url: "/articles/10?include=author,author.articles,comments,comments.author&fields[articles]=content,title&fields[comments]=content,date,title&fields[users]=name,username",
     responseTime: 50,
     responseText: {
         data: {
@@ -229,7 +229,7 @@ $.mockjax({
 
 
 $.mockjax({
-    url: "/articles/11?include=author,author.articles,comments,comments.author&fields[articles]=title,content&fields[users]=name,username&fields[comments]=title,content,date",
+    url: "/articles/11?include=author,author.articles,comments,comments.author&fields[articles]=content,title&fields[comments]=content,date,title&fields[users]=name,username",
     responseTime: 50,
     responseText: {
         data: {
@@ -327,5 +327,4 @@ $.mockjax({
             }
         ]
     }
-
 });

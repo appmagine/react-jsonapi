@@ -40027,7 +40027,7 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
             });
 
             $.mockjax({
-                url: "/articles/10?include=author,author.articles,comments,comments.author&fields[articles]=title,content&fields[users]=name,username&fields[comments]=title,content,date",
+                url: "/articles/10?include=author,author.articles,comments,comments.author&fields[articles]=content,title&fields[comments]=content,date,title&fields[users]=name,username",
                 responseTime: 50,
                 responseText: {
                     data: {
@@ -40120,7 +40120,7 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
             });
 
             $.mockjax({
-                url: "/articles/11?include=author,author.articles,comments,comments.author&fields[articles]=title,content&fields[users]=name,username&fields[comments]=title,content,date",
+                url: "/articles/11?include=author,author.articles,comments,comments.author&fields[articles]=content,title&fields[comments]=content,date,title&fields[users]=name,username",
                 responseTime: 50,
                 responseText: {
                     data: {
@@ -40205,7 +40205,6 @@ System.register('examples/data.js', ['jquery', 'jquery-mockjax'], function (_exp
                         }
                     }]
                 }
-
             });
         }
     };
@@ -40326,7 +40325,8 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
                 var author = article.get('author');
 
-                return React.createElement('div', null, React.createElement('h4', null, React.createElement(Link, { to: '/articles/' + article.get('id') }, article.get('title'))), 'by ', author.get('username'), ' (', author.get('name'), ')');
+                return React.createElement('div', null, React.createElement('h4', null, React.createElement(Link, { to: '/articles/' + article.get('id'),
+                    activeStyle: { textDecoration: 'none', color: 'black' } }, article.get('title'))), 'by ', author.get('username'), ' (', author.get('name'), ')');
             });
 
             _export('ArticleList', ArticleList = withJsonApi({
@@ -40355,7 +40355,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         queries.setVars({ filter: e.target.checked });
                     } }), ' Filter', articles.map(function (article) {
                     return React.createElement(ArticleListItem, { key: article.get('id'), article: article });
-                })), React.createElement('div', { style: { float: 'left', maxWidth: '520px' } }, children), React.createElement('div', { style: { clear: "both" } }));
+                })), React.createElement('div', { key: 'right', style: { float: 'left', maxWidth: '520px' } }, children), React.createElement('div', { style: { clear: "both" } }));
             }));
 
             _export('ArticleList', ArticleList);
@@ -57077,7 +57077,74 @@ System.register('react-router-json-api/AsyncProps.js', ['npm:systemjs-plugin-bab
 System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'react', 'create-react-class', 'prop-types', 'backbone', 'backbone-relational', 'underscore', './backbone-relational-jsonapi', './AsyncProps'], function (_export, _context) {
     "use strict";
 
-    var _defineProperty, _extends, React, createReactClass, PropTypes, Backbone, _, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation;
+    var _defineProperty, _extends, React, createReactClass, PropTypes, Backbone, _, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation, collectionCache;
+
+    function getUrl(model, fetchOptions) {
+        var urlRoot = model.urlRoot;
+
+        if (!urlRoot) {
+            throw new Error("Missing urlRoot", model);
+        }
+        var url = urlRoot;
+        if (model instanceof Backbone.Model && fetchOptions.id) {
+            url += '/' + fetchOptions.id;
+        }
+
+        var include = [];
+        var fields = {};
+
+        processRelation(model.model ? model.model : model.constructor, fetchOptions, [], include, fields);
+
+        var sort = fetchOptions.sort,
+            filter = fetchOptions.filter,
+            page = fetchOptions.page;
+
+        var params = [];
+
+        if (include.length) {
+            var includes = _.sortBy(_.uniq(include.map(function (include) {
+                return include.join('.');
+            })), _.identity);
+            params.push('include=' + includes.join(','));
+        }
+
+        _.each(_.sortBy(_.keys(fields), _.identity), function (type) {
+            var typeFields = _.sortBy(_.uniq(fields[type]), _.identity);
+            params.push('fields[' + type + ']=' + typeFields.join(','));
+        });
+
+        if (sort) {
+            params.push('sort=' + sort);
+        }
+
+        if (filter) {
+            if (typeof filter === "object") {
+                _.each(_.sortBy(_.keys(filter), _.identity), function (key) {
+                    var keyVal = filter[key];
+                    params.push('filter[' + key + ']=' + keyVal);
+                });
+            } else {
+                params.push('filter=' + filter);
+            }
+        }
+
+        if (page) {
+            if (typeof page === "object") {
+                _.each(_.sortBy(_.keys(page), _.identity), function (key) {
+                    var keyVal = page[key];
+                    params.push('page[' + key + ']=' + keyVal);
+                });
+            } else {
+                params.push('page=' + page);
+            }
+        }
+
+        if (params.length) {
+            url += '?' + params.join('&');
+        }
+
+        return url;
+    }
 
     function withJsonApi(options, WrappedComponent) {
         var componentQueries = options.queries || {};
@@ -57201,6 +57268,17 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
 
         this._addedHandlers = false;
     }
+
+    function findOrCreateCollection(model, fetchOptions) {
+        var url = getUrl(model.prototype, fetchOptions);
+
+        if (!collectionCache[url]) {
+            collectionCache[url] = new model();
+        }
+
+        return collectionCache[url];
+    }
+
     return {
         setters: [function (_npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs) {
             _defineProperty = _npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs.default;
@@ -57280,6 +57358,7 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
             modelEvents = 'change invalid error request sync';
             collectionEvents = 'update reset sort error request sync';
 
+
             Backbone.Collection.prototype.bindRelationEvents = function (callback, context, options) {
                 this.on(collectionEvents, callback, context);
                 this.models.forEach(function (model) {
@@ -57346,66 +57425,10 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
 
             BackboneSync = Backbone.sync;
 
+
             Backbone.sync = function (method, model, options) {
                 if (!options.url) {
-                    (function () {
-                        var fetchOptions = model.fetchOptions || {};
-                        if (!model.urlRoot) {
-                            throw new Error();
-                        }
-                        var url = model.urlRoot;
-                        if (model instanceof Backbone.Model && fetchOptions.id) {
-                            url += '/' + fetchOptions.id;
-                        }
-
-                        var include = [];
-                        var fields = {};
-
-                        processRelation(model.model ? model.model : model.constructor, fetchOptions, [], include, fields);
-
-                        var params = [];
-
-                        if (include.length) {
-                            var includes = _.uniq(include.map(function (include) {
-                                return include.join('.');
-                            }));
-                            params.push('include=' + includes.join(','));
-                        }
-
-                        _.each(fields, function (fields, type) {
-                            params.push('fields[' + type + ']=' + _.uniq(fields).join(','));
-                        });
-
-                        if (fetchOptions.sort) {
-                            params.push('sort=' + fetchOptions.sort.join(','));
-                        }
-
-                        if (fetchOptions.filter) {
-                            if (typeof fetchOptions.filter === "object") {
-                                _.each(fetchOptions.filter, function (val, key) {
-                                    params.push('filter[' + key + ']=' + val);
-                                });
-                            } else {
-                                params.push('filter=' + fetchOptions.filter);
-                            }
-                        }
-
-                        if (fetchOptions.page) {
-                            if (typeof fetchOptions.page === "object") {
-                                _.each(fetchOptions.page, function (val, key) {
-                                    params.push('page[' + key + ']=' + val);
-                                });
-                            } else {
-                                params.push('page=' + fetchOptions.page);
-                            }
-                        }
-
-                        if (params.length) {
-                            url += '?' + params.join('&');
-                        }
-
-                        options.url = url;
-                    })();
+                    options.url = getUrl(model, model.fetchOptions);
                 }
 
                 return new Promise(function (resolve, reject) {
@@ -57432,7 +57455,6 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                     });
                 });
             };
-
             processRelation = function processRelation(model, relation, path, include, fields) {
                 var fragments = relation.fragments || [];
                 var relationRelations = relation.relations || [];
@@ -57485,7 +57507,8 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                         _this4.props[key].unbindRelationEvents(_this4.element, _this4.propOptions[key]);
                     });
                 }
-            });Object.assign(Queries.prototype, {
+            });collectionCache = {};
+            Object.assign(Queries.prototype, {
                 /**
                  * Set the current vars to `vars` and trigger a re-fetch.  Once fetching is
                  * initiated, the component will re-render with the previous vars as
@@ -57522,19 +57545,36 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                         return new Promise(function (resolve) {
                             var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
                             var model = options.model;
-                            var modelOrCollection = model.prototype.model ? new model() : model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
-                            model._isInitialized = false;
+                            var modelOrCollection = model.prototype.model ? findOrCreateCollection(model, options) : model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
 
-                            modelOrCollection.fetchOptions = options;
+                            modelOrCollection._isInitialized = false;
 
-                            fetchingProps[key] = modelOrCollection;
+                            var existingFetchPromise = modelOrCollection.fetchPromise;
 
-                            modelOrCollection.fetch().then(function () {
-                                resolve();
-                            }).catch(function () {
-                                _this5.hasErrors = true;
-                                resolve();
-                            });
+                            if (existingFetchPromise) {
+                                existingFetchPromise.then(function () {
+                                    resolve();
+                                }).catch(function () {
+                                    resolve();
+                                });
+                            } else {
+                                modelOrCollection.fetchOptions = options;
+
+                                fetchingProps[key] = modelOrCollection;
+
+                                var fetchPromise = modelOrCollection.fetch();
+
+                                modelOrCollection.fetchPromise = fetchPromise;
+
+                                fetchPromise.catch(function () {
+                                    _this5.hasErrors = true;
+                                    modelOrCollection.fetchPromise = null;
+                                    resolve();
+                                }).then(function () {
+                                    modelOrCollection.fetchPromise = null;
+                                    resolve();
+                                });
+                            }
                         });
                     }));
 

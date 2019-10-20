@@ -66,6 +66,7 @@ Backbone.RelationalModel.prototype.set = function( key, value, options ) {
 
 const modelEvents = 'change invalid error request sync';
 const collectionEvents = 'update reset sort error request sync';
+
 Backbone.Collection.prototype.bindRelationEvents = function (callback, context, options) {
     this.on(collectionEvents, callback, context);
     this.models.forEach((model) => {
@@ -123,72 +124,12 @@ const getRelated = (model, relation) => {
     let r = model.getRelation(relation.key);
     return r.related;
 };
-            
+
 const BackboneSync = Backbone.sync;
+
 Backbone.sync = function (method, model, options) {
     if (!options.url) {
-        const fetchOptions = model.fetchOptions || {};
-        if (!model.urlRoot) {
-            throw new Error();
-        }
-        let url = model.urlRoot;
-        if (model instanceof Backbone.Model && fetchOptions.id) {
-            url += `/${fetchOptions.id}`;
-        }
-
-        const include = [];
-        const fields = {};
-
-        processRelation(
-            model.model ? model.model : model.constructor, 
-            fetchOptions,
-            [],
-            include,
-            fields
-        );
-
-        const params = [];
-
-        if (include.length) {
-            const includes = _.uniq(include.map((include) => {
-                return include.join('.');
-            }));
-            params.push(`include=${includes.join(',')}`);
-        }
-
-        _.each(fields, (fields, type) => {
-            params.push(`fields[${type}]=${_.uniq(fields).join(',')}`);
-        });
-
-        if (fetchOptions.sort) {
-            params.push(`sort=${fetchOptions.sort}`);
-        }
-
-        if (fetchOptions.filter) {
-            if (typeof fetchOptions.filter === "object") {
-                _.each(fetchOptions.filter, (val, key) => {
-                    params.push(`filter[${key}]=${val}`);
-                });
-            } else {
-                params.push(`filter=${fetchOptions.filter}`);
-            }
-        }
-
-        if (fetchOptions.page) {
-            if (typeof fetchOptions.page === "object") {
-                _.each(fetchOptions.page, (val, key) => {
-                    params.push(`page[${key}]=${val}`);
-                });
-            } else {
-                params.push(`page=${fetchOptions.page}`);
-            }
-        }
-
-        if (params.length) {
-            url += '?' + params.join('&');
-        }
-
-        options.url = url;
+        options.url = getUrl(model, model.fetchOptions);
     }
 
     return new Promise((resolve, reject) => {
@@ -215,6 +156,76 @@ Backbone.sync = function (method, model, options) {
         })
     });
 };
+
+function getUrl(model, fetchOptions) {
+    const urlRoot = model.urlRoot;
+
+    if (!urlRoot) {
+        throw new Error("Missing urlRoot", model);
+    }
+    let url = urlRoot;
+    if (model instanceof Backbone.Model && fetchOptions.id) {
+        url += `/${fetchOptions.id}`;
+    }
+
+    const include = [];
+    const fields = {};
+
+    processRelation(
+        model.model ? model.model : model.constructor, 
+        fetchOptions,
+        [],
+        include,
+        fields
+    );
+
+    const { sort, filter, page } = fetchOptions;
+    const params = [];
+
+    if (include.length) {
+        const includes = _.sortBy(_.uniq(include.map((include) => {
+            return include.join('.');
+        })), _.identity);
+        params.push(`include=${includes.join(',')}`);
+    }
+
+    _.each(_.sortBy(_.keys(fields), _.identity), (type) => {
+        const typeFields = _.sortBy(_.uniq(fields[type]), _.identity);
+        params.push(`fields[${type}]=${typeFields.join(',')}`);
+    });
+
+    if (sort) {
+        params.push(`sort=${sort}`);
+    }
+
+    if (filter) {
+        if (typeof filter === "object") {
+            _.each(_.sortBy(_.keys(filter), _.identity), (key) => {
+                const keyVal = filter[key];
+                params.push(`filter[${key}]=${keyVal}`);
+            });
+        } else {
+            params.push(`filter=${filter}`);
+        }
+    }
+
+    if (page) {
+        if (typeof page === "object") {
+            _.each(_.sortBy(_.keys(page), _.identity), (key) => {
+                const keyVal = page[key];
+                params.push(`page[${key}]=${keyVal}`);
+            });
+        } else {
+            params.push(`page=${page}`);
+        }
+    }
+
+    if (params.length) {
+        url += '?' + params.join('&');
+    }
+
+    return url;
+}
 
 const processRelation = (model, relation, path, include, fields) => {
     const fragments = relation.fragments || [];
@@ -405,6 +416,19 @@ function Queries(element, vars, propTypes) {
 
     this._addedHandlers = false;
 }
+
+const collectionCache = {};
+
+function findOrCreateCollection(model, fetchOptions) {
+    const url = getUrl(model.prototype, fetchOptions);
+
+    if (!collectionCache[url]) {
+        collectionCache[url] = new model();
+    }
+
+    return collectionCache[url];
+}
+
 Object.assign(Queries.prototype, {
     /**
      * Set the current vars to `vars` and trigger a re-fetch.  Once fetching is
@@ -442,20 +466,37 @@ Object.assign(Queries.prototype, {
                 );
                 const model = options.model;
                 const modelOrCollection = model.prototype.model 
-                    ? new model() 
+                    ? findOrCreateCollection(model, options)
                     : model.findOrCreate({[model.prototype.idAttribute]: options.id});
-                model._isInitialized = false;
 
-                modelOrCollection.fetchOptions = options;
+                modelOrCollection._isInitialized = false;
 
-                fetchingProps[key] = modelOrCollection;
+                const existingFetchPromise = modelOrCollection.fetchPromise;
 
-                modelOrCollection.fetch().then(() => {
-                    resolve();
-                }).catch(() => {
-                    this.hasErrors = true;
-                    resolve();
-                });
+                if (existingFetchPromise) {
+                    existingFetchPromise.then(() => {
+                        resolve();
+                    }).catch(() => {
+                        resolve();
+                    });
+                } else {
+                    modelOrCollection.fetchOptions = options;
+
+                    fetchingProps[key] = modelOrCollection;
+
+                    const fetchPromise = modelOrCollection.fetch();
+
+                    modelOrCollection.fetchPromise = fetchPromise;
+
+                    fetchPromise.catch(() => {
+                        this.hasErrors = true;
+                        modelOrCollection.fetchPromise = null;
+                        resolve();
+                    }).then(() => {
+                        modelOrCollection.fetchPromise = null;
+                        resolve();
+                    });
+                }
             });
         }));
 
@@ -473,10 +514,10 @@ Object.assign(Queries.prototype, {
                 this._events._addHandlers();
                 this._element.forceUpdate();
             }
-
         });
 
         return promise;
     }
 });
+
 
