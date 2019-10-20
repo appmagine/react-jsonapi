@@ -262,7 +262,7 @@ export function withJsonApi(options, WrappedComponent) {
     const displayName = WrappedComponent.displayName || WrappedComponent.name;
 
     return createReactClass({
-        displayName: `withJsonApi(${displayName})`,
+        displayName: displayName ? `withJsonApi(${displayName})` : undefined,
 
         propTypes: Object.assign(
             {}, 
