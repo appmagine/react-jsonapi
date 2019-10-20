@@ -40433,7 +40433,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
                     var author = article.get('author');
 
-                    return React.createElement('div', null, loading ? React.createElement('div', { className: 'panel' }, 'Loading...') : null, article.error ? React.createElement('div', { className: 'panel' }, 'Error: ', article.error) : this.renderArticle());
+                    return React.createElement('div', null, loading ? React.createElement('div', { className: 'panel' }, 'Loading...') : article.error ? React.createElement('div', { className: 'panel' }, 'Error: ', article.error) : this.renderArticle());
                 },
                 renderArticle: function renderArticle() {
                     var _this = this;
