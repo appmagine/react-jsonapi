@@ -2344,6 +2344,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
         var displayName = WrappedComponent.displayName || WrappedComponent.name;
 
+<<<<<<< HEAD:dist/react-jsonapi.js
         var getVars = function getVars() {
             if (getInitialVars) {
                 return getInitialVars();
@@ -2360,6 +2361,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
         var ApiComponent = createReactClass({
             displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
+=======
+        return createReactClass({
+            displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+>>>>>>> add cache control query options:dist/react-router-json-api.js
 
             propTypes: Object.assign({}, WrappedComponent.propTypes, {
                 initialQueries: PropTypes.object
@@ -2372,6 +2377,19 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                         loadContext = _ref.loadContext,
                         props = _ref.props;
 
+<<<<<<< HEAD:dist/react-jsonapi.js
+=======
+                    var getVars = function getVars() {
+                        if (getInitialVars) {
+                            return getInitialVars();
+                        } else if (initialVars) {
+                            return initialVars;
+                        } else {
+                            return {};
+                        }
+                    };
+
+>>>>>>> add cache control query options:dist/react-router-json-api.js
                     var queries = new Queries({
                         element: null,
                         vars: getVars(),
@@ -2538,6 +2556,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
         }
 
         return { isNew: isNew, collection: collectionCache[url] };
+<<<<<<< HEAD:dist/react-jsonapi.js
     }
 
     function getArgs(func) {
@@ -2552,6 +2571,8 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
             // Ensure no undefined values are added.
             return arg;
         });
+=======
+>>>>>>> add cache control query options:dist/react-router-json-api.js
     }
 
     return {
@@ -3450,12 +3471,20 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     asyncProps: object.isRequired
                 },
                 _fetch: function _fetch(_ref4) {
+<<<<<<< HEAD:dist/react-jsonapi.js
                     var _this6 = this;
 
                     var params = _ref4.params,
                         location = _ref4.location,
                         loadContext = _ref4.loadContext,
                         props = _ref4.props;
+=======
+                    var _this5 = this;
+
+                    var params = _ref4.params,
+                        location = _ref4.location,
+                        loadContext = _ref4.loadContext;
+>>>>>>> add cache control query options:dist/react-router-json-api.js
 
                     var _context$asyncProps = this.context.asyncProps,
                         propsAndComponents = _context$asyncProps.propsAndComponents,
@@ -3494,8 +3523,12 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
+<<<<<<< HEAD:dist/react-jsonapi.js
                             var query = _this6._queryPropTypes[key];
                             var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
+=======
+                            var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
+>>>>>>> add cache control query options:dist/react-router-json-api.js
 
                     var isServerRender = propsArray && componentsArray;
                     return {
@@ -3508,7 +3541,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     var _this = this;
 
                             if (model.prototype.model) {
+<<<<<<< HEAD:dist/react-jsonapi.js
                                 if (_this6.getCacheOption(options, 'updateCache')) {
+=======
+                                if (_this5.getCacheOption(options, 'updateCache')) {
+>>>>>>> add cache control query options:dist/react-router-json-api.js
                                     var _findOrCreateCollecti = findOrCreateCollection(model, options);
 
                     return {
@@ -3534,7 +3571,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
                             var loadedFromCache = false;
 
+<<<<<<< HEAD:dist/react-jsonapi.js
                             if (_this6.getCacheOption(options, 'loadFromCache')) {
+=======
+                            if (_this5.getCacheOption(options, 'loadFromCache')) {
+>>>>>>> add cache control query options:dist/react-router-json-api.js
                                 if (model.prototype.model && !isNew) {
                                     loadedFromCache = true;
                                     resolve();
@@ -3551,7 +3592,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                                     resolve();
                                 });
                             } else {
+<<<<<<< HEAD:dist/react-jsonapi.js
                                 if (loadedFromCache && !_this6.getCacheOption(options, 'alwaysFetch')) {
+=======
+                                if (loadedFromCache && !_this5.getCacheOption(options, 'alwaysFetch')) {
+>>>>>>> add cache control query options:dist/react-router-json-api.js
                                     return;
                                 }
 
@@ -3572,7 +3617,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     var loadContext = this.props.loadContext;
 
                                 fetchPromise.catch(function () {
+<<<<<<< HEAD:dist/react-jsonapi.js
                                     _this6.hasErrors = true;
+=======
+                                    _this5.hasErrors = true;
+>>>>>>> add cache control query options:dist/react-router-json-api.js
                                     instance.fetchPromise = null;
                                     resolve();
                                 }).then(function () {

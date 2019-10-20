@@ -26498,7 +26498,16 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                             return React.createElement('li', null);
                         }
                         return React.createElement('li', { key: article.get('id') }, article.get('title'));
+<<<<<<< HEAD
                     })), React.createElement(ArticleSummary, { articleId: article.get('id') })), React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, 'Comments'), article.get('comments').map(function (comment, i) {
+=======
+                    })), React.createElement(Router, {
+                        history: this.state.history,
+                        render: function render(props) {
+                            return React.createElement(AsyncProps, props);
+                        }
+                    }, this.state.routes)), React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, 'Comments'), article.get('comments').map(function (comment, i) {
+>>>>>>> add cache control query options
                         return React.createElement(React.Fragment, null, i ? React.createElement('br', null) : null, React.createElement(CommentItem, { key: comment.get('id'), comment: comment }));
                     }), React.createElement('br', null), !this.state.addingComment ? React.createElement('input', { type: 'button',
                         value: 'Add Comment',
@@ -43213,11 +43222,23 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                         loadContext = _ref.loadContext,
                         props = _ref.props;
 
-        if (fetchOptions.relations) {
-            _.each(model.attributes, function (value, key) {
-                if (value instanceof Backbone.Collection || value instanceof Backbone.RelationalModel) {
-                    var relation = fetchOptions.relations.find(function (relation) {
-                        return relation.key === key;
+<<<<<<< HEAD
+=======
+                    var getVars = function getVars() {
+                        if (getInitialVars) {
+                            return getInitialVars();
+                        } else if (initialVars) {
+                            return initialVars;
+                        } else {
+                            return {};
+                        }
+                    };
+
+>>>>>>> add cache control query options
+                    var queries = new Queries({
+                        element: null,
+                        vars: getVars(),
+                        propTypes: componentQueries
                     });
                     if (relation) {
                         updateCacheInformation(value, relation);
@@ -43485,11 +43506,23 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                                     return;
                                 }
 
-                                instance.fetchOptions = options;
+        return { isNew: isNew, collection: collectionCache[url] };
+<<<<<<< HEAD
+    }
 
                                 var fetchPromise = instance.fetch();
 
-                                instance.fetchPromise = fetchPromise;
+        // Split the arguments string into an array comma delimited.
+        return args.split(',').map(function (arg) {
+            // Ensure no inline comments are parsed and trim the whitespace.
+            return arg.replace(/\/\*.*\*\//, '').trim();
+        }).filter(function (arg) {
+            // Ensure no undefined values are added.
+            return arg;
+        });
+=======
+>>>>>>> add cache control query options
+    }
 
                                 fetchPromise.catch(function () {
                                     _this2.hasErrors = true;
@@ -43843,12 +43876,20 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
                     this._fetch(this._element.props);
                 },
                 _fetch: function _fetch(_ref4) {
+<<<<<<< HEAD
                     var _this6 = this;
 
                     var params = _ref4.params,
                         location = _ref4.location,
                         loadContext = _ref4.loadContext,
                         props = _ref4.props;
+=======
+                    var _this5 = this;
+
+                    var params = _ref4.params,
+                        location = _ref4.location,
+                        loadContext = _ref4.loadContext;
+>>>>>>> add cache control query options
 
         render: function render() {
           var _props = this.props,
@@ -43892,8 +43933,12 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
 
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
+<<<<<<< HEAD
                             var query = _this6._queryPropTypes[key];
                             var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
+=======
+                            var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
+>>>>>>> add cache control query options
 
           var isServerRender = propsArray && componentsArray;
           return {
@@ -43906,7 +43951,11 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
           var _this = this;
 
                             if (model.prototype.model) {
+<<<<<<< HEAD
                                 if (_this6.getCacheOption(options, 'updateCache')) {
+=======
+                                if (_this5.getCacheOption(options, 'updateCache')) {
+>>>>>>> add cache control query options
                                     var _findOrCreateCollecti = findOrCreateCollection(model, options);
 
           return {
@@ -43927,11 +43976,9 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
                 params = _props3.params,
                 location = _props3.location;
 
-            this.loadAsyncProps(components, params, location);
-          }
-        },
-        componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-          if (nextProps.location === this.props.location) return;
+                            instance._isInitialized = false;
+                            fetchingProps[key] = instance;
+<<<<<<< HEAD
 
           var _computeChangedRoutes = computeChangedRoutes({ routes: this.props.routes, params: this.props.params }, { routes: nextProps.routes, params: nextProps.params }),
               enterRoutes = _computeChangedRoutes.enterRoutes;
@@ -43943,10 +43990,19 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
                                 }
                             }
 
-          return function (err) {
-            for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-              args[_key - 1] = arguments[_key];
-            }
+=======
+
+                            var loadedFromCache = false;
+
+                            if (_this5.getCacheOption(options, 'loadFromCache')) {
+                                if (model.prototype.model && !isNew) {
+                                    loadedFromCache = true;
+                                    resolve();
+                                }
+                            }
+
+>>>>>>> add cache control query options
+                            var existingFetchPromise = instance.fetchPromise;
 
                             if (existingFetchPromise) {
                                 existingFetchPromise.then(function () {
@@ -43955,7 +44011,11 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
                                     resolve();
                                 });
                             } else {
+<<<<<<< HEAD
                                 if (loadedFromCache && !_this6.getCacheOption(options, 'alwaysFetch')) {
+=======
+                                if (loadedFromCache && !_this5.getCacheOption(options, 'alwaysFetch')) {
+>>>>>>> add cache control query options
                                     return;
                                 }
 
@@ -43999,7 +44059,11 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
           var propsAndComponents = this.state.propsAndComponents;
 
                                 fetchPromise.catch(function () {
+<<<<<<< HEAD
                                     _this6.hasErrors = true;
+=======
+                                    _this5.hasErrors = true;
+>>>>>>> add cache control query options
                                     instance.fetchPromise = null;
                                     resolve();
                                 }).then(function () {

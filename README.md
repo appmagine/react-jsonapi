@@ -333,6 +333,24 @@ the URL that specify what data to include for each model resource but have
 different options related to the parts of the URL that specify which top-level
 resource or resources to return.
 
+React Router JSON API maintains a cache of previously loaded query results.
+The following query-only options control how the cache is used:
+
+  * `loadFromCache` - whether to load cached results for this query if complete
+    results for the query exist in the cache.
+
+    Default: `true`.
+
+  * `alwaysFetch` - whether to fetch new results for a query whose initial
+    results were loaded from the cache.
+
+    Default: `true`.
+
+  * `updateCache` - whether to update the cache with the results returned for
+    this query.
+
+    Default: `true`.
+
 Options that specify the top-level resource to return for a **model query** or
 fragment:
 
