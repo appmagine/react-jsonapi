@@ -2356,9 +2356,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
         var firstQuery = _.first(_.values(componentQueries));
         var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
+        var innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
 
         var ApiComponent = createReactClass({
-            displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
 
             propTypes: Object.assign({}, WrappedComponent.propTypes, {
                 initialQueries: PropTypes.object
@@ -2432,6 +2433,33 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._queryProps : {}, this.fragments ? this.fragments._props : {}));
             }
         });
+
+        if (isStandalone) {
+            return createReactClass({
+                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+
+                componentWillMount: function componentWillMount() {
+                    this.initialQueries = null;
+                    this.componentWillReceiveProps(this.props);
+                },
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                    var _this3 = this;
+
+                    ApiComponent.loadProps({ props: nextProps }, function (error, props) {
+                        _this3.initialQueries = props.initialQueries;
+                        _this3.forceUpdate();
+                    });
+                },
+                render: function render() {
+                    return React.createElement(ApiComponent, _extends({
+                        initialQueries: this.initialQueries
+                    }, this.props));
+                }
+            });
+        } else {
+            return ApiComponent;
+        }
+    }
 
         if (isStandalone) {
             return createReactClass({
@@ -2512,10 +2540,48 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
         return { isNew: isNew, collection: collectionCache[url] };
     }
 
-    function QueryFragments(_ref4) {
-        var element = _ref4.element,
-            props = _ref4.props,
-            propTypes = _ref4.propTypes;
+    function getArgs(func) {
+        // First match everything inside the function argument parens.
+        var args = func.toString().match(/\(([^)]*)\)/)[1];
+
+        // Split the arguments string into an array comma delimited.
+        return args.split(',').map(function (arg) {
+            // Ensure no inline comments are parsed and trim the whitespace.
+            return arg.replace(/\/\*.*\*\//, '').trim();
+        }).filter(function (arg) {
+            // Ensure no undefined values are added.
+            return arg;
+        });
+    }
+
+    return {
+        setters: [function (_c) {
+            Backbone = _c.default;
+        }, function (_d) {}, function (_e) {
+            _ = _e.default;
+        }, function (_2) {
+            React = _2.default;
+        }, function (_f) {
+            RouterContext = _f.default;
+        }, function (_3) {
+            computeChangedRoutes = _3.default;
+        }, function (_4) {
+            createReactClass = _4.default;
+        }, function (_b) {
+            PropTypes = _b.default;
+        }],
+        execute: function () {
+            _defineProperty = function (obj, key, value) {
+                if (key in obj) {
+                    Object.defineProperty(obj, key, {
+                        value: value,
+                        enumerable: true,
+                        configurable: true,
+                        writable: true
+                    });
+                } else {
+                    obj[key] = value;
+                }
 
         this._events = new Events(props, propTypes, element);
 
@@ -3344,10 +3410,36 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 return target;
             };
 
-            array = PropTypes.array;
-            func = PropTypes.func;
-            object = PropTypes.object;
-            AsyncPropsContainer = createReactClass({
+            Object.assign(Events.prototype, {
+                _addHandlers: function _addHandlers() {
+                    var _this4 = this;
+
+                    var forceUpdate = function forceUpdate() {
+                        if (_this4.element) {
+                            _this4.element.forceUpdate();
+                        }
+                    };
+
+                    Object.keys(this.props).forEach(function (key) {
+                        var options = _this4.propOptions[key];
+
+                        _this4.props[key].bindRelationEvents(forceUpdate, _this4.element, options);
+                    });
+
+                    this._addedHandlers = true;
+                },
+                _removeHandlers: function _removeHandlers() {
+                    var _this5 = this;
+
+                    Object.keys(this.props).forEach(function (key) {
+                        _this5.props[key].unbindRelationEvents(_this5.element, _this5.propOptions[key]);
+                    });
+                }
+            });collectionCache = {};
+            Object.assign(Queries.prototype, {
+                getCacheOption: function getCacheOption(options, name) {
+                    var option = options[name];
+                    var thisVal = this[name];
 
                 propTypes: {
                     Component: func.isRequired,
@@ -3357,12 +3449,13 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 contextTypes: {
                     asyncProps: object.isRequired
                 },
+                _fetch: function _fetch(_ref4) {
+                    var _this6 = this;
 
-                render: function render() {
-                    var _props = this.props,
-                        Component = _props.Component,
-                        routerProps = _props.routerProps,
-                        props = _objectWithoutProperties(_props, ['Component', 'routerProps']);
+                    var params = _ref4.params,
+                        location = _ref4.location,
+                        loadContext = _ref4.loadContext,
+                        props = _ref4.props;
 
                     var _context$asyncProps = this.context.asyncProps,
                         propsAndComponents = _context$asyncProps.propsAndComponents,
@@ -3399,23 +3492,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     componentsArray: array
                 },
 
-                getDefaultProps: function getDefaultProps() {
-                    return {
-                        onError: function onError(err) {
-                            throw err;
-                        },
-                        renderLoading: function renderLoading() {
-                            return null;
-                        },
-                        render: function render(props) {
-                            return React.createElement(RouterContext, _extends({}, props, { createElement: createElement }));
-                        }
-                    };
-                },
-                getInitialState: function getInitialState() {
-                    var _props2 = this.props,
-                        propsArray = _props2.propsArray,
-                        componentsArray = _props2.componentsArray;
+                    var promise = Promise.all(keys.map(function (key) {
+                        return new Promise(function (resolve) {
+                            var query = _this6._queryPropTypes[key];
+                            var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
 
                     var isServerRender = propsArray && componentsArray;
                     return {
@@ -3427,9 +3507,9 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 getChildContext: function getChildContext() {
                     var _this = this;
 
-                    var _state = this.state,
-                        loading = _state.loading,
-                        propsAndComponents = _state.propsAndComponents;
+                            if (model.prototype.model) {
+                                if (_this6.getCacheOption(options, 'updateCache')) {
+                                    var _findOrCreateCollecti = findOrCreateCollection(model, options);
 
                     return {
                         asyncProps: {
@@ -3449,23 +3529,31 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                             params = _props3.params,
                             location = _props3.location;
 
-                        this.loadAsyncProps(components, params, location);
-                    }
-                },
-                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-                    if (nextProps.location === this.props.location) return;
+                            instance._isInitialized = false;
+                            fetchingProps[key] = instance;
+
+                            var loadedFromCache = false;
+
+                            if (_this6.getCacheOption(options, 'loadFromCache')) {
+                                if (model.prototype.model && !isNew) {
+                                    loadedFromCache = true;
+                                    resolve();
+                                }
+                            }
 
                     var _computeChangedRoutes = computeChangedRoutes({ routes: this.props.routes, params: this.props.params }, { routes: nextProps.routes, params: nextProps.params }),
                         enterRoutes = _computeChangedRoutes.enterRoutes;
 
-                    var indexDiff = nextProps.components.length - enterRoutes.length;
-                    var components = [];
-                    for (var i = 0, l = enterRoutes.length; i < l; i++) {
-                        components.push(nextProps.components[indexDiff + i]);
-                    }this.loadAsyncProps(filterAndFlattenComponents(components), nextProps.params, nextProps.location);
-                },
-                handleError: function handleError(cb) {
-                    var _this2 = this;
+                            if (existingFetchPromise) {
+                                existingFetchPromise.then(function () {
+                                    resolve();
+                                }).catch(function () {
+                                    resolve();
+                                });
+                            } else {
+                                if (loadedFromCache && !_this6.getCacheOption(options, 'alwaysFetch')) {
+                                    return;
+                                }
 
                     return function (err) {
                         for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
@@ -3483,33 +3571,32 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
                     var loadContext = this.props.loadContext;
 
-                    this.setState({
-                        loading: true,
-                        prevProps: this.props
-                    }, function () {
-                        _loadAsyncProps({
-                            components: filterAndFlattenComponents(components),
-                            params: params,
-                            location: location,
-                            loadContext: loadContext
-                        }, _this3.handleError(function (err, propsAndComponents) {
-                            var reloading = options && options.reload;
-                            var didNotChangeRoutes = _this3.props.location === location;
-                            // FIXME: next line has potential (rare) race conditions I think. If
-                            // somebody calls reloadAsyncProps, changes location, then changes
-                            // location again before its done and state gets out of whack (Rx folks
-                            // are like "LOL FLAT MAP LATEST NEWB"). Will revisit later.
-                            if ((reloading || didNotChangeRoutes) && !_this3._unmounted) {
-                                if (_this3.state.propsAndComponents) {
-                                    propsAndComponents = mergePropsAndComponents(_this3.state.propsAndComponents, propsAndComponents);
-                                }
-                                _this3.setState({
-                                    loading: false,
-                                    propsAndComponents: propsAndComponents,
-                                    prevProps: null
+                                fetchPromise.catch(function () {
+                                    _this6.hasErrors = true;
+                                    instance.fetchPromise = null;
+                                    resolve();
+                                }).then(function () {
+                                    instance.fetchPromise = null;
+                                    resolve();
                                 });
                             }
-                        }));
+                        });
+                    }));
+
+                    promise.then(function () {
+                        var isAlreadyLoaded = _this6._events.props;
+                        _this6._queryProps = fetchingProps;
+                        _this6._events.propOptions = propOptions;
+                        _this6._events.props = _this6._queryProps;
+
+                        _this6.vars = _this6.pendingVars;
+                        _this6.pendingVars = null;
+                        _this6.fetching = false;
+
+                        if (isAlreadyLoaded) {
+                            _this6._events._addHandlers();
+                            _this6._element.forceUpdate();
+                        }
                     });
                 },
                 reloadComponent: function reloadComponent(Component) {

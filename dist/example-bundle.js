@@ -26370,7 +26370,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
         }, function (_history) {
             createMemoryHistory = _history.createMemoryHistory;
         }, function (_reactJsonapi) {
-            withJsonApi = _reactJsonapi.default;
+            withJsonApi = _reactJsonapi.withJsonApi;
         }, function (_models) {
             ArticleCollection = _models.ArticleCollection;
             Article = _models.Article;
@@ -42677,8 +42677,8 @@ System.registerDynamic('npm:underscore@1.9.1/underscore.js', [], false, function
 
   return _retrieveGlobal();
 });
-System.register('react-jsonapi/backbone-relational-jsonapi.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/slicedToArray.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
-    "use strict";
+System.register('react-jsonapi/backbone-relational-jsonapi.js', ['backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
+	"use strict";
 
     var _defineProperty, _slicedToArray, _extends, Backbone, _, _extend, ModelFactory;
 
@@ -42810,13 +42810,13 @@ System.register('react-jsonapi/backbone-relational-jsonapi.js', ['npm:systemjs-p
                         key = _ref2[0],
                         value = _ref2[1];
 
-                    return value instanceof Backbone.Model || value instanceof Backbone.Collection;
-                }).map(function (val) {
-                    return _.object(val);
-                }).value(),
-                    _$chain$pairs$partiti2 = _slicedToArray(_$chain$pairs$partiti, 2),
-                    existingRelations = _$chain$pairs$partiti2[0],
-                    existingFields = _$chain$pairs$partiti2[1];
+        return target;
+      });
+    }
+  };
+});
+System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js', 'react', 'react-router/lib/RouterContext', 'react-router/lib/computeChangedRoutes', 'create-react-class', 'prop-types'], function (_export, _context) {
+  "use strict";
 
                 var newFields = _.extend({}, existingFields, data);
                 var fetchOptions = options.fetchOptions || this.fetchOptions;
@@ -43095,6 +43095,10 @@ System.register('react-jsonapi/withJsonApi.js', ['npm:systemjs-plugin-babel@0.0.
             return r.key;
         });
     }
+  };
+});
+System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'react', 'create-react-class', 'prop-types', 'backbone', 'backbone-relational', 'underscore', './backbone-relational-jsonapi', './AsyncProps'], function (_export, _context) {
+    "use strict";
 
     function getRelated(model, relation) {
         var r = model.getRelation(relation.key);
@@ -43182,25 +43186,32 @@ System.register('react-jsonapi/withJsonApi.js', ['npm:systemjs-plugin-babel@0.0.
         } else {
             var cachedFieldsAndRelations = model.cachedFieldsAndRelations;
 
-            var _ref5 = cachedFieldsAndRelations || {},
-                fields = _ref5.fields,
-                relations = _ref5.relations;
+        var getVars = function getVars() {
+            if (getInitialVars) {
+                return getInitialVars();
+            } else if (initialVars) {
+                return initialVars;
+            } else {
+                return {};
+            }
+        };
+
+        var firstQuery = _.first(_.values(componentQueries));
+        var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
+        var innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
+
+        var ApiComponent = createReactClass({
+            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
 
             var fetchFields = fetchOptions.fields,
                 fetchRelations = fetchOptions.relations;
 
-            var newCachedFields = void 0;
-            if (cachedFieldsAndRelations) {
-                newCachedFields = !(fetchFields && fields) ? null : _.unique(fields.concat(fetchFields));
-            } else {
-                newCachedFields = fetchFields;
-            }
-
-            model.cachedFieldsAndRelations = {
-                fields: newCachedFields,
-                relations: mergeRelationLists(relations || [], fetchRelations || [])
-            };
-        }
+            statics: {
+                loadProps: function loadProps(_ref, cb) {
+                    var params = _ref.params,
+                        location = _ref.location,
+                        loadContext = _ref.loadContext,
+                        props = _ref.props;
 
         if (fetchOptions.relations) {
             _.each(model.attributes, function (value, key) {
@@ -43216,8 +43227,12 @@ System.register('react-jsonapi/withJsonApi.js', ['npm:systemjs-plugin-babel@0.0.
         }
     }
 
-    function mergeRelationLists(a, b) {
-        var result = a.slice(0);
+                    queries._fetch({ params: params, location: location, loadContext: loadContext, props: props }).then(function () {
+                        cb(null, {
+                            initialQueries: queries
+                        });
+                    });
+                },
 
         b.forEach(function (relation) {
             var existingRelation = result.find(function (r) {
@@ -43239,12 +43254,40 @@ System.register('react-jsonapi/withJsonApi.js', ['npm:systemjs-plugin-babel@0.0.
                 if (newRelations || relations) {
                     newRelation.relations = mergeRelationLists(newRelations || [], relations || []);
                 }
-
-                result[result.indexOf(existingRelation)] = newRelation;
-            } else {
-                result.push(relation);
+            },
+            render: function render() {
+                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._queryProps : {}, this.fragments ? this.fragments._props : {}));
             }
         });
+
+        if (isStandalone) {
+            return createReactClass({
+                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+
+                componentWillMount: function componentWillMount() {
+                    this.initialQueries = null;
+                    this.componentWillReceiveProps(this.props);
+                },
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                    var _this3 = this;
+
+                    ApiComponent.loadProps({ props: nextProps }, function (error, props) {
+                        _this3.initialQueries = props.initialQueries;
+                        _this3.forceUpdate();
+                    });
+                },
+                render: function render() {
+                    return React.createElement(ApiComponent, _extends({
+                        initialQueries: this.initialQueries
+                    }, this.props));
+                }
+            });
+        } else {
+            return ApiComponent;
+        }
+    }
+
+    _export('withJsonApi', withJsonApi);
 
         return result;
     }
@@ -43284,9 +43327,9 @@ System.register('react-jsonapi/withJsonApi.js', ['npm:systemjs-plugin-babel@0.0.
             }
         });
 
-        if (options.relations) {
-            options.relations = options.relations.map(mergeFragments);
-        }
+        this.vars = vars;
+        this.pendingVars = {};
+        this._queryProps = {};
 
         options.fields = _.uniq(options.fields);
 
@@ -43310,6 +43353,21 @@ System.register('react-jsonapi/withJsonApi.js', ['npm:systemjs-plugin-babel@0.0.
             processRelation(relatedModel, r, newPath, include, fields);
         });
     }
+
+    function getArgs(func) {
+        // First match everything inside the function argument parens.
+        var args = func.toString().match(/\(([^)]*)\)/)[1];
+
+        // Split the arguments string into an array comma delimited.
+        return args.split(',').map(function (arg) {
+            // Ensure no inline comments are parsed and trim the whitespace.
+            return arg.replace(/\/\*.*\*\//, '').trim();
+        }).filter(function (arg) {
+            // Ensure no undefined values are added.
+            return arg;
+        });
+    }
+
     return {
         setters: [function (_npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs) {
             _defineProperty = _npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs.default;
@@ -43600,52 +43658,36 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
           }
         }
 
-        return target;
-      });
-    }
-  };
-});
-System.registerDynamic("npm:systemjs-plugin-babel@0.0.21.json", [], true, function() {
-  return {
-    "main": "plugin-babel.js",
-    "map": {
-      "systemjs-babel-build": {
-        "browser": "./systemjs-babel-browser.js",
-        "default": "./systemjs-babel-browser.js"
-      }
-    },
-    "meta": {
-      "./plugin-babel.js": {
-        "format": "cjs"
-      }
-    }
-  };
-});
+            Object.assign(Events.prototype, {
+                _addHandlers: function _addHandlers() {
+                    var _this4 = this;
 
-System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js", [], function (_export, _context) {
-  "use strict";
+                    var forceUpdate = function forceUpdate() {
+                        if (_this4.element) {
+                            _this4.element.forceUpdate();
+                        }
+                    };
 
-  return {
-    setters: [],
-    execute: function () {
-      _export("default", function (obj, keys) {
-        var target = {};
+                    Object.keys(this.props).forEach(function (key) {
+                        var options = _this4.propOptions[key];
 
-        for (var i in obj) {
-          if (keys.indexOf(i) >= 0) continue;
-          if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
-          target[i] = obj[i];
-        }
+                        _this4.props[key].bindRelationEvents(forceUpdate, _this4.element, options);
+                    });
 
-        return target;
-      });
-    }
-  };
-});
-System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js', 'react', 'react-router/lib/RouterContext', 'react-router/lib/computeChangedRoutes', 'create-react-class', 'prop-types'], function (_export, _context) {
-  "use strict";
+                    this._addedHandlers = true;
+                },
+                _removeHandlers: function _removeHandlers() {
+                    var _this5 = this;
 
-  var _extends, _objectWithoutProperties, React, RouterContext, computeChangedRoutes, createReactClass, PropTypes, array, func, object, AsyncPropsContainer, AsyncProps;
+                    Object.keys(this.props).forEach(function (key) {
+                        _this5.props[key].unbindRelationEvents(_this5.element, _this5.propOptions[key]);
+                    });
+                }
+            });collectionCache = {};
+            Object.assign(Queries.prototype, {
+                getCacheOption: function getCacheOption(options, name) {
+                    var option = options[name];
+                    var thisVal = this[name];
 
   function eachComponents(components, iterator) {
     for (var i = 0, l = components.length; i < l; i++) {
@@ -43791,14 +43833,22 @@ System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.2
       object = PropTypes.object;
       AsyncPropsContainer = createReactClass({
 
-        propTypes: {
-          Component: func.isRequired,
-          routerProps: object.isRequired
-        },
+                /**
+                 * Set the current vars to `vars` and trigger a re-fetch.  Once fetching is
+                 * initiated, the component will re-render with the previous vars as
+                 * queries.vars and the current vars as queries.pendingVars.
+                 */
+                setVars: function setVars(vars) {
+                    this.pendingVars = Object.assign({}, this.vars, vars);
+                    this._fetch(this._element.props);
+                },
+                _fetch: function _fetch(_ref4) {
+                    var _this6 = this;
 
-        contextTypes: {
-          asyncProps: object.isRequired
-        },
+                    var params = _ref4.params,
+                        location = _ref4.location,
+                        loadContext = _ref4.loadContext,
+                        props = _ref4.props;
 
         render: function render() {
           var _props = this.props,
@@ -43840,23 +43890,10 @@ System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.2
           componentsArray: array
         },
 
-        getDefaultProps: function getDefaultProps() {
-          return {
-            onError: function onError(err) {
-              throw err;
-            },
-            renderLoading: function renderLoading() {
-              return null;
-            },
-            render: function render(props) {
-              return React.createElement(RouterContext, _extends({}, props, { createElement: createElement }));
-            }
-          };
-        },
-        getInitialState: function getInitialState() {
-          var _props2 = this.props,
-              propsArray = _props2.propsArray,
-              componentsArray = _props2.componentsArray;
+                    var promise = Promise.all(keys.map(function (key) {
+                        return new Promise(function (resolve) {
+                            var query = _this6._queryPropTypes[key];
+                            var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
 
           var isServerRender = propsArray && componentsArray;
           return {
@@ -43868,9 +43905,9 @@ System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.2
         getChildContext: function getChildContext() {
           var _this = this;
 
-          var _state = this.state,
-              loading = _state.loading,
-              propsAndComponents = _state.propsAndComponents;
+                            if (model.prototype.model) {
+                                if (_this6.getCacheOption(options, 'updateCache')) {
+                                    var _findOrCreateCollecti = findOrCreateCollection(model, options);
 
           return {
             asyncProps: {
@@ -43899,28 +43936,28 @@ System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.2
           var _computeChangedRoutes = computeChangedRoutes({ routes: this.props.routes, params: this.props.params }, { routes: nextProps.routes, params: nextProps.params }),
               enterRoutes = _computeChangedRoutes.enterRoutes;
 
-          var indexDiff = nextProps.components.length - enterRoutes.length;
-          var components = [];
-          for (var i = 0, l = enterRoutes.length; i < l; i++) {
-            components.push(nextProps.components[indexDiff + i]);
-          }this.loadAsyncProps(filterAndFlattenComponents(components), nextProps.params, nextProps.location);
-        },
-        handleError: function handleError(cb) {
-          var _this2 = this;
+                            if (_this6.getCacheOption(options, 'loadFromCache')) {
+                                if (model.prototype.model && !isNew) {
+                                    loadedFromCache = true;
+                                    resolve();
+                                }
+                            }
 
           return function (err) {
             for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
               args[_key - 1] = arguments[_key];
             }
 
-            if (err && _this2.props.onError) _this2.props.onError(err);else cb.apply(undefined, [null].concat(args));
-          };
-        },
-        componentWillUnmount: function componentWillUnmount() {
-          this._unmounted = true;
-        },
-        loadAsyncProps: function loadAsyncProps(components, params, location, options) {
-          var _this3 = this;
+                            if (existingFetchPromise) {
+                                existingFetchPromise.then(function () {
+                                    resolve();
+                                }).catch(function () {
+                                    resolve();
+                                });
+                            } else {
+                                if (loadedFromCache && !_this6.getCacheOption(options, 'alwaysFetch')) {
+                                    return;
+                                }
 
           var loadContext = this.props.loadContext;
 
@@ -43961,31 +43998,33 @@ System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.2
         render: function render() {
           var propsAndComponents = this.state.propsAndComponents;
 
-          if (!propsAndComponents) {
-            return this.props.renderLoading();
-          } else {
-            var props = this.state.loading ? this.state.prevProps : this.props;
-            return this.props.render(props);
-          }
-        }
-      });
+                                fetchPromise.catch(function () {
+                                    _this6.hasErrors = true;
+                                    instance.fetchPromise = null;
+                                    resolve();
+                                }).then(function () {
+                                    instance.fetchPromise = null;
+                                    resolve();
+                                });
+                            }
+                        });
+                    }));
 
-      _export('default', AsyncProps);
-    }
-  };
-});
-System.register('react-jsonapi/index.js', ['./withJsonApi', './AsyncProps'], function (_export, _context) {
-  "use strict";
+                    promise.then(function () {
+                        var isAlreadyLoaded = _this6._events.props;
+                        _this6._queryProps = fetchingProps;
+                        _this6._events.propOptions = propOptions;
+                        _this6._events.props = _this6._queryProps;
 
-  return {
-    setters: [function (_withJsonApi) {
-      var _exportObj = {};
-      _exportObj.default = _withJsonApi.default;
+                        _this6.vars = _this6.pendingVars;
+                        _this6.pendingVars = null;
+                        _this6.fetching = false;
 
-      _export(_exportObj);
-    }, function (_AsyncProps) {
-      var _exportObj2 = {};
-      _exportObj2.AsyncProps = _AsyncProps.default;
+                        if (isAlreadyLoaded) {
+                            _this6._events._addHandlers();
+                            _this6._element.forceUpdate();
+                        }
+                    });
 
       _export(_exportObj2);
     }],

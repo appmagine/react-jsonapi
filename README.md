@@ -1,4 +1,4 @@
-# React JSON API <a href="http://appmagine.github.io/react-jsonapi/"><img src="https://img.shields.io/badge/-Demo-brightgreen"></a>
+# React JSON API
 
 React JSON API provides declarative co-located [JSON API](http://jsonapi.org)
 data loading for React components.
@@ -9,6 +9,10 @@ events for the models and collections from which it renders data.
 
 React JSON API supports optional integration with [React
 Router](https://github.com/ReactTraining/react-router/tree/v3) v3.x. 
+
+Query URLs are generated based on query definitions specified as JavaScript
+objects in terms of component props or the matched route information in addition
+to per-component state known as [variables](#variables).
 
 Query URLs are generated based on query definitions specified as JavaScript
 objects in terms of component props or the matched route information in addition
@@ -30,8 +34,7 @@ to per-component state known as [variables](#variables).
 
 ## Getting started
 
-This example demonstrates the simplest possible usage of React JSON API with a
-nested relation.
+This example demonstrates the simplest possible usage of React JSON API.
 
 React JSON API relies on [Backbone-relational](http://backbonerelational.org), a
 comprehensive solution for managing nested Backbone models.
@@ -41,20 +44,11 @@ import Backbone from 'backbone';
 import 'backbone-relational';
 
 import ReactDOM from 'react-dom';
-import withJsonApi from 'react-jsonapi';
-
-const Filling = Backbone.Model.extend({});
+import { withJsonApi } from 'react-jsonapi';
 
 const Taco = Backbone.RelationalModel.extend({
     urlRoot: '/tacos',
     defaults: { type: 'tacos' },
-    relations: [
-        {
-            type: Backbone.HasMany,
-            key: 'fillings',
-            relatedModel: Filling
-        }
-    ]
 });
 
 const TacoItem = withJsonApi({
@@ -64,22 +58,13 @@ const TacoItem = withJsonApi({
                 model: Taco,
                 id: props.tacoId,
                 fields: ['name']
-                relations: [
-                    {
-                        key: 'fillings',
-                        fields: ['name']
-                    }
-                ]
             };
         }
     }
 }, function ({ taco }) {
     return (
         <div>
-            Name: {taco.get('name')},
-            Fillings: {taco.get('fillings').map((filling) => {
-                return filling.get('name');
-            }).join(', ')}
+            {taco.get('name')}
         </div>
     );
 });
@@ -89,9 +74,6 @@ ReactDOM.render((
     document.getElementById('container')
 ));
 ```
-
-This will make a request to the JSON API URL
-`/tacos/1?fields[tacos]=name&fields[fillings]=name&include=fillings`
 
 ## Using with a Router
 
@@ -105,7 +87,7 @@ import 'backbone-relational';
 
 import ReactDOM from 'react-dom';
 import { Router, Route, browserHistory } from 'react-router';
-import withJsonApi, { AsyncProps } from 'react-jsonapi';
+import { withJsonApi, AsyncProps } from 'react-jsonapi';
 
 const Taco = Backbone.RelationalModel.extend({
     urlRoot: '/tacos',
@@ -306,7 +288,6 @@ The query props are constructed based on the following options:
   return a **query definition object** for each prop.
 
   \- `{ [name]: (params, query, vars) => query definition object }` or
-
   \- `{ [name]: (props, vars) => query definition object }`
 
   The function arguments are:
