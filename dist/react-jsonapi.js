@@ -2295,10 +2295,10 @@ $__System.registerDynamic('1b', ['16', '19', '1a', 'c'], true, function ($__requ
 $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], function (_export, _context) {
     "use strict";
 
-    var Backbone, _, React, createReactClass, PropTypes, RouterContext, computeChangedRoutes, _defineProperty, _extends, _slicedToArray, _extend, ModelFactory, collectionCache, modelEvents, collectionEvents, BackboneSync, _objectWithoutProperties, array, func, object, AsyncPropsContainer, AsyncProps;
+    var Backbone$1, _$1, React$1, createReactClass$1, PropTypes$1, RouterContext, computeChangedRoutes, _defineProperty, _extends, _slicedToArray, _extend, ModelFactory, collectionCache, modelEvents, collectionEvents, BackboneSync, _objectWithoutProperties, array, func, object, AsyncPropsContainer, AsyncProps, modelEvents$1, collectionEvents$1, getRelations$1, getRelated$1, BackboneSync$1, processRelation$1, collectionCache$1;
 
     function mergeRelations(existingRelations, newRelations, fetchOptions) {
-        _.each(newRelations, function (relation, key) {
+        _$1.each(newRelations, function (relation, key) {
             var existingRelation = existingRelations[key];
 
             if (existingRelation) {
@@ -2306,7 +2306,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     return relation.key === key;
                 });
 
-                if (existingRelation instanceof Backbone.Collection) {
+                if (existingRelation instanceof Backbone$1.Collection) {
                     existingRelation.set(relation, {
                         parse: true,
                         silent: true,
@@ -2344,7 +2344,6 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
         var displayName = WrappedComponent.displayName || WrappedComponent.name;
 
-<<<<<<< HEAD:dist/react-jsonapi.js
         var getVars = function getVars() {
             if (getInitialVars) {
                 return getInitialVars();
@@ -2355,19 +2354,14 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
             }
         };
 
-        var firstQuery = _.first(_.values(componentQueries));
+        var firstQuery = _$1.first(_$1.values(componentQueries));
         var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
-        var innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
 
-        var ApiComponent = createReactClass({
-            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
-=======
-        return createReactClass({
+        var ApiComponent = createReactClass$1({
             displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
->>>>>>> add cache control query options:dist/react-router-json-api.js
 
             propTypes: Object.assign({}, WrappedComponent.propTypes, {
-                initialQueries: PropTypes.object
+                initialQueries: PropTypes$1.object
             }),
 
             statics: {
@@ -2377,19 +2371,6 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                         loadContext = _ref.loadContext,
                         props = _ref.props;
 
-<<<<<<< HEAD:dist/react-jsonapi.js
-=======
-                    var getVars = function getVars() {
-                        if (getInitialVars) {
-                            return getInitialVars();
-                        } else if (initialVars) {
-                            return initialVars;
-                        } else {
-                            return {};
-                        }
-                    };
-
->>>>>>> add cache control query options:dist/react-router-json-api.js
                     var queries = new Queries({
                         element: null,
                         vars: getVars(),
@@ -2414,7 +2395,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 this.componentWillReceiveProps(this.props);
             },
             componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-                var fragmentProps = _.pick(nextProps, Object.keys(componentFragments));
+                var fragmentProps = _$1.pick(nextProps, Object.keys(componentFragments));
                 var hasFragmentProps = Object.keys(fragmentProps).length;
 
                 if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
@@ -2426,7 +2407,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     this.queries._events._addHandlers();
                 }
 
-                if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
+                if (hasFragmentProps && !_$1.isMatch(this.fragmentProps, fragmentProps)) {
                     this.fragmentProps = fragmentProps;
                     if (this.fragments) {
                         this.fragments._events._removeHandlers();
@@ -2448,39 +2429,12 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 }
             },
             render: function render() {
-                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._queryProps : {}, this.fragments ? this.fragments._props : {}));
+                return React$1.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._queryProps : {}, this.fragments ? this.fragments._props : {}));
             }
         });
 
         if (isStandalone) {
-            return createReactClass({
-                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
-
-                componentWillMount: function componentWillMount() {
-                    this.initialQueries = null;
-                    this.componentWillReceiveProps(this.props);
-                },
-                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-                    var _this3 = this;
-
-                    ApiComponent.loadProps({ props: nextProps }, function (error, props) {
-                        _this3.initialQueries = props.initialQueries;
-                        _this3.forceUpdate();
-                    });
-                },
-                render: function render() {
-                    return React.createElement(ApiComponent, _extends({
-                        initialQueries: this.initialQueries
-                    }, this.props));
-                }
-            });
-        } else {
-            return ApiComponent;
-        }
-    }
-
-        if (isStandalone) {
-            return createReactClass({
+            return createReactClass$1({
                 displayName: 'withJsonApiOuter',
 
                 componentWillMount: function componentWillMount() {
@@ -2490,7 +2444,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
                     var _this = this;
 
-                    if (_.isEqual(this.props, nextProps) && _.isEqual(this.context, nextContext)) {
+                    if (_$1.isEqual(this.props, nextProps) && _$1.isEqual(this.context, nextContext)) {
                         return;
                     }
 
@@ -2500,7 +2454,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     });
                 },
                 render: function render() {
-                    return React.createElement(ApiComponent, _extends({
+                    return React$1.createElement(ApiComponent, _extends({
                         initialQueries: this.initialQueries
                     }, this.props));
                 }
@@ -2541,9 +2495,9 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
         this._queryProps = {};
 
         this._queryPropTypes = propTypes;
-        this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
-        this.alwaysFetch = !_.isUndefined(alwaysFetch) ? alwaysFetch : true;
-        this.updateCache = !_.isUndefined(updateCache) ? updateCache : true;
+        this.loadFromCache = !_$1.isUndefined(loadFromCache) ? loadFromCache : true;
+        this.alwaysFetch = !_$1.isUndefined(alwaysFetch) ? alwaysFetch : true;
+        this.updateCache = !_$1.isUndefined(updateCache) ? updateCache : true;
     }
 
     function findOrCreateCollection(model, fetchOptions) {
@@ -2556,53 +2510,12 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
         }
 
         return { isNew: isNew, collection: collectionCache[url] };
-<<<<<<< HEAD:dist/react-jsonapi.js
     }
 
-    function getArgs(func) {
-        // First match everything inside the function argument parens.
-        var args = func.toString().match(/\(([^)]*)\)/)[1];
-
-        // Split the arguments string into an array comma delimited.
-        return args.split(',').map(function (arg) {
-            // Ensure no inline comments are parsed and trim the whitespace.
-            return arg.replace(/\/\*.*\*\//, '').trim();
-        }).filter(function (arg) {
-            // Ensure no undefined values are added.
-            return arg;
-        });
-=======
->>>>>>> add cache control query options:dist/react-router-json-api.js
-    }
-
-    return {
-        setters: [function (_c) {
-            Backbone = _c.default;
-        }, function (_d) {}, function (_e) {
-            _ = _e.default;
-        }, function (_2) {
-            React = _2.default;
-        }, function (_f) {
-            RouterContext = _f.default;
-        }, function (_3) {
-            computeChangedRoutes = _3.default;
-        }, function (_4) {
-            createReactClass = _4.default;
-        }, function (_b) {
-            PropTypes = _b.default;
-        }],
-        execute: function () {
-            _defineProperty = function (obj, key, value) {
-                if (key in obj) {
-                    Object.defineProperty(obj, key, {
-                        value: value,
-                        enumerable: true,
-                        configurable: true,
-                        writable: true
-                    });
-                } else {
-                    obj[key] = value;
-                }
+    function QueryFragments(_ref4) {
+        var element = _ref4.element,
+            props = _ref4.props,
+            propTypes = _ref4.propTypes;
 
         this._events = new Events(props, propTypes, element);
 
@@ -2623,7 +2536,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
         (options.fragments || []).forEach(function (fragment) {
             relations = relations.concat(fragment.relations || []);
         });
-        return _.uniq(relations, function (r) {
+        return _$1.uniq(relations, function (r) {
             return r.key;
         });
     }
@@ -2641,7 +2554,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
             throw new Error("Missing urlRoot", model);
         }
         var url = urlRoot;
-        if (model instanceof Backbone.Model) {
+        if (model instanceof Backbone$1.Model) {
             var id = fetchOptions.id || model.get(model.idAttribute);
             if (id) {
                 url += '/' + id;
@@ -2661,14 +2574,14 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
         var params = [];
 
         if (include.length) {
-            var includes = _.sortBy(_.uniq(include.map(function (include) {
+            var includes = _$1.sortBy(_$1.uniq(include.map(function (include) {
                 return include.join('.');
-            })), _.identity);
+            })), _$1.identity);
             params.push('include=' + includes.join(','));
         }
 
-        _.each(_.sortBy(_.keys(fields), _.identity), function (type) {
-            var typeFields = _.sortBy(_.uniq(fields[type]), _.identity);
+        _$1.each(_$1.sortBy(_$1.keys(fields), _$1.identity), function (type) {
+            var typeFields = _$1.sortBy(_$1.uniq(fields[type]), _$1.identity);
             params.push('fields[' + type + ']=' + typeFields.join(','));
         });
 
@@ -2678,7 +2591,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
         if (filter) {
             if (typeof filter === "object") {
-                _.each(_.sortBy(_.keys(filter), _.identity), function (key) {
+                _$1.each(_$1.sortBy(_$1.keys(filter), _$1.identity), function (key) {
                     var keyVal = filter[key];
                     params.push('filter[' + key + ']=' + keyVal);
                 });
@@ -2689,7 +2602,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
         if (page) {
             if (typeof page === "object") {
-                _.each(_.sortBy(_.keys(page), _.identity), function (key) {
+                _$1.each(_$1.sortBy(_$1.keys(page), _$1.identity), function (key) {
                     var keyVal = page[key];
                     params.push('page[' + key + ']=' + keyVal);
                 });
@@ -2706,7 +2619,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
     }
 
     function updateCacheInformation(model, fetchOptions) {
-        if (model instanceof Backbone.Collection) {
+        if (model instanceof Backbone$1.Collection) {
             model.forEach(function (model) {
                 updateCacheInformation(model, fetchOptions);
             });
@@ -2723,7 +2636,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
             var newCachedFields = void 0;
             if (cachedFieldsAndRelations) {
-                newCachedFields = !(fetchFields && fields) ? null : _.unique(fields.concat(fetchFields));
+                newCachedFields = !(fetchFields && fields) ? null : _$1.unique(fields.concat(fetchFields));
             } else {
                 newCachedFields = fetchFields;
             }
@@ -2735,8 +2648,8 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
         }
 
         if (fetchOptions.relations) {
-            _.each(model.attributes, function (value, key) {
-                if (value instanceof Backbone.Collection || value instanceof Backbone.RelationalModel) {
+            _$1.each(model.attributes, function (value, key) {
+                if (value instanceof Backbone$1.Collection || value instanceof Backbone$1.RelationalModel) {
                     var relation = fetchOptions.relations.find(function (relation) {
                         return relation.key === key;
                     });
@@ -2757,7 +2670,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
             });
 
             if (existingRelation) {
-                var newRelation = _.clone(existingRelation);
+                var newRelation = _$1.clone(existingRelation);
 
                 var fields = relation.fields,
                     relations = relation.relations;
@@ -2765,7 +2678,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     newRelations = newRelation.relations;
 
                 if (newFields || fields) {
-                    newRelation.fields = _.uniq((newFields || []).concat(fields || []));
+                    newRelation.fields = _$1.uniq((newFields || []).concat(fields || []));
                 }
 
                 if (newRelations || relations) {
@@ -2782,7 +2695,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
     }
 
     function isSubset(optionsA, optionsB) {
-        var hasMissingFields = optionsA.fields && (_.difference(optionsB.fields || [], optionsA.fields || []).length || !optionsB.fields);
+        var hasMissingFields = optionsA.fields && (_$1.difference(optionsB.fields || [], optionsA.fields || []).length || !optionsB.fields);
 
         if (hasMissingFields) {
             return false;
@@ -2820,13 +2733,13 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
             options.relations = options.relations.map(mergeFragments);
         }
 
-        options.fields = _.uniq(options.fields);
+        options.fields = _$1.uniq(options.fields);
 
         return options;
     }
 
     function processRelation(model, relation, path, include, fields) {
-        relation = mergeFragments(_.clone(relation));
+        relation = mergeFragments(_$1.clone(relation));
 
         if (relation.fields.length) {
             var type = model.prototype.defaults.type;
@@ -2836,7 +2749,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
         (relation.relations || []).forEach(function (r) {
             var newPath = path.concat(r.key);
             include.push(newPath);
-            var relatedModel = _.find(model.prototype.relations, function (relation) {
+            var relatedModel = _$1.find(model.prototype.relations, function (relation) {
                 return r.key === relation.key;
             }).relatedModel;
             processRelation(relatedModel, r, newPath, include, fields);
@@ -2934,7 +2847,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
     }
 
     function createElement(Component, props) {
-        if (Component.loadProps) return React.createElement(AsyncPropsContainer, { Component: Component, routerProps: props });else return React.createElement(Component, props);
+        if (Component.loadProps) return React$1.createElement(AsyncPropsContainer, { Component: Component, routerProps: props });else return React$1.createElement(Component, props);
     }
 
     function hydrate(props) {
@@ -2944,17 +2857,283 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
         };else return null;
     }
 
+    function getUrl$1(model, fetchOptions) {
+        fetchOptions = fetchOptions || {};
+        var urlRoot = model.urlRoot;
+
+        if (!urlRoot) {
+            throw new Error("Missing urlRoot", model);
+        }
+        var url = urlRoot;
+        if (model instanceof Backbone.Model) {
+            var id = fetchOptions.id || model.get(model.idAttribute);
+            if (id) {
+                url += '/' + id;
+            }
+        }
+
+        var include = [];
+        var fields = {};
+
+        processRelation$1(model.model ? model.model : model.constructor, fetchOptions, [], include, fields);
+
+        var _fetchOptions = fetchOptions,
+            sort = _fetchOptions.sort,
+            filter = _fetchOptions.filter,
+            page = _fetchOptions.page;
+
+        var params = [];
+
+        if (include.length) {
+            var includes = _.sortBy(_.uniq(include.map(function (include) {
+                return include.join('.');
+            })), _.identity);
+            params.push('include=' + includes.join(','));
+        }
+
+        _.each(_.sortBy(_.keys(fields), _.identity), function (type) {
+            var typeFields = _.sortBy(_.uniq(fields[type]), _.identity);
+            params.push('fields[' + type + ']=' + typeFields.join(','));
+        });
+
+        if (sort) {
+            params.push('sort=' + sort);
+        }
+
+        if (filter) {
+            if (typeof filter === "object") {
+                _.each(_.sortBy(_.keys(filter), _.identity), function (key) {
+                    var keyVal = filter[key];
+                    params.push('filter[' + key + ']=' + keyVal);
+                });
+            } else {
+                params.push('filter=' + filter);
+            }
+        }
+
+        if (page) {
+            if (typeof page === "object") {
+                _.each(_.sortBy(_.keys(page), _.identity), function (key) {
+                    var keyVal = page[key];
+                    params.push('page[' + key + ']=' + keyVal);
+                });
+            } else {
+                params.push('page=' + page);
+            }
+        }
+
+        if (params.length) {
+            url += '?' + params.join('&');
+        }
+
+        return url;
+    }
+
+    function withJsonApi$1(options, WrappedComponent) {
+        var componentQueries = options.queries || {};
+        var componentFragments = options.fragments || {};
+        var initialVars = options.initialVars;
+        var getInitialVars = options.getInitialVars;
+
+        var displayName = WrappedComponent.displayName || WrappedComponent.name;
+
+        var getVars = function getVars() {
+            if (getInitialVars) {
+                return getInitialVars();
+            } else if (initialVars) {
+                return initialVars;
+            } else {
+                return {};
+            }
+        };
+
+        var firstQuery = _.first(_.values(componentQueries));
+        var isStandalone = firstQuery && getArgs$1(firstQuery).indexOf("props") !== -1;
+        var innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
+
+        var ApiComponent = createReactClass({
+            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
+
+            propTypes: Object.assign({}, WrappedComponent.propTypes, {
+                initialQueries: PropTypes.object
+            }),
+
+            statics: {
+                loadProps: function loadProps(_ref, cb) {
+                    var params = _ref.params,
+                        location = _ref.location,
+                        loadContext = _ref.loadContext,
+                        props = _ref.props;
+
+                    var queries = new Queries$1({
+                        element: null,
+                        vars: getVars(),
+                        propTypes: componentQueries
+                    });
+
+                    queries._fetch({ params: params, location: location, loadContext: loadContext, props: props }).then(function () {
+                        cb(null, {
+                            initialQueries: queries
+                        });
+                    });
+                },
+
+                queries: componentQueries,
+                fragments: componentFragments,
+                initialVars: initialVars,
+                getInitialVars: getInitialVars
+            },
+
+            componentWillMount: function componentWillMount() {
+                this.fragmentProps = {};
+                this.componentWillReceiveProps(this.props);
+            },
+            componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                var fragmentProps = _.pick(nextProps, Object.keys(componentFragments));
+                var hasFragmentProps = Object.keys(fragmentProps).length;
+
+                if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
+                    if (this.queries) {
+                        this.queries._events._removeHandlers();
+                    }
+                    this.queries = nextProps.initialQueries;
+                    this.queries._element = this.queries._events.element = this;
+                    this.queries._events._addHandlers();
+                }
+
+                if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
+                    this.fragmentProps = fragmentProps;
+                    if (this.fragments) {
+                        this.fragments._events._removeHandlers();
+                    }
+                    this.fragments = new QueryFragments$1({
+                        element: this,
+                        props: fragmentProps,
+                        propTypes: componentFragments
+                    });
+                    this.fragments._events._addHandlers();
+                }
+            },
+            componentWillUnmount: function componentWillUnmount() {
+                if (this.queries) {
+                    this.queries._events._removeHandlers();
+                }
+                if (this.fragments) {
+                    this.fragments._events._removeHandlers();
+                }
+            },
+            render: function render() {
+                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._queryProps : {}, this.fragments ? this.fragments._props : {}));
+            }
+        });
+
+        if (isStandalone) {
+            return createReactClass({
+                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+
+                componentWillMount: function componentWillMount() {
+                    this.initialQueries = null;
+                    this.componentWillReceiveProps(this.props);
+                },
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                    var _this3 = this;
+
+                    ApiComponent.loadProps({ props: nextProps }, function (error, props) {
+                        _this3.initialQueries = props.initialQueries;
+                        _this3.forceUpdate();
+                    });
+                },
+                render: function render() {
+                    return React.createElement(ApiComponent, _extends({
+                        initialQueries: this.initialQueries
+                    }, this.props));
+                }
+            });
+        } else {
+            return ApiComponent;
+        }
+    }
+
+    function Events$1(props, propOptions, element) {
+        this.props = props;
+        this.propOptions = propOptions;
+        this.element = element;
+    }
+
+    function QueryFragments$1(_ref2) {
+        var element = _ref2.element,
+            props = _ref2.props,
+            propTypes = _ref2.propTypes;
+
+        this._events = new Events$1(props, propTypes, element);
+
+        this._element = element;
+
+        this._props = props;
+        this._propTypes = propTypes;
+    }
+
+    function Queries$1(_ref3) {
+        var element = _ref3.element,
+            vars = _ref3.vars,
+            propTypes = _ref3.propTypes,
+            loadFromCache = _ref3.loadFromCache,
+            alwaysFetch = _ref3.alwaysFetch,
+            updateCache = _ref3.updateCache;
+
+        this._events = new Events$1(null, propTypes, element);
+
+        this._element = element;
+
+        this.vars = vars;
+        this.pendingVars = {};
+        this._queryProps = {};
+
+        this._queryPropTypes = propTypes;
+        this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
+        this.alwaysFetch = !_.isUndefined(alwaysFetch) ? alwaysFetch : true;
+        this.updateCache = !_.isUndefined(updateCache) ? updateCache : true;
+
+        this._addedHandlers = false;
+    }
+
+    function findOrCreateCollection$1(model, fetchOptions) {
+        var url = getUrl$1(model.prototype, fetchOptions);
+        var isNew = false;
+
+        if (!collectionCache$1[url]) {
+            collectionCache$1[url] = new model();
+            isNew = true;
+        }
+
+        return { isNew: isNew, collection: collectionCache$1[url] };
+    }
+
+    function getArgs$1(func) {
+        // First match everything inside the function argument parens.
+        var args = func.toString().match(/\(([^)]*)\)/)[1];
+
+        // Split the arguments string into an array comma delimited.
+        return args.split(',').map(function (arg) {
+            // Ensure no inline comments are parsed and trim the whitespace.
+            return arg.replace(/\/\*.*\*\//, '').trim();
+        }).filter(function (arg) {
+            // Ensure no undefined values are added.
+            return arg;
+        });
+    }
+
     return {
         setters: [function (_c) {
-            Backbone = _c.default;
+            Backbone$1 = _c.default;
         }, function (_d2) {}, function (_e2) {
-            _ = _e2.default;
+            _$1 = _e2.default;
         }, function (_2) {
-            React = _2.default;
+            React$1 = _2.default;
         }, function (_3) {
-            createReactClass = _3.default;
+            createReactClass$1 = _3.default;
         }, function (_b) {
-            PropTypes = _b.default;
+            PropTypes$1 = _b.default;
         }, function (_f) {
             RouterContext = _f.default;
         }, function (_4) {
@@ -3028,13 +3207,13 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 };
             }();
 
-            _extend = Backbone.RelationalModel.extend;
+            _extend = Backbone$1.RelationalModel.extend;
 
-            Backbone.RelationalModel.extend = function (protoProps, classProps) {
+            Backbone$1.RelationalModel.extend = function (protoProps, classProps) {
                 var ret = _extend.call(this, protoProps, classProps);
 
                 if (protoProps.defaults && protoProps.defaults.type) {
-                    Backbone.modelFactory.registerModel(ret);
+                    Backbone$1.modelFactory.registerModel(ret);
                 }
 
                 return ret;
@@ -3059,17 +3238,17 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
             };
 
             ModelFactory.prototype.createFromArray = function (items, options) {
-                _.each(items, function (item) {
+                _$1.each(items, function (item) {
                     this.findOrCreate(item, options);
                 }, this);
             };
 
-            Backbone.modelFactory = new ModelFactory();
+            Backbone$1.modelFactory = new ModelFactory();
 
-            Backbone.Collection.prototype.parse = function (response, options) {
+            Backbone$1.Collection.prototype.parse = function (response, options) {
                 if (!response) return;
 
-                if (response.included) Backbone.modelFactory.createFromArray(response.included, options);
+                if (response.included) Backbone$1.modelFactory.createFromArray(response.included, options);
 
                 if (response.meta && this.handleMeta) this.handleMeta(response.meta);
 
@@ -3080,10 +3259,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 return response.data;
             };
 
-            Backbone.RelationalModel.prototype.parse = function (response, options) {
+            Backbone$1.RelationalModel.prototype.parse = function (response, options) {
                 if (!response) return;
 
-                if (response.included) Backbone.modelFactory.createFromArray(response.included);
+                if (response.included) Backbone$1.modelFactory.createFromArray(response.included);
 
                 if (response.data) {
                     response = response.data;
@@ -3096,37 +3275,37 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
                 var simplifiedRelations = void 0;
                 if (response.relationships) {
-                    simplifiedRelations = _.mapObject(response.relationships, function (value) {
+                    simplifiedRelations = _$1.mapObject(response.relationships, function (value) {
                         return value.data;
                     });
                 }
 
-                var _$chain$pairs$partiti = _.chain(this.attributes).pairs().partition(function (_ref) {
+                var _$chain$pairs$partiti = _$1.chain(this.attributes).pairs().partition(function (_ref) {
                     var _ref2 = _slicedToArray(_ref, 2),
                         key = _ref2[0],
                         value = _ref2[1];
 
-                    return value instanceof Backbone.Model || value instanceof Backbone.Collection;
+                    return value instanceof Backbone$1.Model || value instanceof Backbone$1.Collection;
                 }).map(function (val) {
-                    return _.object(val);
+                    return _$1.object(val);
                 }).value(),
                     _$chain$pairs$partiti2 = _slicedToArray(_$chain$pairs$partiti, 2),
                     existingRelations = _$chain$pairs$partiti2[0],
                     existingFields = _$chain$pairs$partiti2[1];
 
-                var newFields = _.extend({}, existingFields, data);
+                var newFields = _$1.extend({}, existingFields, data);
                 var fetchOptions = options.fetchOptions || this.fetchOptions;
 
                 var relations = mergeRelations(existingRelations, simplifiedRelations, fetchOptions);
 
-                return _.extend({}, newFields, relations);
-            };Backbone.RelationalModel.prototype.set = function (key, value, options) {
-                Backbone.Relational.eventQueue.block();
+                return _$1.extend({}, newFields, relations);
+            };Backbone$1.RelationalModel.prototype.set = function (key, value, options) {
+                Backbone$1.Relational.eventQueue.block();
 
                 // Duplicate backbone's behavior to allow separate key/value parameters, instead of a single 'attributes' object
                 var attributes, result;
 
-                if (_.isObject(key) || key == null) {
+                if (_$1.isObject(key) || key == null) {
                     attributes = key;
                     options = value;
                 } else {
@@ -3139,9 +3318,9 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                         newId = attributes && this.idAttribute in attributes && attributes[this.idAttribute];
 
                     // Check if we're not setting a duplicate id before actually calling `set`.
-                    Backbone.Relational.store.checkId(this, newId);
+                    Backbone$1.Relational.store.checkId(this, newId);
 
-                    result = Backbone.Model.prototype.set.apply(this, arguments);
+                    result = Backbone$1.Model.prototype.set.apply(this, arguments);
 
                     // Ideal place to set up relations, if this is the first time we're here for this model
                     // Change required to work.
@@ -3151,7 +3330,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
 
                         // Only register models that have an id. A model will be registered when/if it gets an id later on.
                         if (newId || newId === 0) {
-                            Backbone.Relational.store.register(this);
+                            Backbone$1.Relational.store.register(this);
                         }
 
                         this.initializeRelations(options);
@@ -3162,7 +3341,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     }
                 } finally {
                     // Try to run the global queue holding external events
-                    Backbone.Relational.eventQueue.unblock();
+                    Backbone$1.Relational.eventQueue.unblock();
                 }
 
                 return result;
@@ -3171,7 +3350,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     var option = options[name];
                     var thisVal = this[name];
 
-                    return !_.isUndefined(option) ? option : !_.isUndefined(thisVal) ? thisVal : true;
+                    return !_$1.isUndefined(option) ? option : !_$1.isUndefined(thisVal) ? thisVal : true;
                 },
 
                 /**
@@ -3238,7 +3417,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                             var loadedFromCache = false;
 
                             if (_this2.getCacheOption(options, 'loadFromCache')) {
-                                if (instance instanceof Backbone.Collection) {
+                                if (instance instanceof Backbone$1.Collection) {
                                     if (!isNew) {
                                         loadedFromCache = true;
                                         resolve();
@@ -3333,7 +3512,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
             collectionEvents = 'update reset sort error request sync';
 
 
-            Backbone.Collection.prototype.bindRelationEvents = function (callback, context, options) {
+            Backbone$1.Collection.prototype.bindRelationEvents = function (callback, context, options) {
                 this.on(collectionEvents, callback, context);
                 this.models.forEach(function (model) {
                     model.bindRelationEvents(callback, context, options);
@@ -3348,7 +3527,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 }, context);
             };
 
-            Backbone.RelationalModel.prototype.bindRelationEvents = function (callback, context, options) {
+            Backbone$1.RelationalModel.prototype.bindRelationEvents = function (callback, context, options) {
                 var _this5 = this;
 
                 var relations = getRelations(options);
@@ -3361,7 +3540,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 });
             };
 
-            Backbone.Collection.prototype.unbindRelationEvents = function (context, options) {
+            Backbone$1.Collection.prototype.unbindRelationEvents = function (context, options) {
                 this.models.forEach(function (model) {
                     model.unbindRelationEvents(context, options);
                 });
@@ -3369,7 +3548,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 this.off(null, null, context);
             };
 
-            Backbone.RelationalModel.prototype.unbindRelationEvents = function (context, options) {
+            Backbone$1.RelationalModel.prototype.unbindRelationEvents = function (context, options) {
                 var _this6 = this;
 
                 this.off(null, null, context);
@@ -3380,10 +3559,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                     var related = getRelated(_this6, relation);
                     related.unbindRelationEvents(context, relation);
                 });
-            };BackboneSync = Backbone.sync;
+            };BackboneSync = Backbone$1.sync;
 
 
-            Backbone.sync = function (method, model, options) {
+            Backbone$1.sync = function (method, model, options) {
                 var fetchOptions = model.fetchOptions;
 
                 if (!options.url) {
@@ -3431,7 +3610,368 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                 return target;
             };
 
-            Object.assign(Events.prototype, {
+            array = PropTypes$1.array;
+            func = PropTypes$1.func;
+            object = PropTypes$1.object;
+            AsyncPropsContainer = createReactClass$1({
+
+                propTypes: {
+                    Component: func.isRequired,
+                    routerProps: object.isRequired
+                },
+
+                contextTypes: {
+                    asyncProps: object.isRequired
+                },
+
+                render: function render() {
+                    var _props = this.props,
+                        Component = _props.Component,
+                        routerProps = _props.routerProps,
+                        props = _objectWithoutProperties(_props, ['Component', 'routerProps']);
+
+                    var _context$asyncProps = this.context.asyncProps,
+                        propsAndComponents = _context$asyncProps.propsAndComponents,
+                        loading = _context$asyncProps.loading,
+                        reloadComponent = _context$asyncProps.reloadComponent;
+
+                    var asyncProps = lookupPropsForComponent(Component, propsAndComponents);
+                    var reload = function reload() {
+                        return reloadComponent(Component);
+                    };
+                    return React$1.createElement(Component, _extends({}, props, routerProps, asyncProps, {
+                        reloadAsyncProps: reload,
+                        loading: loading
+                    }));
+                }
+            });
+
+            _export('AsyncProps', AsyncProps = createReactClass$1({
+
+                childContextTypes: {
+                    asyncProps: object
+                },
+
+                propTypes: {
+                    loadContext: object,
+                    components: array.isRequired,
+                    params: object.isRequired,
+                    location: object.isRequired,
+                    onError: func.isRequired,
+                    renderLoading: func.isRequired,
+
+                    // server rendering
+                    propsArray: array,
+                    componentsArray: array
+                },
+
+                getDefaultProps: function getDefaultProps() {
+                    return {
+                        onError: function onError(err) {
+                            throw err;
+                        },
+                        renderLoading: function renderLoading() {
+                            return null;
+                        },
+                        render: function render(props) {
+                            return React$1.createElement(RouterContext, _extends({}, props, { createElement: createElement }));
+                        }
+                    };
+                },
+                getInitialState: function getInitialState() {
+                    var _props2 = this.props,
+                        propsArray = _props2.propsArray,
+                        componentsArray = _props2.componentsArray;
+
+                    var isServerRender = propsArray && componentsArray;
+                    return {
+                        loading: false,
+                        prevProps: null,
+                        propsAndComponents: isServerRender ? { propsArray: propsArray, componentsArray: componentsArray } : hydrate(this.props)
+                    };
+                },
+                getChildContext: function getChildContext() {
+                    var _this = this;
+
+                    var _state = this.state,
+                        loading = _state.loading,
+                        propsAndComponents = _state.propsAndComponents;
+
+                    return {
+                        asyncProps: {
+                            loading: loading,
+                            propsAndComponents: propsAndComponents,
+                            reloadComponent: function reloadComponent(Component) {
+                                _this.reloadComponent(Component);
+                            }
+                        }
+                    };
+                },
+                componentDidMount: function componentDidMount() {
+                    var wasHydrated = this.state.propsAndComponents !== null;
+                    if (!wasHydrated) {
+                        var _props3 = this.props,
+                            components = _props3.components,
+                            params = _props3.params,
+                            location = _props3.location;
+
+                        this.loadAsyncProps(components, params, location);
+                    }
+                },
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                    if (nextProps.location === this.props.location) return;
+
+                    var _computeChangedRoutes = computeChangedRoutes({ routes: this.props.routes, params: this.props.params }, { routes: nextProps.routes, params: nextProps.params }),
+                        enterRoutes = _computeChangedRoutes.enterRoutes;
+
+                    var indexDiff = nextProps.components.length - enterRoutes.length;
+                    var components = [];
+                    for (var i = 0, l = enterRoutes.length; i < l; i++) {
+                        components.push(nextProps.components[indexDiff + i]);
+                    }this.loadAsyncProps(filterAndFlattenComponents(components), nextProps.params, nextProps.location);
+                },
+                handleError: function handleError(cb) {
+                    var _this2 = this;
+
+                    return function (err) {
+                        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+                            args[_key - 1] = arguments[_key];
+                        }
+
+                        if (err && _this2.props.onError) _this2.props.onError(err);else cb.apply(undefined, [null].concat(args));
+                    };
+                },
+                componentWillUnmount: function componentWillUnmount() {
+                    this._unmounted = true;
+                },
+                loadAsyncProps: function loadAsyncProps(components, params, location, options) {
+                    var _this3 = this;
+
+                    var loadContext = this.props.loadContext;
+
+                    this.setState({
+                        loading: true,
+                        prevProps: this.props
+                    }, function () {
+                        _loadAsyncProps({
+                            components: filterAndFlattenComponents(components),
+                            params: params,
+                            location: location,
+                            loadContext: loadContext
+                        }, _this3.handleError(function (err, propsAndComponents) {
+                            var reloading = options && options.reload;
+                            var didNotChangeRoutes = _this3.props.location === location;
+                            // FIXME: next line has potential (rare) race conditions I think. If
+                            // somebody calls reloadAsyncProps, changes location, then changes
+                            // location again before its done and state gets out of whack (Rx folks
+                            // are like "LOL FLAT MAP LATEST NEWB"). Will revisit later.
+                            if ((reloading || didNotChangeRoutes) && !_this3._unmounted) {
+                                if (_this3.state.propsAndComponents) {
+                                    propsAndComponents = mergePropsAndComponents(_this3.state.propsAndComponents, propsAndComponents);
+                                }
+                                _this3.setState({
+                                    loading: false,
+                                    propsAndComponents: propsAndComponents,
+                                    prevProps: null
+                                });
+                            }
+                        }));
+                    });
+                },
+                reloadComponent: function reloadComponent(Component) {
+                    var params = this.props.params;
+
+                    this.loadAsyncProps([Component], params, null, { reload: true });
+                },
+                render: function render() {
+                    var propsAndComponents = this.state.propsAndComponents;
+
+                    if (!propsAndComponents) {
+                        return this.props.renderLoading();
+                    } else {
+                        var props = this.state.loading ? this.state.prevProps : this.props;
+                        return this.props.render(props);
+                    }
+                }
+            }));
+
+            // Monkey-patch to fix an apparent bug.
+            Backbone.RelationalModel.prototype.set = function (key, value, options) {
+                Backbone.Relational.eventQueue.block();
+
+                // Duplicate backbone's behavior to allow separate key/value parameters, instead of a single 'attributes' object
+                var attributes, result;
+
+                if (_.isObject(key) || key == null) {
+                    attributes = key;
+                    options = value;
+                } else {
+                    attributes = {};
+                    attributes[key] = value;
+                }
+
+                try {
+                    var id = this.id,
+                        newId = attributes && this.idAttribute in attributes && attributes[this.idAttribute];
+
+                    // Check if we're not setting a duplicate id before actually calling `set`.
+                    Backbone.Relational.store.checkId(this, newId);
+
+                    result = Backbone.Model.prototype.set.apply(this, arguments);
+
+                    // Ideal place to set up relations, if this is the first time we're here for this model
+                    // Change required to work.
+                    {
+                        //if ( !this._isInitialized && !this.isLocked() ) {
+                        this.constructor.initializeModelHierarchy();
+
+                        // Only register models that have an id. A model will be registered when/if it gets an id later on.
+                        if (newId || newId === 0) {
+                            Backbone.Relational.store.register(this);
+                        }
+
+                        this.initializeRelations(options);
+                    }
+
+                    if (attributes) {
+                        this.updateRelations(attributes, options);
+                    }
+                } finally {
+                    // Try to run the global queue holding external events
+                    Backbone.Relational.eventQueue.unblock();
+                }
+
+                return result;
+            };
+
+            modelEvents$1 = 'change invalid error request sync';
+            collectionEvents$1 = 'update reset sort error request sync';
+
+
+            Backbone.Collection.prototype.bindRelationEvents = function (callback, context, options) {
+                this.on(collectionEvents$1, callback, context);
+                this.models.forEach(function (model) {
+                    model.bindRelationEvents(callback, context, options);
+                });
+
+                this.on('add', function (model) {
+                    model.bindRelationEvents(callback, context, options);
+                }, context);
+
+                this.on('remove', function (model) {
+                    model.unbindRelationEvents(context, options);
+                }, context);
+            };
+
+            Backbone.RelationalModel.prototype.bindRelationEvents = function (callback, context, options) {
+                var _this = this;
+
+                var relations = getRelations$1(options);
+
+                this.on(modelEvents$1, callback, context);
+
+                relations.forEach(function (relation) {
+                    var related = getRelated$1(_this, relation);
+                    related.bindRelationEvents(callback, context, relation);
+                });
+            };
+
+            Backbone.Collection.prototype.unbindRelationEvents = function (context, options) {
+                this.models.forEach(function (model) {
+                    model.unbindRelationEvents(context, options);
+                });
+
+                this.off(null, null, context);
+            };
+
+            Backbone.RelationalModel.prototype.unbindRelationEvents = function (context, options) {
+                var _this2 = this;
+
+                this.off(null, null, context);
+
+                var relations = getRelations$1(options);
+
+                relations.forEach(function (relation) {
+                    var related = getRelated$1(_this2, relation);
+                    related.unbindRelationEvents(context, relation);
+                });
+            };
+
+            getRelations$1 = function getRelations(options) {
+                var relations = options.relations || [];
+                (options.fragments || []).forEach(function (fragment) {
+                    relations = relations.concat(fragment.relations || []);
+                });
+                return _.uniq(relations, function (r) {
+                    return r.key;
+                });
+            };
+
+            getRelated$1 = function getRelated(model, relation) {
+                var r = model.getRelation(relation.key);
+                return r.related;
+            };
+
+            BackboneSync$1 = Backbone.sync;
+
+
+            Backbone.sync = function (method, model, options) {
+                if (!options.url) {
+                    options.url = getUrl$1(model, model.fetchOptions);
+                }
+
+                return new Promise(function (resolve, reject) {
+                    model.syncing = true;
+                    model.textStatus = null;
+
+                    var promise = BackboneSync$1(method, model, options);
+                    promise.done(function (data, textStatus) {
+                        model.error = null;
+
+                        resolve(model);
+                    }).fail(function (jqXhr, textStatus, errorThrown) {
+                        model.error = errorThrown;
+
+                        if (options.allowFail) {
+                            reject(model);
+                        } else {
+                            resolve(model);
+                        }
+                    }).always(function () {
+                        model.syncing = false;
+                        // Required to ensure handlers see attributes set above.
+                        model.trigger('change');
+                    });
+                });
+            };
+            processRelation$1 = function processRelation(model, relation, path, include, fields) {
+                var fragments = relation.fragments || [];
+                var relationRelations = relation.relations || [];
+                var relationFields = relation.fields || [];
+                fragments.forEach(function (fragment) {
+                    relationRelations = relationRelations.concat(fragment.relations || []);
+                    relationFields = relationFields.concat(fragment.fields || []);
+                });
+                relationRelations = _.uniq(relationRelations, function (r) {
+                    return r.key;
+                });
+
+                if (relationFields.length) {
+                    var type = model.prototype.defaults.type;
+                    fields[type] = (fields[type] || []).concat(relationFields);
+                }
+
+                relationRelations.forEach(function (relation) {
+                    var newPath = path.concat(relation.key);
+                    include.push(newPath);
+                    var relatedModel = _.find(model.prototype.relations, function (r) {
+                        return r.key === relation.key;
+                    }).relatedModel;
+                    processRelation(relatedModel, relation, newPath, include, fields);
+                });
+            };
+
+            Object.assign(Events$1.prototype, {
                 _addHandlers: function _addHandlers() {
                     var _this4 = this;
 
@@ -3456,134 +3996,86 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                         _this5.props[key].unbindRelationEvents(_this5.element, _this5.propOptions[key]);
                     });
                 }
-            });collectionCache = {};
-            Object.assign(Queries.prototype, {
+            });collectionCache$1 = {};
+            Object.assign(Queries$1.prototype, {
                 getCacheOption: function getCacheOption(options, name) {
                     var option = options[name];
                     var thisVal = this[name];
 
-                propTypes: {
-                    Component: func.isRequired,
-                    routerProps: object.isRequired
+                    return !_.isUndefined(option) ? option : !_.isUndefined(thisVal) ? thisVal : true;
                 },
 
-                contextTypes: {
-                    asyncProps: object.isRequired
+                /**
+                 * Set the current vars to `vars` and trigger a re-fetch.  Once fetching is
+                 * initiated, the component will re-render with the previous vars as
+                 * queries.vars and the current vars as queries.pendingVars.
+                 */
+                setVars: function setVars(vars) {
+                    this.pendingVars = Object.assign({}, this.vars, vars);
+                    this._fetch(this._element.props);
                 },
                 _fetch: function _fetch(_ref4) {
-<<<<<<< HEAD:dist/react-jsonapi.js
                     var _this6 = this;
 
                     var params = _ref4.params,
                         location = _ref4.location,
                         loadContext = _ref4.loadContext,
                         props = _ref4.props;
-=======
-                    var _this5 = this;
 
-                    var params = _ref4.params,
-                        location = _ref4.location,
-                        loadContext = _ref4.loadContext;
->>>>>>> add cache control query options:dist/react-router-json-api.js
+                    var keys = Object.keys(this._queryPropTypes);
 
-                    var _context$asyncProps = this.context.asyncProps,
-                        propsAndComponents = _context$asyncProps.propsAndComponents,
-                        loading = _context$asyncProps.loading,
-                        reloadComponent = _context$asyncProps.reloadComponent;
+                    if (!keys.length) {
+                        return Promise.resolve();
+                    }
 
-                    var asyncProps = lookupPropsForComponent(Component, propsAndComponents);
-                    var reload = function reload() {
-                        return reloadComponent(Component);
-                    };
-                    return React.createElement(Component, _extends({}, props, routerProps, asyncProps, {
-                        reloadAsyncProps: reload,
-                        loading: loading
-                    }));
-                }
-            });
+                    var fetchingProps = {};
 
-            _export('AsyncProps', AsyncProps = createReactClass({
+                    this.fetching = true;
 
-                childContextTypes: {
-                    asyncProps: object
-                },
+                    if (this._events.props) {
+                        this._events._removeHandlers();
+                    }
 
-                propTypes: {
-                    loadContext: object,
-                    components: array.isRequired,
-                    params: object.isRequired,
-                    location: object.isRequired,
-                    onError: func.isRequired,
-                    renderLoading: func.isRequired,
-
-                    // server rendering
-                    propsArray: array,
-                    componentsArray: array
-                },
+                    var propOptions = {};
+                    this.hasErrors = false;
 
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
-<<<<<<< HEAD:dist/react-jsonapi.js
                             var query = _this6._queryPropTypes[key];
-                            var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
-=======
-                            var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
->>>>>>> add cache control query options:dist/react-router-json-api.js
+                            var options = propOptions[key] = getArgs$1(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
 
-                    var isServerRender = propsArray && componentsArray;
-                    return {
-                        loading: false,
-                        prevProps: null,
-                        propsAndComponents: isServerRender ? { propsArray: propsArray, componentsArray: componentsArray } : hydrate(this.props)
-                    };
-                },
-                getChildContext: function getChildContext() {
-                    var _this = this;
+                            var model = options.model;
+                            var instance = void 0,
+                                isNew = void 0;
 
                             if (model.prototype.model) {
-<<<<<<< HEAD:dist/react-jsonapi.js
                                 if (_this6.getCacheOption(options, 'updateCache')) {
-=======
-                                if (_this5.getCacheOption(options, 'updateCache')) {
->>>>>>> add cache control query options:dist/react-router-json-api.js
-                                    var _findOrCreateCollecti = findOrCreateCollection(model, options);
+                                    var _findOrCreateCollecti = findOrCreateCollection$1(model, options);
 
-                    return {
-                        asyncProps: {
-                            loading: loading,
-                            propsAndComponents: propsAndComponents,
-                            reloadComponent: function reloadComponent(Component) {
-                                _this.reloadComponent(Component);
+                                    instance = _findOrCreateCollecti.collection;
+                                    isNew = _findOrCreateCollecti.isNew;
+                                } else {
+                                    instance = new model();
+                                    instance.fetchOptions = options;
+                                    isNew = true;
+                                }
+                            } else {
+                                instance = model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
                             }
-                        }
-                    };
-                },
-                componentDidMount: function componentDidMount() {
-                    var wasHydrated = this.state.propsAndComponents !== null;
-                    if (!wasHydrated) {
-                        var _props3 = this.props,
-                            components = _props3.components,
-                            params = _props3.params,
-                            location = _props3.location;
 
                             instance._isInitialized = false;
                             fetchingProps[key] = instance;
 
                             var loadedFromCache = false;
 
-<<<<<<< HEAD:dist/react-jsonapi.js
                             if (_this6.getCacheOption(options, 'loadFromCache')) {
-=======
-                            if (_this5.getCacheOption(options, 'loadFromCache')) {
->>>>>>> add cache control query options:dist/react-router-json-api.js
                                 if (model.prototype.model && !isNew) {
                                     loadedFromCache = true;
                                     resolve();
                                 }
                             }
 
-                    var _computeChangedRoutes = computeChangedRoutes({ routes: this.props.routes, params: this.props.params }, { routes: nextProps.routes, params: nextProps.params }),
-                        enterRoutes = _computeChangedRoutes.enterRoutes;
+                            var existingFetchPromise = instance.fetchPromise;
 
                             if (existingFetchPromise) {
                                 existingFetchPromise.then(function () {
@@ -3592,36 +4084,18 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                                     resolve();
                                 });
                             } else {
-<<<<<<< HEAD:dist/react-jsonapi.js
                                 if (loadedFromCache && !_this6.getCacheOption(options, 'alwaysFetch')) {
-=======
-                                if (loadedFromCache && !_this5.getCacheOption(options, 'alwaysFetch')) {
->>>>>>> add cache control query options:dist/react-router-json-api.js
                                     return;
                                 }
 
-                    return function (err) {
-                        for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-                            args[_key - 1] = arguments[_key];
-                        }
+                                instance.fetchOptions = options;
 
-                        if (err && _this2.props.onError) _this2.props.onError(err);else cb.apply(undefined, [null].concat(args));
-                    };
-                },
-                componentWillUnmount: function componentWillUnmount() {
-                    this._unmounted = true;
-                },
-                loadAsyncProps: function loadAsyncProps(components, params, location, options) {
-                    var _this3 = this;
+                                var fetchPromise = instance.fetch();
 
-                    var loadContext = this.props.loadContext;
+                                instance.fetchPromise = fetchPromise;
 
                                 fetchPromise.catch(function () {
-<<<<<<< HEAD:dist/react-jsonapi.js
                                     _this6.hasErrors = true;
-=======
-                                    _this5.hasErrors = true;
->>>>>>> add cache control query options:dist/react-router-json-api.js
                                     instance.fetchPromise = null;
                                     resolve();
                                 }).then(function () {
@@ -3647,25 +4121,14 @@ $__System.register('a', ['1c', '1d', '1e', '13', '12', '1b', '1f', '20'], functi
                             _this6._element.forceUpdate();
                         }
                     });
-                },
-                reloadComponent: function reloadComponent(Component) {
-                    var params = this.props.params;
 
-                    this.loadAsyncProps([Component], params, null, { reload: true });
-                },
-                render: function render() {
-                    var propsAndComponents = this.state.propsAndComponents;
-
-                    if (!propsAndComponents) {
-                        return this.props.renderLoading();
-                    } else {
-                        var props = this.state.loading ? this.state.prevProps : this.props;
-                        return this.props.render(props);
-                    }
+                    return promise;
                 }
-            }));
+            });
 
             _export('default', withJsonApi);
+
+            _export('withJsonApi', withJsonApi$1);
 
             _export('AsyncProps', AsyncProps);
         }

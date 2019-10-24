@@ -26498,16 +26498,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                             return React.createElement('li', null);
                         }
                         return React.createElement('li', { key: article.get('id') }, article.get('title'));
-<<<<<<< HEAD
                     })), React.createElement(ArticleSummary, { articleId: article.get('id') })), React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, 'Comments'), article.get('comments').map(function (comment, i) {
-=======
-                    })), React.createElement(Router, {
-                        history: this.state.history,
-                        render: function render(props) {
-                            return React.createElement(AsyncProps, props);
-                        }
-                    }, this.state.routes)), React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, 'Comments'), article.get('comments').map(function (comment, i) {
->>>>>>> add cache control query options
                         return React.createElement(React.Fragment, null, i ? React.createElement('br', null) : null, React.createElement(CommentItem, { key: comment.get('id'), comment: comment }));
                     }), React.createElement('br', null), !this.state.addingComment ? React.createElement('input', { type: 'button',
                         value: 'Add Comment',
@@ -42686,8 +42677,8 @@ System.registerDynamic('npm:underscore@1.9.1/underscore.js', [], false, function
 
   return _retrieveGlobal();
 });
-System.register('react-jsonapi/backbone-relational-jsonapi.js', ['backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
-	"use strict";
+System.register('react-jsonapi/backbone-relational-jsonapi.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/slicedToArray.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
+    "use strict";
 
     var _defineProperty, _slicedToArray, _extends, Backbone, _, _extend, ModelFactory;
 
@@ -42819,13 +42810,13 @@ System.register('react-jsonapi/backbone-relational-jsonapi.js', ['backbone', 'ba
                         key = _ref2[0],
                         value = _ref2[1];
 
-        return target;
-      });
-    }
-  };
-});
-System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js', 'react', 'react-router/lib/RouterContext', 'react-router/lib/computeChangedRoutes', 'create-react-class', 'prop-types'], function (_export, _context) {
-  "use strict";
+                    return value instanceof Backbone.Model || value instanceof Backbone.Collection;
+                }).map(function (val) {
+                    return _.object(val);
+                }).value(),
+                    _$chain$pairs$partiti2 = _slicedToArray(_$chain$pairs$partiti, 2),
+                    existingRelations = _$chain$pairs$partiti2[0],
+                    existingFields = _$chain$pairs$partiti2[1];
 
                 var newFields = _.extend({}, existingFields, data);
                 var fetchOptions = options.fetchOptions || this.fetchOptions;
@@ -43104,10 +43095,6 @@ System.register('react-jsonapi/withJsonApi.js', ['npm:systemjs-plugin-babel@0.0.
             return r.key;
         });
     }
-  };
-});
-System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'react', 'create-react-class', 'prop-types', 'backbone', 'backbone-relational', 'underscore', './backbone-relational-jsonapi', './AsyncProps'], function (_export, _context) {
-    "use strict";
 
     function getRelated(model, relation) {
         var r = model.getRelation(relation.key);
@@ -43195,50 +43182,31 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
         } else {
             var cachedFieldsAndRelations = model.cachedFieldsAndRelations;
 
-        var getVars = function getVars() {
-            if (getInitialVars) {
-                return getInitialVars();
-            } else if (initialVars) {
-                return initialVars;
-            } else {
-                return {};
-            }
-        };
-
-        var firstQuery = _.first(_.values(componentQueries));
-        var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
-        var innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
-
-        var ApiComponent = createReactClass({
-            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
+            var _ref5 = cachedFieldsAndRelations || {},
+                fields = _ref5.fields,
+                relations = _ref5.relations;
 
             var fetchFields = fetchOptions.fields,
                 fetchRelations = fetchOptions.relations;
 
-            statics: {
-                loadProps: function loadProps(_ref, cb) {
-                    var params = _ref.params,
-                        location = _ref.location,
-                        loadContext = _ref.loadContext,
-                        props = _ref.props;
+            var newCachedFields = void 0;
+            if (cachedFieldsAndRelations) {
+                newCachedFields = !(fetchFields && fields) ? null : _.unique(fields.concat(fetchFields));
+            } else {
+                newCachedFields = fetchFields;
+            }
 
-<<<<<<< HEAD
-=======
-                    var getVars = function getVars() {
-                        if (getInitialVars) {
-                            return getInitialVars();
-                        } else if (initialVars) {
-                            return initialVars;
-                        } else {
-                            return {};
-                        }
-                    };
+            model.cachedFieldsAndRelations = {
+                fields: newCachedFields,
+                relations: mergeRelationLists(relations || [], fetchRelations || [])
+            };
+        }
 
->>>>>>> add cache control query options
-                    var queries = new Queries({
-                        element: null,
-                        vars: getVars(),
-                        propTypes: componentQueries
+        if (fetchOptions.relations) {
+            _.each(model.attributes, function (value, key) {
+                if (value instanceof Backbone.Collection || value instanceof Backbone.RelationalModel) {
+                    var relation = fetchOptions.relations.find(function (relation) {
+                        return relation.key === key;
                     });
                     if (relation) {
                         updateCacheInformation(value, relation);
@@ -43248,12 +43216,8 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
         }
     }
 
-                    queries._fetch({ params: params, location: location, loadContext: loadContext, props: props }).then(function () {
-                        cb(null, {
-                            initialQueries: queries
-                        });
-                    });
-                },
+    function mergeRelationLists(a, b) {
+        var result = a.slice(0);
 
         b.forEach(function (relation) {
             var existingRelation = result.find(function (r) {
@@ -43275,40 +43239,12 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                 if (newRelations || relations) {
                     newRelation.relations = mergeRelationLists(newRelations || [], relations || []);
                 }
-            },
-            render: function render() {
-                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._queryProps : {}, this.fragments ? this.fragments._props : {}));
+
+                result[result.indexOf(existingRelation)] = newRelation;
+            } else {
+                result.push(relation);
             }
         });
-
-        if (isStandalone) {
-            return createReactClass({
-                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
-
-                componentWillMount: function componentWillMount() {
-                    this.initialQueries = null;
-                    this.componentWillReceiveProps(this.props);
-                },
-                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
-                    var _this3 = this;
-
-                    ApiComponent.loadProps({ props: nextProps }, function (error, props) {
-                        _this3.initialQueries = props.initialQueries;
-                        _this3.forceUpdate();
-                    });
-                },
-                render: function render() {
-                    return React.createElement(ApiComponent, _extends({
-                        initialQueries: this.initialQueries
-                    }, this.props));
-                }
-            });
-        } else {
-            return ApiComponent;
-        }
-    }
-
-    _export('withJsonApi', withJsonApi);
 
         return result;
     }
@@ -43348,9 +43284,9 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
             }
         });
 
-        this.vars = vars;
-        this.pendingVars = {};
-        this._queryProps = {};
+        if (options.relations) {
+            options.relations = options.relations.map(mergeFragments);
+        }
 
         options.fields = _.uniq(options.fields);
 
@@ -43374,21 +43310,6 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
             processRelation(relatedModel, r, newPath, include, fields);
         });
     }
-
-    function getArgs(func) {
-        // First match everything inside the function argument parens.
-        var args = func.toString().match(/\(([^)]*)\)/)[1];
-
-        // Split the arguments string into an array comma delimited.
-        return args.split(',').map(function (arg) {
-            // Ensure no inline comments are parsed and trim the whitespace.
-            return arg.replace(/\/\*.*\*\//, '').trim();
-        }).filter(function (arg) {
-            // Ensure no undefined values are added.
-            return arg;
-        });
-    }
-
     return {
         setters: [function (_npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs) {
             _defineProperty = _npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs.default;
@@ -43506,23 +43427,11 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                                     return;
                                 }
 
-        return { isNew: isNew, collection: collectionCache[url] };
-<<<<<<< HEAD
-    }
+                                instance.fetchOptions = options;
 
                                 var fetchPromise = instance.fetch();
 
-        // Split the arguments string into an array comma delimited.
-        return args.split(',').map(function (arg) {
-            // Ensure no inline comments are parsed and trim the whitespace.
-            return arg.replace(/\/\*.*\*\//, '').trim();
-        }).filter(function (arg) {
-            // Ensure no undefined values are added.
-            return arg;
-        });
-=======
->>>>>>> add cache control query options
-    }
+                                instance.fetchPromise = fetchPromise;
 
                                 fetchPromise.catch(function () {
                                     _this2.hasErrors = true;
@@ -43691,36 +43600,52 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
           }
         }
 
-            Object.assign(Events.prototype, {
-                _addHandlers: function _addHandlers() {
-                    var _this4 = this;
+        return target;
+      });
+    }
+  };
+});
+System.registerDynamic("npm:systemjs-plugin-babel@0.0.21.json", [], true, function() {
+  return {
+    "main": "plugin-babel.js",
+    "map": {
+      "systemjs-babel-build": {
+        "browser": "./systemjs-babel-browser.js",
+        "default": "./systemjs-babel-browser.js"
+      }
+    },
+    "meta": {
+      "./plugin-babel.js": {
+        "format": "cjs"
+      }
+    }
+  };
+});
 
-                    var forceUpdate = function forceUpdate() {
-                        if (_this4.element) {
-                            _this4.element.forceUpdate();
-                        }
-                    };
+System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js", [], function (_export, _context) {
+  "use strict";
 
-                    Object.keys(this.props).forEach(function (key) {
-                        var options = _this4.propOptions[key];
+  return {
+    setters: [],
+    execute: function () {
+      _export("default", function (obj, keys) {
+        var target = {};
 
-                        _this4.props[key].bindRelationEvents(forceUpdate, _this4.element, options);
-                    });
+        for (var i in obj) {
+          if (keys.indexOf(i) >= 0) continue;
+          if (!Object.prototype.hasOwnProperty.call(obj, i)) continue;
+          target[i] = obj[i];
+        }
 
-                    this._addedHandlers = true;
-                },
-                _removeHandlers: function _removeHandlers() {
-                    var _this5 = this;
+        return target;
+      });
+    }
+  };
+});
+System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js', 'react', 'react-router/lib/RouterContext', 'react-router/lib/computeChangedRoutes', 'create-react-class', 'prop-types'], function (_export, _context) {
+  "use strict";
 
-                    Object.keys(this.props).forEach(function (key) {
-                        _this5.props[key].unbindRelationEvents(_this5.element, _this5.propOptions[key]);
-                    });
-                }
-            });collectionCache = {};
-            Object.assign(Queries.prototype, {
-                getCacheOption: function getCacheOption(options, name) {
-                    var option = options[name];
-                    var thisVal = this[name];
+  var _extends, _objectWithoutProperties, React, RouterContext, computeChangedRoutes, createReactClass, PropTypes, array, func, object, AsyncPropsContainer, AsyncProps;
 
   function eachComponents(components, iterator) {
     for (var i = 0, l = components.length; i < l; i++) {
@@ -43866,30 +43791,14 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
       object = PropTypes.object;
       AsyncPropsContainer = createReactClass({
 
-                /**
-                 * Set the current vars to `vars` and trigger a re-fetch.  Once fetching is
-                 * initiated, the component will re-render with the previous vars as
-                 * queries.vars and the current vars as queries.pendingVars.
-                 */
-                setVars: function setVars(vars) {
-                    this.pendingVars = Object.assign({}, this.vars, vars);
-                    this._fetch(this._element.props);
-                },
-                _fetch: function _fetch(_ref4) {
-<<<<<<< HEAD
-                    var _this6 = this;
+        propTypes: {
+          Component: func.isRequired,
+          routerProps: object.isRequired
+        },
 
-                    var params = _ref4.params,
-                        location = _ref4.location,
-                        loadContext = _ref4.loadContext,
-                        props = _ref4.props;
-=======
-                    var _this5 = this;
-
-                    var params = _ref4.params,
-                        location = _ref4.location,
-                        loadContext = _ref4.loadContext;
->>>>>>> add cache control query options
+        contextTypes: {
+          asyncProps: object.isRequired
+        },
 
         render: function render() {
           var _props = this.props,
@@ -43931,14 +43840,23 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
           componentsArray: array
         },
 
-                    var promise = Promise.all(keys.map(function (key) {
-                        return new Promise(function (resolve) {
-<<<<<<< HEAD
-                            var query = _this6._queryPropTypes[key];
-                            var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
-=======
-                            var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
->>>>>>> add cache control query options
+        getDefaultProps: function getDefaultProps() {
+          return {
+            onError: function onError(err) {
+              throw err;
+            },
+            renderLoading: function renderLoading() {
+              return null;
+            },
+            render: function render(props) {
+              return React.createElement(RouterContext, _extends({}, props, { createElement: createElement }));
+            }
+          };
+        },
+        getInitialState: function getInitialState() {
+          var _props2 = this.props,
+              propsArray = _props2.propsArray,
+              componentsArray = _props2.componentsArray;
 
           var isServerRender = propsArray && componentsArray;
           return {
@@ -43950,13 +43868,9 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
         getChildContext: function getChildContext() {
           var _this = this;
 
-                            if (model.prototype.model) {
-<<<<<<< HEAD
-                                if (_this6.getCacheOption(options, 'updateCache')) {
-=======
-                                if (_this5.getCacheOption(options, 'updateCache')) {
->>>>>>> add cache control query options
-                                    var _findOrCreateCollecti = findOrCreateCollection(model, options);
+          var _state = this.state,
+              loading = _state.loading,
+              propsAndComponents = _state.propsAndComponents;
 
           return {
             asyncProps: {
@@ -43976,48 +43890,37 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
                 params = _props3.params,
                 location = _props3.location;
 
-                            instance._isInitialized = false;
-                            fetchingProps[key] = instance;
-<<<<<<< HEAD
+            this.loadAsyncProps(components, params, location);
+          }
+        },
+        componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+          if (nextProps.location === this.props.location) return;
 
           var _computeChangedRoutes = computeChangedRoutes({ routes: this.props.routes, params: this.props.params }, { routes: nextProps.routes, params: nextProps.params }),
               enterRoutes = _computeChangedRoutes.enterRoutes;
 
-                            if (_this6.getCacheOption(options, 'loadFromCache')) {
-                                if (model.prototype.model && !isNew) {
-                                    loadedFromCache = true;
-                                    resolve();
-                                }
-                            }
+          var indexDiff = nextProps.components.length - enterRoutes.length;
+          var components = [];
+          for (var i = 0, l = enterRoutes.length; i < l; i++) {
+            components.push(nextProps.components[indexDiff + i]);
+          }this.loadAsyncProps(filterAndFlattenComponents(components), nextProps.params, nextProps.location);
+        },
+        handleError: function handleError(cb) {
+          var _this2 = this;
 
-=======
+          return function (err) {
+            for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+              args[_key - 1] = arguments[_key];
+            }
 
-                            var loadedFromCache = false;
-
-                            if (_this5.getCacheOption(options, 'loadFromCache')) {
-                                if (model.prototype.model && !isNew) {
-                                    loadedFromCache = true;
-                                    resolve();
-                                }
-                            }
-
->>>>>>> add cache control query options
-                            var existingFetchPromise = instance.fetchPromise;
-
-                            if (existingFetchPromise) {
-                                existingFetchPromise.then(function () {
-                                    resolve();
-                                }).catch(function () {
-                                    resolve();
-                                });
-                            } else {
-<<<<<<< HEAD
-                                if (loadedFromCache && !_this6.getCacheOption(options, 'alwaysFetch')) {
-=======
-                                if (loadedFromCache && !_this5.getCacheOption(options, 'alwaysFetch')) {
->>>>>>> add cache control query options
-                                    return;
-                                }
+            if (err && _this2.props.onError) _this2.props.onError(err);else cb.apply(undefined, [null].concat(args));
+          };
+        },
+        componentWillUnmount: function componentWillUnmount() {
+          this._unmounted = true;
+        },
+        loadAsyncProps: function loadAsyncProps(components, params, location, options) {
+          var _this3 = this;
 
           var loadContext = this.props.loadContext;
 
@@ -44058,12 +43961,621 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
         render: function render() {
           var propsAndComponents = this.state.propsAndComponents;
 
+          if (!propsAndComponents) {
+            return this.props.renderLoading();
+          } else {
+            var props = this.state.loading ? this.state.prevProps : this.props;
+            return this.props.render(props);
+          }
+        }
+      });
+
+      _export('default', AsyncProps);
+    }
+  };
+});
+System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', './withJsonApi', './AsyncProps'], function (_export, _context) {
+    "use strict";
+
+    var _defineProperty, _extends, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation, collectionCache;
+
+    function getUrl(model, fetchOptions) {
+        fetchOptions = fetchOptions || {};
+        var urlRoot = model.urlRoot;
+
+        if (!urlRoot) {
+            throw new Error("Missing urlRoot", model);
+        }
+        var url = urlRoot;
+        if (model instanceof Backbone.Model) {
+            var id = fetchOptions.id || model.get(model.idAttribute);
+            if (id) {
+                url += '/' + id;
+            }
+        }
+
+        var include = [];
+        var fields = {};
+
+        processRelation(model.model ? model.model : model.constructor, fetchOptions, [], include, fields);
+
+        var _fetchOptions = fetchOptions,
+            sort = _fetchOptions.sort,
+            filter = _fetchOptions.filter,
+            page = _fetchOptions.page;
+
+        var params = [];
+
+        if (include.length) {
+            var includes = _.sortBy(_.uniq(include.map(function (include) {
+                return include.join('.');
+            })), _.identity);
+            params.push('include=' + includes.join(','));
+        }
+
+        _.each(_.sortBy(_.keys(fields), _.identity), function (type) {
+            var typeFields = _.sortBy(_.uniq(fields[type]), _.identity);
+            params.push('fields[' + type + ']=' + typeFields.join(','));
+        });
+
+        if (sort) {
+            params.push('sort=' + sort);
+        }
+
+        if (filter) {
+            if (typeof filter === "object") {
+                _.each(_.sortBy(_.keys(filter), _.identity), function (key) {
+                    var keyVal = filter[key];
+                    params.push('filter[' + key + ']=' + keyVal);
+                });
+            } else {
+                params.push('filter=' + filter);
+            }
+        }
+
+        if (page) {
+            if (typeof page === "object") {
+                _.each(_.sortBy(_.keys(page), _.identity), function (key) {
+                    var keyVal = page[key];
+                    params.push('page[' + key + ']=' + keyVal);
+                });
+            } else {
+                params.push('page=' + page);
+            }
+        }
+
+        if (params.length) {
+            url += '?' + params.join('&');
+        }
+
+        return url;
+    }
+
+    function withJsonApi(options, WrappedComponent) {
+        var componentQueries = options.queries || {};
+        var componentFragments = options.fragments || {};
+        var initialVars = options.initialVars;
+        var getInitialVars = options.getInitialVars;
+
+        var displayName = WrappedComponent.displayName || WrappedComponent.name;
+
+        var getVars = function getVars() {
+            if (getInitialVars) {
+                return getInitialVars();
+            } else if (initialVars) {
+                return initialVars;
+            } else {
+                return {};
+            }
+        };
+
+        var firstQuery = _.first(_.values(componentQueries));
+        var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
+        var innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
+
+        var ApiComponent = createReactClass({
+            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
+
+            propTypes: Object.assign({}, WrappedComponent.propTypes, {
+                initialQueries: PropTypes.object
+            }),
+
+            statics: {
+                loadProps: function loadProps(_ref, cb) {
+                    var params = _ref.params,
+                        location = _ref.location,
+                        loadContext = _ref.loadContext,
+                        props = _ref.props;
+
+                    var queries = new Queries({
+                        element: null,
+                        vars: getVars(),
+                        propTypes: componentQueries
+                    });
+
+                    queries._fetch({ params: params, location: location, loadContext: loadContext, props: props }).then(function () {
+                        cb(null, {
+                            initialQueries: queries
+                        });
+                    });
+                },
+
+                queries: componentQueries,
+                fragments: componentFragments,
+                initialVars: initialVars,
+                getInitialVars: getInitialVars
+            },
+
+            componentWillMount: function componentWillMount() {
+                this.fragmentProps = {};
+                this.componentWillReceiveProps(this.props);
+            },
+            componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                var isMatch = function isMatch(props1, props2) {
+                    var props1Keys = Object.keys(props1);
+                    return _.isEqual(_.sortBy(props1Keys, _.identity), _.sortBy(Object.keys(props2), _.identity)) && _.all(props1Keys.map(function (key) {
+                        return props1[key] === props2[key];
+                    }));
+                };
+                var fragmentProps = _.pick(nextProps, Object.keys(componentFragments));
+                var hasFragmentProps = Object.keys(fragmentProps).length;
+
+                if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
+                    if (this.queries) {
+                        this.queries._events._removeHandlers();
+                    }
+                    this.queries = nextProps.initialQueries;
+                    this.queries._element = this.queries._events.element = this;
+                    this.queries._events._addHandlers();
+                }
+
+                if (hasFragmentProps && !_.isMatch(this.fragmentProps, fragmentProps)) {
+                    this.fragmentProps = fragmentProps;
+                    if (this.fragments) {
+                        this.fragments._events._removeHandlers();
+                    }
+                    this.fragments = new QueryFragments({
+                        element: this,
+                        props: fragmentProps,
+                        propTypes: componentFragments
+                    });
+                    this.fragments._events._addHandlers();
+                }
+            },
+            componentWillUnmount: function componentWillUnmount() {
+                if (this.queries) {
+                    this.queries._events._removeHandlers();
+                }
+                if (this.fragments) {
+                    this.fragments._events._removeHandlers();
+                }
+            },
+            render: function render() {
+                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._queryProps : {}, this.fragments ? this.fragments._props : {}));
+            }
+        });
+
+        if (isStandalone) {
+            return createReactClass({
+                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+
+                componentWillMount: function componentWillMount() {
+                    this.initialQueries = null;
+                    this.componentWillReceiveProps(this.props);
+                },
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                    var _this3 = this;
+
+                    ApiComponent.loadProps({ props: nextProps }, function (error, props) {
+                        _this3.initialQueries = props.initialQueries;
+                        _this3.forceUpdate();
+                    });
+                },
+                render: function render() {
+                    return React.createElement(ApiComponent, _extends({
+                        initialQueries: this.initialQueries
+                    }, this.props));
+                }
+            });
+        } else {
+            return ApiComponent;
+        }
+    }
+
+    _export('withJsonApi', withJsonApi);
+
+    function Events(props, propOptions, element) {
+        this.props = props;
+        this.propOptions = propOptions;
+        this.element = element;
+    }
+
+    function QueryFragments(_ref2) {
+        var element = _ref2.element,
+            props = _ref2.props,
+            propTypes = _ref2.propTypes;
+
+        this._events = new Events(props, propTypes, element);
+
+        this._element = element;
+
+        this._props = props;
+        this._propTypes = propTypes;
+    }
+
+    function Queries(_ref3) {
+        var element = _ref3.element,
+            vars = _ref3.vars,
+            propTypes = _ref3.propTypes,
+            loadFromCache = _ref3.loadFromCache,
+            alwaysFetch = _ref3.alwaysFetch,
+            updateCache = _ref3.updateCache;
+
+        this._events = new Events(null, propTypes, element);
+
+        this._element = element;
+
+        this.vars = vars;
+        this.pendingVars = {};
+        this._queryProps = {};
+
+        this._queryPropTypes = propTypes;
+        this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
+        this.alwaysFetch = !_.isUndefined(alwaysFetch) ? alwaysFetch : true;
+        this.updateCache = !_.isUndefined(updateCache) ? updateCache : true;
+
+        this._addedHandlers = false;
+    }
+
+    function findOrCreateCollection(model, fetchOptions) {
+        var url = getUrl(model.prototype, fetchOptions);
+        var isNew = false;
+
+        if (!collectionCache[url]) {
+            collectionCache[url] = new model();
+            isNew = true;
+        }
+
+        return { isNew: isNew, collection: collectionCache[url] };
+    }
+
+    function getArgs(func) {
+        // First match everything inside the function argument parens.
+        var args = func.toString().match(/\(([^)]*)\)/)[1];
+
+        // Split the arguments string into an array comma delimited.
+        return args.split(',').map(function (arg) {
+            // Ensure no inline comments are parsed and trim the whitespace.
+            return arg.replace(/\/\*.*\*\//, '').trim();
+        }).filter(function (arg) {
+            // Ensure no undefined values are added.
+            return arg;
+        });
+    }
+
+    return {
+        setters: [function (_npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs) {
+            _defineProperty = _npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs.default;
+        }, function (_npmSystemjsPluginBabel0021BabelHelpersExtendsJs) {
+            _extends = _npmSystemjsPluginBabel0021BabelHelpersExtendsJs.default;
+        }, function (_withJsonApi) {
+            var _exportObj = {};
+            _exportObj.default = _withJsonApi.default;
+
+            _export(_exportObj);
+        }, function (_AsyncProps) {
+            var _exportObj2 = {};
+            _exportObj2.AsyncProps = _AsyncProps.default;
+
+            _export(_exportObj2);
+        }],
+        execute: function () {
+
+            // Monkey-patch to fix an apparent bug.
+            Backbone.RelationalModel.prototype.set = function (key, value, options) {
+                Backbone.Relational.eventQueue.block();
+
+                // Duplicate backbone's behavior to allow separate key/value parameters, instead of a single 'attributes' object
+                var attributes, result;
+
+                if (_.isObject(key) || key == null) {
+                    attributes = key;
+                    options = value;
+                } else {
+                    attributes = {};
+                    attributes[key] = value;
+                }
+
+                try {
+                    var id = this.id,
+                        newId = attributes && this.idAttribute in attributes && attributes[this.idAttribute];
+
+                    // Check if we're not setting a duplicate id before actually calling `set`.
+                    Backbone.Relational.store.checkId(this, newId);
+
+                    result = Backbone.Model.prototype.set.apply(this, arguments);
+
+                    // Ideal place to set up relations, if this is the first time we're here for this model
+                    // Change required to work.
+                    if (true) {
+                        //if ( !this._isInitialized && !this.isLocked() ) {
+                        this.constructor.initializeModelHierarchy();
+
+                        // Only register models that have an id. A model will be registered when/if it gets an id later on.
+                        if (newId || newId === 0) {
+                            Backbone.Relational.store.register(this);
+                        }
+
+                        this.initializeRelations(options);
+                    }
+                    // The store should know about an `id` update asap
+                    else if (newId && newId !== id) {
+                            Backbone.Relational.store.update(this);
+                        }
+
+                    if (attributes) {
+                        this.updateRelations(attributes, options);
+                    }
+                } finally {
+                    // Try to run the global queue holding external events
+                    Backbone.Relational.eventQueue.unblock();
+                }
+
+                return result;
+            };
+
+            modelEvents = 'change invalid error request sync';
+            collectionEvents = 'update reset sort error request sync';
+
+
+            Backbone.Collection.prototype.bindRelationEvents = function (callback, context, options) {
+                this.on(collectionEvents, callback, context);
+                this.models.forEach(function (model) {
+                    model.bindRelationEvents(callback, context, options);
+                });
+
+                this.on('add', function (model) {
+                    model.bindRelationEvents(callback, context, options);
+                }, context);
+
+                this.on('remove', function (model) {
+                    model.unbindRelationEvents(context, options);
+                }, context);
+            };
+
+            Backbone.RelationalModel.prototype.bindRelationEvents = function (callback, context, options) {
+                var _this = this;
+
+                var relations = getRelations(options);
+
+                this.on(modelEvents, callback, context);
+
+                relations.forEach(function (relation) {
+                    var related = getRelated(_this, relation);
+                    related.bindRelationEvents(callback, context, relation);
+                });
+            };
+
+            Backbone.Collection.prototype.unbindRelationEvents = function (context, options) {
+                this.models.forEach(function (model) {
+                    model.unbindRelationEvents(context, options);
+                });
+
+                this.off(null, null, context);
+            };
+
+            Backbone.RelationalModel.prototype.unbindRelationEvents = function (context, options) {
+                var _this2 = this;
+
+                this.off(null, null, context);
+
+                var relations = getRelations(options);
+
+                relations.forEach(function (relation) {
+                    var related = getRelated(_this2, relation);
+                    related.unbindRelationEvents(context, relation);
+                });
+            };
+
+            getRelations = function getRelations(options) {
+                var relations = options.relations || [];
+                (options.fragments || []).forEach(function (fragment) {
+                    relations = relations.concat(fragment.relations || []);
+                });
+                return _.uniq(relations, function (r) {
+                    return r.key;
+                });
+            };
+
+            getRelated = function getRelated(model, relation) {
+                var r = model.getRelation(relation.key);
+                return r.related;
+            };
+
+            BackboneSync = Backbone.sync;
+
+
+            Backbone.sync = function (method, model, options) {
+                if (!options.url) {
+                    options.url = getUrl(model, model.fetchOptions);
+                }
+
+                return new Promise(function (resolve, reject) {
+                    model.syncing = true;
+                    model.textStatus = null;
+
+                    var promise = BackboneSync(method, model, options);
+                    promise.done(function (data, textStatus) {
+                        model.error = null;
+
+                        resolve(model);
+                    }).fail(function (jqXhr, textStatus, errorThrown) {
+                        model.error = errorThrown;
+
+                        if (options.allowFail) {
+                            reject(model);
+                        } else {
+                            resolve(model);
+                        }
+                    }).always(function () {
+                        model.syncing = false;
+                        // Required to ensure handlers see attributes set above.
+                        model.trigger('change');
+                    });
+                });
+            };
+            processRelation = function processRelation(model, relation, path, include, fields) {
+                var fragments = relation.fragments || [];
+                var relationRelations = relation.relations || [];
+                var relationFields = relation.fields || [];
+                fragments.forEach(function (fragment) {
+                    relationRelations = relationRelations.concat(fragment.relations || []);
+                    relationFields = relationFields.concat(fragment.fields || []);
+                });
+                relationRelations = _.uniq(relationRelations, function (r) {
+                    return r.key;
+                });
+
+                if (relationFields.length) {
+                    var type = model.prototype.defaults.type;
+                    fields[type] = (fields[type] || []).concat(relationFields);
+                }
+
+                relationRelations.forEach(function (relation) {
+                    var newPath = path.concat(relation.key);
+                    include.push(newPath);
+                    var relatedModel = _.find(model.prototype.relations, function (r) {
+                        return r.key === relation.key;
+                    }).relatedModel;
+                    processRelation(relatedModel, relation, newPath, include, fields);
+                });
+            };
+
+            Object.assign(Events.prototype, {
+                _addHandlers: function _addHandlers() {
+                    var _this4 = this;
+
+                    var forceUpdate = function forceUpdate() {
+                        if (_this4.element) {
+                            _this4.element.forceUpdate();
+                        }
+                    };
+
+                    Object.keys(this.props).forEach(function (key) {
+                        var options = _this4.propOptions[key];
+
+                        _this4.props[key].bindRelationEvents(forceUpdate, _this4.element, options);
+                    });
+
+                    this._addedHandlers = true;
+                },
+                _removeHandlers: function _removeHandlers() {
+                    var _this5 = this;
+
+                    Object.keys(this.props).forEach(function (key) {
+                        _this5.props[key].unbindRelationEvents(_this5.element, _this5.propOptions[key]);
+                    });
+                }
+            });collectionCache = {};
+            Object.assign(Queries.prototype, {
+                getCacheOption: function getCacheOption(options, name) {
+                    var option = options[name];
+                    var thisVal = this[name];
+
+                    return !_.isUndefined(option) ? option : !_.isUndefined(thisVal) ? thisVal : true;
+                },
+
+                /**
+                 * Set the current vars to `vars` and trigger a re-fetch.  Once fetching is
+                 * initiated, the component will re-render with the previous vars as
+                 * queries.vars and the current vars as queries.pendingVars.
+                 */
+                setVars: function setVars(vars) {
+                    this.pendingVars = Object.assign({}, this.vars, vars);
+                    this._fetch(this._element.props);
+                },
+                _fetch: function _fetch(_ref4) {
+                    var _this6 = this;
+
+                    var params = _ref4.params,
+                        location = _ref4.location,
+                        loadContext = _ref4.loadContext,
+                        props = _ref4.props;
+
+                    var keys = Object.keys(this._queryPropTypes);
+
+                    if (!keys.length) {
+                        return Promise.resolve();
+                    }
+
+                    var fetchingProps = {};
+
+                    this.fetching = true;
+
+                    if (this._events.props) {
+                        this._events._removeHandlers();
+                    }
+
+                    var propOptions = {};
+                    this.hasErrors = false;
+
+                    var promise = Promise.all(keys.map(function (key) {
+                        return new Promise(function (resolve) {
+                            var query = _this6._queryPropTypes[key];
+                            var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
+
+                            var model = options.model;
+                            var instance = void 0,
+                                isNew = void 0;
+
+                            if (model.prototype.model) {
+                                if (_this6.getCacheOption(options, 'updateCache')) {
+                                    var _findOrCreateCollecti = findOrCreateCollection(model, options);
+
+                                    instance = _findOrCreateCollecti.collection;
+                                    isNew = _findOrCreateCollecti.isNew;
+                                } else {
+                                    instance = new model();
+                                    instance.fetchOptions = options;
+                                    isNew = true;
+                                }
+                            } else {
+                                instance = model.findOrCreate(_defineProperty({}, model.prototype.idAttribute, options.id));
+                            }
+
+                            instance._isInitialized = false;
+                            fetchingProps[key] = instance;
+
+                            var loadedFromCache = false;
+
+                            if (_this6.getCacheOption(options, 'loadFromCache')) {
+                                if (model.prototype.model && !isNew) {
+                                    loadedFromCache = true;
+                                    resolve();
+                                }
+                            }
+
+                            var existingFetchPromise = instance.fetchPromise;
+
+                            if (existingFetchPromise) {
+                                existingFetchPromise.then(function () {
+                                    resolve();
+                                }).catch(function () {
+                                    resolve();
+                                });
+                            } else {
+                                if (loadedFromCache && !_this6.getCacheOption(options, 'alwaysFetch')) {
+                                    return;
+                                }
+
+                                instance.fetchOptions = options;
+
+                                var fetchPromise = instance.fetch();
+
+                                instance.fetchPromise = fetchPromise;
+
                                 fetchPromise.catch(function () {
-<<<<<<< HEAD
                                     _this6.hasErrors = true;
-=======
-                                    _this5.hasErrors = true;
->>>>>>> add cache control query options
                                     instance.fetchPromise = null;
                                     resolve();
                                 }).then(function () {
@@ -44090,10 +44602,11 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [],
                         }
                     });
 
-      _export(_exportObj2);
-    }],
-    execute: function () {}
-  };
+                    return promise;
+                }
+            });
+        }
+    };
 });
 System.registerDynamic('npm:react-router@3.2.1/lib/Router.js', ['invariant', 'react', 'create-react-class', 'prop-types', './createTransitionManager', './InternalPropTypes', './RouterContext', './RouteUtils', './RouterUtils', './routerWarning', 'process'], true, function ($__require, exports, module) {
   'use strict';
