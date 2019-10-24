@@ -265,8 +265,25 @@ export function withJsonApi(options, WrappedComponent) {
 
     const displayName = WrappedComponent.displayName || WrappedComponent.name;
 
-    return createReactClass({
-        displayName: displayName ? `withJsonApi(${displayName})` : undefined,
+    const getVars = () => {
+        if (getInitialVars) {
+            return getInitialVars();
+        } else if (initialVars) {
+            return initialVars;
+        } else {
+            return {};
+        }
+    };
+    
+    const firstQuery = _.first(_.values(componentQueries));
+    const isStandalone = firstQuery && 
+        getArgs(firstQuery).indexOf("props") !== -1;
+    const innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
+
+    const ApiComponent = createReactClass({
+        displayName: displayName 
+            ? `${innerDisplayNameType}(${displayName})`
+            : undefined,
 
         propTypes: Object.assign(
             {}, 
@@ -277,24 +294,14 @@ export function withJsonApi(options, WrappedComponent) {
         ),
 
         statics: {
-            loadProps({ params, location, loadContext }, cb) {
-                const getVars = () => {
-                    if (getInitialVars) {
-                        return getInitialVars();
-                    } else if (initialVars) {
-                        return initialVars;
-                    } else {
-                        return {};
-                    }
-                };
-
+            loadProps({ params, location, loadContext, props }, cb) {
                 const queries = new Queries({
                     element: null, 
                     vars: getVars(),
                     propTypes: componentQueries
                 });
 
-                queries._fetch({ params, location, loadContext }).then(() => {
+                queries._fetch({ params, location, loadContext, props }).then(() => {
                     cb(null, {
                         initialQueries: queries
                     });
@@ -320,14 +327,16 @@ export function withJsonApi(options, WrappedComponent) {
                 ) && _.all(props1Keys.map((key) => {
                     return props1[key] === props2[key];
                 }));
-            }
+            };
             const fragmentProps = _.pick(
                 nextProps, 
                 Object.keys(componentFragments)
             );
             const hasFragmentProps = Object.keys(fragmentProps).length;
-            
-            if (nextProps.initialQueries && nextProps.initialQueries !== this.queries) {
+
+            if (nextProps.initialQueries && 
+                nextProps.initialQueries !== this.queries
+            ) {
                 if (this.queries) {
                     this.queries._events._removeHandlers();
                 }
@@ -364,12 +373,43 @@ export function withJsonApi(options, WrappedComponent) {
                 <WrappedComponent
                     {...this.props}
                     {...this.queries ? {queries: this.queries} : {}}
-                    {...this.queries ? this.queries._props : {}}
+                    {...this.queries ? this.queries._queryProps : {}}
                     {...this.fragments ? this.fragments._props : {}}
                 />
             );
         }
     });
+    
+    if (isStandalone) {
+        return createReactClass({
+            displayName: displayName 
+                ? `withJsonApi(${displayName})` 
+                : undefined,
+
+            componentWillMount() {
+                this.initialQueries = null;
+                this.componentWillReceiveProps(this.props);
+            },
+
+            componentWillReceiveProps(nextProps) {
+                ApiComponent.loadProps({ props: nextProps }, (error, props) => {
+                    this.initialQueries = props.initialQueries;
+                    this.forceUpdate();
+                });
+            },
+
+            render() {
+                return (
+                    <ApiComponent 
+                        initialQueries={this.initialQueries}
+                        {...this.props} />
+                );
+            }
+        });
+    } else {
+        return ApiComponent;
+    }
+
 }
 
 function Events(props, propOptions, element) {
@@ -412,16 +452,16 @@ function QueryFragments({ element, props, propTypes }) {
 }
 
 function Queries({ 
-    element, vars, propTypes, 
+    element, vars, propTypes,
     loadFromCache, alwaysFetch, updateCache 
 }) {
     this._events = new Events(null, propTypes, element);
 
     this._element = element;
 
-    this._props = {};
     this.vars = vars;
     this.pendingVars = {};
+    this._queryProps = {};
 
     this._queryPropTypes = propTypes;
     this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
@@ -443,6 +483,20 @@ function findOrCreateCollection(model, fetchOptions) {
     }
 
     return { isNew, collection: collectionCache[url] };
+}
+
+function getArgs(func) {
+    // First match everything inside the function argument parens.
+    var args = func.toString().match(/\(([^)]*)\)/)[1];
+
+    // Split the arguments string into an array comma delimited.
+    return args.split(',').map(function(arg) {
+        // Ensure no inline comments are parsed and trim the whitespace.
+        return arg.replace(/\/\*.*\*\//, '').trim();
+    }).filter(function(arg) {
+        // Ensure no undefined values are added.
+        return arg;
+    });
 }
 
 Object.assign(Queries.prototype, {
@@ -467,7 +521,7 @@ Object.assign(Queries.prototype, {
         this._fetch(this._element.props);
     },
 
-    _fetch({ params, location, loadContext }) {
+    _fetch({ params, location, loadContext, props }) {
         const keys = Object.keys(this._queryPropTypes);
 
         if (!keys.length) {
@@ -487,11 +541,10 @@ Object.assign(Queries.prototype, {
 
         const promise = Promise.all(keys.map((key) => {
             return new Promise((resolve) => {
-                const options = propOptions[key] = this._queryPropTypes[key](
-                    params,
-                    location.query,
-                    this.pendingVars
-                );
+                const query = this._queryPropTypes[key];
+                const options = propOptions[key] = getArgs(query).indexOf("props") !== -1
+                    ? query(props, this.pendingVars)
+                    : query(params, location.query, this.pendingVars);
 
                 const model = options.model;
                 let instance, isNew;
@@ -560,9 +613,9 @@ Object.assign(Queries.prototype, {
 
         promise.then(() => {
             const isAlreadyLoaded = this._events.props;
-            this._props = fetchingProps;
+            this._queryProps = fetchingProps;
             this._events.propOptions = propOptions;
-            this._events.props = this._props;
+            this._events.props = this._queryProps;
             
             this.vars = this.pendingVars;
             this.pendingVars = null;

@@ -26356,10 +26356,10 @@ System.register('examples/models.js', ['backbone', 'backbone-relational', './dat
         }
     };
 });
-System.register('examples/components.js', ['react', 'create-react-class', 'react-router', 'history', 'react-router-json-api', './models'], function (_export, _context) {
+System.register('examples/components.js', ['react', 'create-react-class', 'react-router', 'history', 'react-jsonapi', './models'], function (_export, _context) {
     "use strict";
 
-    var React, createReactClass, Link, Router, Route, createMemoryHistory, withJsonApi, AsyncProps, ArticleCollection, Article, Comment, Tag, User, ArticleListItem, ArticleList, CommentItem, ArticleItem, Articles, ArticleSummary;
+    var React, createReactClass, Link, createMemoryHistory, withJsonApi, ArticleCollection, Article, Comment, Tag, User, ArticleListItem, ArticleList, CommentItem, ArticleItem, ArticleSummary;
     return {
         setters: [function (_react) {
             React = _react.default;
@@ -26367,13 +26367,10 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
             createReactClass = _createReactClass.default;
         }, function (_reactRouter) {
             Link = _reactRouter.Link;
-            Router = _reactRouter.Router;
-            Route = _reactRouter.Route;
         }, function (_history) {
             createMemoryHistory = _history.createMemoryHistory;
-        }, function (_reactRouterJsonApi) {
-            withJsonApi = _reactRouterJsonApi.withJsonApi;
-            AsyncProps = _reactRouterJsonApi.AsyncProps;
+        }, function (_reactJsonapi) {
+            withJsonApi = _reactJsonapi.withJsonApi;
         }, function (_models) {
             ArticleCollection = _models.ArticleCollection;
             Article = _models.Article;
@@ -26478,29 +26475,10 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
             }, createReactClass({
                 displayName: "ArticleItem",
                 getInitialState: function getInitialState() {
-                    var routes = React.createElement(React.Fragment, null, React.createElement(Route, { path: '/', component: function component() {
-                            return React.createElement('div', null);
-                        } }), React.createElement(Route, { path: '/articles', component: Articles }, ',', React.createElement(Route, { path: ':articleId', component: ArticleSummary })));
-
                     return {
                         addingComment: false,
-                        commentText: '',
-                        history: createMemoryHistory(),
-                        routes: routes
+                        commentText: ''
                     };
-                },
-                componentWillMount: function componentWillMount() {
-                    this.componentDidUpdate();
-                },
-                componentDidUpdate: function componentDidUpdate() {
-                    var history = this.state.history;
-                    var articleId = this.props.params.articleId;
-
-                    var pathname = '/articles/' + articleId;
-
-                    if (history.getCurrentLocation().pathname !== pathname) {
-                        history.push(pathname);
-                    }
                 },
                 render: function render() {
                     var article = this.props.article;
@@ -26521,12 +26499,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                             return React.createElement('li', null);
                         }
                         return React.createElement('li', { key: article.get('id') }, article.get('title'));
-                    })), React.createElement(Router, {
-                        history: this.state.history,
-                        render: function render(props) {
-                            return React.createElement(AsyncProps, props);
-                        }
-                    }, this.state.routes)), React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, 'Comments'), article.get('comments').map(function (comment, i) {
+                    })), React.createElement(ArticleSummary, { articleId: article.get('id') })), React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, 'Comments'), article.get('comments').map(function (comment, i) {
                         return React.createElement(React.Fragment, null, i ? React.createElement('br', null) : null, React.createElement(CommentItem, { key: comment.get('id'), comment: comment }));
                     }), React.createElement('br', null), !this.state.addingComment ? React.createElement('input', { type: 'button',
                         value: 'Add Comment',
@@ -26559,27 +26532,12 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
             _export('ArticleItem', ArticleItem);
 
-            Articles = withJsonApi({
-                queries: {
-                    articles: function articles(params, query, vars) {
-                        return {
-                            model: ArticleCollection,
-                            filter: vars.filter ? 'id != 11' : null,
-                            fragments: [ArticleListItem.fragments.article]
-                        };
-                    }
-                }
-            }, function Articles(_ref4) {
-                var children = _ref4.children;
-
-                return React.createElement('div', null, children);
-            });
             ArticleSummary = withJsonApi({
                 queries: {
-                    article: function article(params, query, vars) {
+                    article: function article(props, vars) {
                         return {
                             model: Article,
-                            id: params.articleId,
+                            id: props.articleId,
                             fields: ['title', 'content'],
                             relations: [{
                                 key: 'author',
@@ -26596,8 +26554,8 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                         };
                     }
                 }
-            }, function ArticleSummary(_ref5) {
-                var article = _ref5.article;
+            }, function ArticleSummary(_ref4) {
+                var article = _ref4.article;
 
                 if (!article) {
                     return React.createElement('div', null);
@@ -42675,7 +42633,7 @@ System.registerDynamic('npm:underscore@1.9.1/underscore.js', [], false, function
 
   return _retrieveGlobal();
 });
-System.register('react-router-json-api/backbone-relational-jsonapi.js', ['backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
+System.register('react-jsonapi/backbone-relational-jsonapi.js', ['backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
 	"use strict";
 
 	var Backbone, _, _extend, ModelFactory;
@@ -42819,7 +42777,7 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutPro
     }
   };
 });
-System.register('react-router-json-api/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js', 'react', 'react-router/lib/RouterContext', 'react-router/lib/computeChangedRoutes', 'create-react-class', 'prop-types'], function (_export, _context) {
+System.register('react-jsonapi/AsyncProps.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/objectWithoutProperties.js', 'react', 'react-router/lib/RouterContext', 'react-router/lib/computeChangedRoutes', 'create-react-class', 'prop-types'], function (_export, _context) {
   "use strict";
 
   var _extends, _objectWithoutProperties, React, RouterContext, computeChangedRoutes, createReactClass, PropTypes, array, func, object, AsyncPropsContainer, AsyncProps;
@@ -43151,7 +43109,7 @@ System.register('react-router-json-api/AsyncProps.js', ['npm:systemjs-plugin-bab
     }
   };
 });
-System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'react', 'create-react-class', 'prop-types', 'backbone', 'backbone-relational', 'underscore', './backbone-relational-jsonapi', './AsyncProps'], function (_export, _context) {
+System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'react', 'create-react-class', 'prop-types', 'backbone', 'backbone-relational', 'underscore', './backbone-relational-jsonapi', './AsyncProps'], function (_export, _context) {
     "use strict";
 
     var _defineProperty, _extends, React, createReactClass, PropTypes, Backbone, _, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation, collectionCache;
@@ -43236,8 +43194,22 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
 
         var displayName = WrappedComponent.displayName || WrappedComponent.name;
 
-        return createReactClass({
-            displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+        var getVars = function getVars() {
+            if (getInitialVars) {
+                return getInitialVars();
+            } else if (initialVars) {
+                return initialVars;
+            } else {
+                return {};
+            }
+        };
+
+        var firstQuery = _.first(_.values(componentQueries));
+        var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
+        var innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
+
+        var ApiComponent = createReactClass({
+            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
 
             propTypes: Object.assign({}, WrappedComponent.propTypes, {
                 initialQueries: PropTypes.object
@@ -43247,17 +43219,8 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                 loadProps: function loadProps(_ref, cb) {
                     var params = _ref.params,
                         location = _ref.location,
-                        loadContext = _ref.loadContext;
-
-                    var getVars = function getVars() {
-                        if (getInitialVars) {
-                            return getInitialVars();
-                        } else if (initialVars) {
-                            return initialVars;
-                        } else {
-                            return {};
-                        }
-                    };
+                        loadContext = _ref.loadContext,
+                        props = _ref.props;
 
                     var queries = new Queries({
                         element: null,
@@ -43265,7 +43228,7 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                         propTypes: componentQueries
                     });
 
-                    queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
+                    queries._fetch({ params: params, location: location, loadContext: loadContext, props: props }).then(function () {
                         cb(null, {
                             initialQueries: queries
                         });
@@ -43323,9 +43286,35 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                 }
             },
             render: function render() {
-                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
+                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._queryProps : {}, this.fragments ? this.fragments._props : {}));
             }
         });
+
+        if (isStandalone) {
+            return createReactClass({
+                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+
+                componentWillMount: function componentWillMount() {
+                    this.initialQueries = null;
+                    this.componentWillReceiveProps(this.props);
+                },
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                    var _this3 = this;
+
+                    ApiComponent.loadProps({ props: nextProps }, function (error, props) {
+                        _this3.initialQueries = props.initialQueries;
+                        _this3.forceUpdate();
+                    });
+                },
+                render: function render() {
+                    return React.createElement(ApiComponent, _extends({
+                        initialQueries: this.initialQueries
+                    }, this.props));
+                }
+            });
+        } else {
+            return ApiComponent;
+        }
     }
 
     _export('withJsonApi', withJsonApi);
@@ -43361,9 +43350,9 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
 
         this._element = element;
 
-        this._props = {};
         this.vars = vars;
         this.pendingVars = {};
+        this._queryProps = {};
 
         this._queryPropTypes = propTypes;
         this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
@@ -43383,6 +43372,20 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
         }
 
         return { isNew: isNew, collection: collectionCache[url] };
+    }
+
+    function getArgs(func) {
+        // First match everything inside the function argument parens.
+        var args = func.toString().match(/\(([^)]*)\)/)[1];
+
+        // Split the arguments string into an array comma delimited.
+        return args.split(',').map(function (arg) {
+            // Ensure no inline comments are parsed and trim the whitespace.
+            return arg.replace(/\/\*.*\*\//, '').trim();
+        }).filter(function (arg) {
+            // Ensure no undefined values are added.
+            return arg;
+        });
     }
 
     return {
@@ -43590,27 +43593,27 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
 
             Object.assign(Events.prototype, {
                 _addHandlers: function _addHandlers() {
-                    var _this3 = this;
+                    var _this4 = this;
 
                     var forceUpdate = function forceUpdate() {
-                        if (_this3.element) {
-                            _this3.element.forceUpdate();
+                        if (_this4.element) {
+                            _this4.element.forceUpdate();
                         }
                     };
 
                     Object.keys(this.props).forEach(function (key) {
-                        var options = _this3.propOptions[key];
+                        var options = _this4.propOptions[key];
 
-                        _this3.props[key].bindRelationEvents(forceUpdate, _this3.element, options);
+                        _this4.props[key].bindRelationEvents(forceUpdate, _this4.element, options);
                     });
 
                     this._addedHandlers = true;
                 },
                 _removeHandlers: function _removeHandlers() {
-                    var _this4 = this;
+                    var _this5 = this;
 
                     Object.keys(this.props).forEach(function (key) {
-                        _this4.props[key].unbindRelationEvents(_this4.element, _this4.propOptions[key]);
+                        _this5.props[key].unbindRelationEvents(_this5.element, _this5.propOptions[key]);
                     });
                 }
             });collectionCache = {};
@@ -43632,11 +43635,12 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                     this._fetch(this._element.props);
                 },
                 _fetch: function _fetch(_ref4) {
-                    var _this5 = this;
+                    var _this6 = this;
 
                     var params = _ref4.params,
                         location = _ref4.location,
-                        loadContext = _ref4.loadContext;
+                        loadContext = _ref4.loadContext,
+                        props = _ref4.props;
 
                     var keys = Object.keys(this._queryPropTypes);
 
@@ -43657,14 +43661,15 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
 
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
-                            var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
+                            var query = _this6._queryPropTypes[key];
+                            var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
 
                             var model = options.model;
                             var instance = void 0,
                                 isNew = void 0;
 
                             if (model.prototype.model) {
-                                if (_this5.getCacheOption(options, 'updateCache')) {
+                                if (_this6.getCacheOption(options, 'updateCache')) {
                                     var _findOrCreateCollecti = findOrCreateCollection(model, options);
 
                                     instance = _findOrCreateCollecti.collection;
@@ -43683,7 +43688,7 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
 
                             var loadedFromCache = false;
 
-                            if (_this5.getCacheOption(options, 'loadFromCache')) {
+                            if (_this6.getCacheOption(options, 'loadFromCache')) {
                                 if (model.prototype.model && !isNew) {
                                     loadedFromCache = true;
                                     resolve();
@@ -43699,7 +43704,7 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                                     resolve();
                                 });
                             } else {
-                                if (loadedFromCache && !_this5.getCacheOption(options, 'alwaysFetch')) {
+                                if (loadedFromCache && !_this6.getCacheOption(options, 'alwaysFetch')) {
                                     return;
                                 }
 
@@ -43710,7 +43715,7 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                                 instance.fetchPromise = fetchPromise;
 
                                 fetchPromise.catch(function () {
-                                    _this5.hasErrors = true;
+                                    _this6.hasErrors = true;
                                     instance.fetchPromise = null;
                                     resolve();
                                 }).then(function () {
@@ -43722,18 +43727,18 @@ System.register('react-router-json-api/index.js', ['npm:systemjs-plugin-babel@0.
                     }));
 
                     promise.then(function () {
-                        var isAlreadyLoaded = _this5._events.props;
-                        _this5._props = fetchingProps;
-                        _this5._events.propOptions = propOptions;
-                        _this5._events.props = _this5._props;
+                        var isAlreadyLoaded = _this6._events.props;
+                        _this6._queryProps = fetchingProps;
+                        _this6._events.propOptions = propOptions;
+                        _this6._events.props = _this6._queryProps;
 
-                        _this5.vars = _this5.pendingVars;
-                        _this5.pendingVars = null;
-                        _this5.fetching = false;
+                        _this6.vars = _this6.pendingVars;
+                        _this6.pendingVars = null;
+                        _this6.fetching = false;
 
                         if (isAlreadyLoaded) {
-                            _this5._events._addHandlers();
-                            _this5._element.forceUpdate();
+                            _this6._events._addHandlers();
+                            _this6._element.forceUpdate();
                         }
                     });
 
@@ -53723,7 +53728,7 @@ System.registerDynamic('npm:history@3.3.0/lib/index.js', ['./LocationUtils', './
   exports.useQueries = _useQueries3.default;
   exports.Actions = _Actions;
 });
-System.register('examples/main.js', ['react', 'react-dom', 'create-react-class', './components', 'react-router-json-api', 'react-router', 'history'], function (_export, _context) {
+System.register('examples/main.js', ['react', 'react-dom', 'create-react-class', './components', 'react-jsonapi', 'react-router', 'history'], function (_export, _context) {
     "use strict";
 
     var React, ReactDOM, createReactClass, ArticleList, ArticleItem, AsyncProps, Link, Router, Route, browserHistory, useBasename;
@@ -53743,8 +53748,8 @@ System.register('examples/main.js', ['react', 'react-dom', 'create-react-class',
         }, function (_components) {
             ArticleList = _components.ArticleList;
             ArticleItem = _components.ArticleItem;
-        }, function (_reactRouterJsonApi) {
-            AsyncProps = _reactRouterJsonApi.AsyncProps;
+        }, function (_reactJsonapi) {
+            AsyncProps = _reactJsonapi.AsyncProps;
         }, function (_reactRouter) {
             Link = _reactRouter.Link;
             Router = _reactRouter.Router;

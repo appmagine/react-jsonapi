@@ -1,8 +1,8 @@
 import React from 'react';
 import createReactClass from 'create-react-class';
-import { Link, Router, Route } from 'react-router';
+import { Link } from 'react-router';
 import { createMemoryHistory } from 'history';
-import { withJsonApi, AsyncProps } from 'react-router-json-api';
+import { withJsonApi } from 'react-jsonapi';
 import { ArticleCollection, Article, Comment, Tag, User } from './models';
 
 const ArticleListItem = withJsonApi({
@@ -137,31 +137,10 @@ export const ArticleItem = withJsonApi({
 }, createReactClass({
     displayName: "ArticleItem",
     getInitialState() {
-        const routes = <React.Fragment>
-            <Route path="/" component={() => <div></div>} />
-            <Route path="/articles" component={Articles}>,
-                <Route path=":articleId" component={ArticleSummary} />
-            </Route>
-        </React.Fragment>;
-
         return {
             addingComment: false,
             commentText: '',
-            history: createMemoryHistory(),
-            routes
         };
-    },
-    componentWillMount() {
-        this.componentDidUpdate();
-    },
-    componentDidUpdate() {
-        const { history } = this.state;
-        const { articleId } = this.props.params;
-        const pathname = `/articles/${articleId}`;
-
-        if (history.getCurrentLocation().pathname !== pathname) {
-            history.push(pathname)
-        }
     },
     render() {
         const { article } = this.props;
@@ -215,12 +194,7 @@ export const ArticleItem = withJsonApi({
                             </li>;
                         })}
                     </ul>
-                    <Router 
-                        history={this.state.history}
-                        render={(props) => <AsyncProps {...props} />}
-                    >
-                        {this.state.routes}
-                    </Router>
+                    <ArticleSummary articleId={article.get('id')} />
                 </div>
                 <div className="panel article-panel">
                     <h3>Comments</h3>
@@ -272,32 +246,12 @@ export const ArticleItem = withJsonApi({
     }
 }));
 
-const Articles = withJsonApi({
-    queries: {
-        articles(params, query, vars) {
-            return {
-                model: ArticleCollection,
-                filter: vars.filter ? 'id != 11': null,
-                fragments: [
-                    ArticleListItem.fragments.article
-                ]
-            };
-        }
-    }
-}, function Articles({ children }) {
-    return (
-        <div>
-            {children}
-        </div>
-    );
-});
-
 const ArticleSummary = withJsonApi({
     queries: {
-        article(params, query, vars) {
+        article(props, vars) {
             return {
                 model: Article,
-                id: params.articleId,
+                id: props.articleId,
                 fields: ['title', 'content'],
                 relations: [
                     {

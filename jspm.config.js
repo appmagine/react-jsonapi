@@ -3,8 +3,8 @@ SystemJS.config({
   paths: {
     "npm:": "jspm_packages/npm/",
     "github:": "jspm_packages/github/",
-    "react-router-json-api/": "src/"
-    //"react-router-json-api/": "/"
+    "react-jsonapi/": "src/"
+    //"react-jsonapi/": "/"
   },
   browserConfig: {
     "baseURL": "/"
@@ -63,7 +63,7 @@ SystemJS.config({
   },
   transpiler: "plugin-babel",
   packages: {
-    "react-router-json-api": {
+    "react-jsonapi": {
       "main": "index.js",
       "meta": {
         "*.js": {
@@ -76,8 +76,8 @@ SystemJS.config({
         }
       }
     },
-    //"react-router-json-api": {
-      //"main": "dist/react-router-json-api.js",
+    //"react-jsonapi": {
+      //"main": "dist/react-jsonapi.js",
       //"meta": {
         //"*.js": {
           //"format": "cjs"

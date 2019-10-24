@@ -2478,8 +2478,22 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
         var displayName = WrappedComponent.displayName || WrappedComponent.name;
 
-        return createReactClass({
-            displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+        var getVars = function getVars() {
+            if (getInitialVars) {
+                return getInitialVars();
+            } else if (initialVars) {
+                return initialVars;
+            } else {
+                return {};
+            }
+        };
+
+        var firstQuery = _.first(_.values(componentQueries));
+        var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
+        var innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
+
+        var ApiComponent = createReactClass({
+            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
 
             propTypes: Object.assign({}, WrappedComponent.propTypes, {
                 initialQueries: PropTypes.object
@@ -2489,17 +2503,8 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 loadProps: function loadProps(_ref, cb) {
                     var params = _ref.params,
                         location = _ref.location,
-                        loadContext = _ref.loadContext;
-
-                    var getVars = function getVars() {
-                        if (getInitialVars) {
-                            return getInitialVars();
-                        } else if (initialVars) {
-                            return initialVars;
-                        } else {
-                            return {};
-                        }
-                    };
+                        loadContext = _ref.loadContext,
+                        props = _ref.props;
 
                     var queries = new Queries({
                         element: null,
@@ -2507,7 +2512,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                         propTypes: componentQueries
                     });
 
-                    queries._fetch({ params: params, location: location, loadContext: loadContext }).then(function () {
+                    queries._fetch({ params: params, location: location, loadContext: loadContext, props: props }).then(function () {
                         cb(null, {
                             initialQueries: queries
                         });
@@ -2559,9 +2564,35 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 }
             },
             render: function render() {
-                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._props : {}, this.fragments ? this.fragments._props : {}));
+                return React.createElement(WrappedComponent, _extends({}, this.props, this.queries ? { queries: this.queries } : {}, this.queries ? this.queries._queryProps : {}, this.fragments ? this.fragments._props : {}));
             }
         });
+
+        if (isStandalone) {
+            return createReactClass({
+                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+
+                componentWillMount: function componentWillMount() {
+                    this.initialQueries = null;
+                    this.componentWillReceiveProps(this.props);
+                },
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                    var _this3 = this;
+
+                    ApiComponent.loadProps({ props: nextProps }, function (error, props) {
+                        _this3.initialQueries = props.initialQueries;
+                        _this3.forceUpdate();
+                    });
+                },
+                render: function render() {
+                    return React.createElement(ApiComponent, _extends({
+                        initialQueries: this.initialQueries
+                    }, this.props));
+                }
+            });
+        } else {
+            return ApiComponent;
+        }
     }
 
     function Events(props, propOptions, element) {
@@ -2595,9 +2626,9 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
         this._element = element;
 
-        this._props = {};
         this.vars = vars;
         this.pendingVars = {};
+        this._queryProps = {};
 
         this._queryPropTypes = propTypes;
         this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
@@ -2617,6 +2648,20 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         }
 
         return { isNew: isNew, collection: collectionCache[url] };
+    }
+
+    function getArgs(func) {
+        // First match everything inside the function argument parens.
+        var args = func.toString().match(/\(([^)]*)\)/)[1];
+
+        // Split the arguments string into an array comma delimited.
+        return args.split(',').map(function (arg) {
+            // Ensure no inline comments are parsed and trim the whitespace.
+            return arg.replace(/\/\*.*\*\//, '').trim();
+        }).filter(function (arg) {
+            // Ensure no undefined values are added.
+            return arg;
+        });
     }
 
     return {
@@ -3111,27 +3156,27 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
             Object.assign(Events.prototype, {
                 _addHandlers: function _addHandlers() {
-                    var _this3 = this;
+                    var _this4 = this;
 
                     var forceUpdate = function forceUpdate() {
-                        if (_this3.element) {
-                            _this3.element.forceUpdate();
+                        if (_this4.element) {
+                            _this4.element.forceUpdate();
                         }
                     };
 
                     Object.keys(this.props).forEach(function (key) {
-                        var options = _this3.propOptions[key];
+                        var options = _this4.propOptions[key];
 
-                        _this3.props[key].bindRelationEvents(forceUpdate, _this3.element, options);
+                        _this4.props[key].bindRelationEvents(forceUpdate, _this4.element, options);
                     });
 
                     this._addedHandlers = true;
                 },
                 _removeHandlers: function _removeHandlers() {
-                    var _this4 = this;
+                    var _this5 = this;
 
                     Object.keys(this.props).forEach(function (key) {
-                        _this4.props[key].unbindRelationEvents(_this4.element, _this4.propOptions[key]);
+                        _this5.props[key].unbindRelationEvents(_this5.element, _this5.propOptions[key]);
                     });
                 }
             });collectionCache = {};
@@ -3153,11 +3198,12 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     this._fetch(this._element.props);
                 },
                 _fetch: function _fetch(_ref4) {
-                    var _this5 = this;
+                    var _this6 = this;
 
                     var params = _ref4.params,
                         location = _ref4.location,
-                        loadContext = _ref4.loadContext;
+                        loadContext = _ref4.loadContext,
+                        props = _ref4.props;
 
                     var keys = Object.keys(this._queryPropTypes);
 
@@ -3178,14 +3224,15 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
-                            var options = propOptions[key] = _this5._queryPropTypes[key](params, location.query, _this5.pendingVars);
+                            var query = _this6._queryPropTypes[key];
+                            var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
 
                             var model = options.model;
                             var instance = void 0,
                                 isNew = void 0;
 
                             if (model.prototype.model) {
-                                if (_this5.getCacheOption(options, 'updateCache')) {
+                                if (_this6.getCacheOption(options, 'updateCache')) {
                                     var _findOrCreateCollecti = findOrCreateCollection(model, options);
 
                                     instance = _findOrCreateCollecti.collection;
@@ -3204,7 +3251,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
                             var loadedFromCache = false;
 
-                            if (_this5.getCacheOption(options, 'loadFromCache')) {
+                            if (_this6.getCacheOption(options, 'loadFromCache')) {
                                 if (model.prototype.model && !isNew) {
                                     loadedFromCache = true;
                                     resolve();
@@ -3220,7 +3267,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                                     resolve();
                                 });
                             } else {
-                                if (loadedFromCache && !_this5.getCacheOption(options, 'alwaysFetch')) {
+                                if (loadedFromCache && !_this6.getCacheOption(options, 'alwaysFetch')) {
                                     return;
                                 }
 
@@ -3231,7 +3278,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                                 instance.fetchPromise = fetchPromise;
 
                                 fetchPromise.catch(function () {
-                                    _this5.hasErrors = true;
+                                    _this6.hasErrors = true;
                                     instance.fetchPromise = null;
                                     resolve();
                                 }).then(function () {
@@ -3243,18 +3290,18 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     }));
 
                     promise.then(function () {
-                        var isAlreadyLoaded = _this5._events.props;
-                        _this5._props = fetchingProps;
-                        _this5._events.propOptions = propOptions;
-                        _this5._events.props = _this5._props;
+                        var isAlreadyLoaded = _this6._events.props;
+                        _this6._queryProps = fetchingProps;
+                        _this6._events.propOptions = propOptions;
+                        _this6._events.props = _this6._queryProps;
 
-                        _this5.vars = _this5.pendingVars;
-                        _this5.pendingVars = null;
-                        _this5.fetching = false;
+                        _this6.vars = _this6.pendingVars;
+                        _this6.pendingVars = null;
+                        _this6.fetching = false;
 
                         if (isAlreadyLoaded) {
-                            _this5._events._addHandlers();
-                            _this5._element.forceUpdate();
+                            _this6._events._addHandlers();
+                            _this6._element.forceUpdate();
                         }
                     });
 
