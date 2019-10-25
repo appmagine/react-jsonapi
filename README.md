@@ -1,4 +1,4 @@
-# React JSON API
+# React JSON API <a href="http://appmagine.github.io/react-jsonapi/"><img src="https://img.shields.io/badge/-Demo-brightgreen"></a>
 
 React JSON API provides declarative co-located [JSON API](http://jsonapi.org)
 data loading for React components.
@@ -13,8 +13,6 @@ Router](https://github.com/ReactTraining/react-router/tree/v3) v3.x.
 Query URLs are generated based on query definitions specified as JavaScript
 objects in terms of component props or the matched route information in addition
 to per-component state known as [variables](#variables).
-
-A demo is available at <http://appmagine.github.io/react-jsonapi/>.
 
 ### Table of Contents
 
@@ -32,7 +30,8 @@ A demo is available at <http://appmagine.github.io/react-jsonapi/>.
 
 ## Getting started
 
-This example demonstrates the simplest possible usage of React JSON API.
+This example demonstrates the simplest possible usage of React JSON API with a
+nested relation.
 
 React JSON API relies on [Backbone-relational](http://backbonerelational.org), a
 comprehensive solution for managing nested Backbone models.
@@ -44,9 +43,18 @@ import 'backbone-relational';
 import ReactDOM from 'react-dom';
 import { withJsonApi } from 'react-jsonapi';
 
+const Filling = Backbone.Model.extend({});
+
 const Taco = Backbone.RelationalModel.extend({
     urlRoot: '/tacos',
     defaults: { type: 'tacos' },
+    relations: [
+        {
+            type: Backbone.HasMany,
+            key: 'fillings',
+            relatedModel: Filling
+        }
+    ]
 });
 
 const TacoItem = withJsonApi({
@@ -56,13 +64,22 @@ const TacoItem = withJsonApi({
                 model: Taco,
                 id: props.tacoId,
                 fields: ['name']
+                relations: [
+                    {
+                        key: 'fillings',
+                        fields: ['name']
+                    }
+                ]
             };
         }
     }
 }, function ({ taco }) {
     return (
         <div>
-            {taco.get('name')}
+            Name: {taco.get('name')},
+            Fillings: {taco.get('fillings').map((filling) => {
+                return filling.get('name');
+            }).join(', ')}
         </div>
     );
 });
@@ -72,6 +89,9 @@ ReactDOM.render((
     document.getElementById('container')
 ));
 ```
+
+This will make a request to the JSON API URL
+`/tacos/1?fields[tacos]=name&fields[fillings]=name&include=fillings`
 
 ## Using with a Router
 
