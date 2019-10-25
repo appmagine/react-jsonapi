@@ -2398,6 +2398,127 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         };else return null;
     }
 
+    function updateCacheInformation(model, fetchOptions) {
+        if (model instanceof Backbone.Collection) {
+            model.forEach(function (model) {
+                updateCacheInformation(model, fetchOptions);
+            });
+            return;
+        } else {
+            var cachedFieldsAndRelations = model.cachedFieldsAndRelations;
+            var isCached = cachedFieldsAndRelations;
+
+            var _ref = cachedFieldsAndRelations || {},
+                fields = _ref.fields,
+                relations = _ref.relations;
+
+            var fetchFields = fetchOptions.fields,
+                fetchRelations = fetchOptions.relations;
+
+            var newCachedFields = void 0;
+            if (isCached) {
+                newCachedFields = !(fetchFields && fields) ? null : _.unique(fields.concat(fetchFields));
+            } else {
+                newCachedFields = fetchFields;
+            }
+
+            model.cachedFieldsAndRelations = {
+                fields: newCachedFields,
+                relations: mergeRelationLists(relations || [], fetchRelations || [])
+            };
+        }
+
+        if (fetchOptions.relations) {
+            _.each(model.attributes, function (value, key) {
+                if (value instanceof Backbone.Collection || value instanceof Backbone.RelationalModel) {
+                    var relation = fetchOptions.relations.find(function (relation) {
+                        return relation.key === key;
+                    });
+                    if (relation) {
+                        updateCacheInformation(value, relation);
+                    }
+                }
+            });
+        }
+    }
+
+    function mergeRelationLists(a, b) {
+        var result = a.slice(0);
+
+        b.forEach(function (relation) {
+            var existingRelation = result.find(function (r) {
+                return r.key === relation.key;
+            });
+
+            if (existingRelation) {
+                var newRelation = _.clone(existingRelation);
+
+                var fields = relation.fields,
+                    relations = relation.relations;
+                var newFields = newRelation.fields,
+                    newRelations = newRelation.relations;
+
+                if (newFields || fields) {
+                    newRelation.fields = _.uniq((newFields || []).concat(fields || []));
+                }
+
+                if (newRelations || relations) {
+                    newRelation.relations = mergeRelationLists(newRelations || [], relations || []);
+                }
+
+                result[result.indexOf(existingRelation)] = newRelation;
+            } else {
+                result.push(relation);
+            }
+        });
+
+        return result;
+    }
+
+    function isSubset(optionsA, optionsB) {
+        var hasMissingFields = optionsA.fields && (_.difference(optionsB.fields || [], optionsA.fields || []).length || !optionsB.fields);
+
+        if (hasMissingFields) {
+            return false;
+        }
+
+        var relationsA = optionsA.relations || [];
+
+        (optionsB.relations || []).forEach(function (relation) {
+            var matchingRelation = relationsA.find(function (r) {
+                return r.key === relation.key;
+            });
+            if (!matchingRelation) {
+                return false;
+            }
+            if (!isSubset(matchingRelation, relation)) {
+                return false;
+            }
+        });
+
+        return true;
+    }
+
+    function mergeFragments(options) {
+        (options.fragments || []).forEach(function (fragment) {
+            if (fragment.fields) {
+                options.fields = (options.fields || []).concat(fragment.fields);
+            }
+
+            if (fragment.relations) {
+                options.relations = mergeRelationLists(options.relations || [], fragment.relations);
+            }
+        });
+
+        if (options.relations) {
+            options.relations = options.relations.map(mergeFragments);
+        }
+
+        options.fields = _.uniq(options.fields);
+
+        return options;
+    }
+
     function getUrl(model, fetchOptions) {
         fetchOptions = fetchOptions || {};
         var urlRoot = model.urlRoot;
@@ -2490,7 +2611,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
         var firstQuery = _.first(_.values(componentQueries));
         var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
-        var innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
+        var innerDisplayNameType = isStandalone ? 'withJsonApiInner' : 'withJsonApi';
 
         var ApiComponent = createReactClass({
             displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
@@ -2500,11 +2621,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
             }),
 
             statics: {
-                loadProps: function loadProps(_ref, cb) {
-                    var params = _ref.params,
-                        location = _ref.location,
-                        loadContext = _ref.loadContext,
-                        props = _ref.props;
+                loadProps: function loadProps(_ref2, cb) {
+                    var params = _ref2.params,
+                        location = _ref2.location,
+                        loadContext = _ref2.loadContext,
+                        props = _ref2.props;
 
                     var queries = new Queries({
                         element: null,
@@ -2576,8 +2697,12 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     this.initialQueries = null;
                     this.componentWillReceiveProps(this.props);
                 },
-                componentWillReceiveProps: function componentWillReceiveProps(nextProps) {
+                componentWillReceiveProps: function componentWillReceiveProps(nextProps, nextContext) {
                     var _this3 = this;
+
+                    if (_.isEqual(this.props, nextProps) && _.isEqual(this.context, nextContext)) {
+                        return;
+                    }
 
                     ApiComponent.loadProps({ props: nextProps }, function (error, props) {
                         _this3.initialQueries = props.initialQueries;
@@ -2601,10 +2726,10 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         this.element = element;
     }
 
-    function QueryFragments(_ref2) {
-        var element = _ref2.element,
-            props = _ref2.props,
-            propTypes = _ref2.propTypes;
+    function QueryFragments(_ref3) {
+        var element = _ref3.element,
+            props = _ref3.props,
+            propTypes = _ref3.propTypes;
 
         this._events = new Events(props, propTypes, element);
 
@@ -2614,13 +2739,13 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         this._propTypes = propTypes;
     }
 
-    function Queries(_ref3) {
-        var element = _ref3.element,
-            vars = _ref3.vars,
-            propTypes = _ref3.propTypes,
-            loadFromCache = _ref3.loadFromCache,
-            alwaysFetch = _ref3.alwaysFetch,
-            updateCache = _ref3.updateCache;
+    function Queries(_ref4) {
+        var element = _ref4.element,
+            vars = _ref4.vars,
+            propTypes = _ref4.propTypes,
+            loadFromCache = _ref4.loadFromCache,
+            alwaysFetch = _ref4.alwaysFetch,
+            updateCache = _ref4.updateCache;
 
         this._events = new Events(null, propTypes, element);
 
@@ -3099,17 +3224,24 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
 
             Backbone.sync = function (method, model, options) {
+                var fetchOptions = model.fetchOptions;
+
                 if (!options.url) {
-                    options.url = getUrl(model, model.fetchOptions);
+                    options.url = getUrl(model, fetchOptions);
                 }
 
                 return new Promise(function (resolve, reject) {
                     model.syncing = true;
-                    model.textStatus = null;
 
-                    var promise = BackboneSync(method, model, options);
-                    promise.done(function (data, textStatus) {
+                    model.pendingFetchOptions = fetchOptions;
+
+                    BackboneSync(method, model, options).done(function (data, textStatus) {
                         model.error = null;
+
+                        model.lastFetchOptions = fetchOptions;
+                        model.pendingFetchOptions = null;
+
+                        updateCacheInformation(model, mergeFragments(fetchOptions));
 
                         resolve(model);
                     }).fail(function (jqXhr, textStatus, errorThrown) {
@@ -3128,29 +3260,20 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 });
             };
             processRelation = function processRelation(model, relation, path, include, fields) {
-                var fragments = relation.fragments || [];
-                var relationRelations = relation.relations || [];
-                var relationFields = relation.fields || [];
-                fragments.forEach(function (fragment) {
-                    relationRelations = relationRelations.concat(fragment.relations || []);
-                    relationFields = relationFields.concat(fragment.fields || []);
-                });
-                relationRelations = _.uniq(relationRelations, function (r) {
-                    return r.key;
-                });
+                relation = mergeFragments(_.clone(relation));
 
-                if (relationFields.length) {
+                if (relation.fields.length) {
                     var type = model.prototype.defaults.type;
-                    fields[type] = (fields[type] || []).concat(relationFields);
+                    fields[type] = (fields[type] || []).concat(relation.fields);
                 }
 
-                relationRelations.forEach(function (relation) {
-                    var newPath = path.concat(relation.key);
+                (relation.relations || []).forEach(function (r) {
+                    var newPath = path.concat(r.key);
                     include.push(newPath);
-                    var relatedModel = _.find(model.prototype.relations, function (r) {
+                    var relatedModel = _.find(model.prototype.relations, function (relation) {
                         return r.key === relation.key;
                     }).relatedModel;
-                    processRelation(relatedModel, relation, newPath, include, fields);
+                    processRelation(relatedModel, r, newPath, include, fields);
                 });
             };
 
@@ -3197,13 +3320,13 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     this.pendingVars = Object.assign({}, this.vars, vars);
                     this._fetch(this._element.props);
                 },
-                _fetch: function _fetch(_ref4) {
+                _fetch: function _fetch(_ref5) {
                     var _this6 = this;
 
-                    var params = _ref4.params,
-                        location = _ref4.location,
-                        loadContext = _ref4.loadContext,
-                        props = _ref4.props;
+                    var params = _ref5.params,
+                        location = _ref5.location,
+                        loadContext = _ref5.loadContext,
+                        props = _ref5.props;
 
                     var keys = Object.keys(this._queryPropTypes);
 
@@ -3252,9 +3375,18 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                             var loadedFromCache = false;
 
                             if (_this6.getCacheOption(options, 'loadFromCache')) {
-                                if (model.prototype.model && !isNew) {
-                                    loadedFromCache = true;
-                                    resolve();
+                                if (instance instanceof Backbone.Collection) {
+                                    if (!isNew) {
+                                        loadedFromCache = true;
+                                        resolve();
+                                    }
+                                } else {
+                                    var cachedFieldsAndRelations = instance.cachedFieldsAndRelations;
+
+                                    if (cachedFieldsAndRelations && isSubset(cachedFieldsAndRelations, mergeFragments(options))) {
+                                        loadedFromCache = true;
+                                        resolve();
+                                    }
                                 }
                             }
 

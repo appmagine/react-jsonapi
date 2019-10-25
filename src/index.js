@@ -128,17 +128,24 @@ const getRelated = (model, relation) => {
 const BackboneSync = Backbone.sync;
 
 Backbone.sync = function (method, model, options) {
+    const fetchOptions = model.fetchOptions;
+
     if (!options.url) {
-        options.url = getUrl(model, model.fetchOptions);
+        options.url = getUrl(model, fetchOptions);
     }
 
     return new Promise((resolve, reject) => {
         model.syncing = true;
-        model.textStatus = null;
 
-        const promise = BackboneSync(method, model, options);
-        promise.done((data, textStatus) => {
+        model.pendingFetchOptions = fetchOptions;
+
+        BackboneSync(method, model, options).done((data, textStatus) => {
             model.error = null;
+
+            model.lastFetchOptions = fetchOptions;
+            model.pendingFetchOptions = null;
+
+            updateCacheInformation(model, mergeFragments(fetchOptions));
 
             resolve(model);
         }).fail((jqXhr, textStatus, errorThrown) => {
@@ -153,9 +160,141 @@ Backbone.sync = function (method, model, options) {
             model.syncing = false;
             // Required to ensure handlers see attributes set above.
             model.trigger('change');
-        })
+        });
     });
 };
+
+function updateCacheInformation(model, fetchOptions) {
+    if (model instanceof Backbone.Collection) {
+        model.forEach((model) => {
+            updateCacheInformation(model, fetchOptions);
+        });
+        return;
+    } else {
+        const cachedFieldsAndRelations = model.cachedFieldsAndRelations;
+        const isCached = cachedFieldsAndRelations;
+        const { fields, relations } = cachedFieldsAndRelations || {};
+        const { fields: fetchFields, relations: fetchRelations } = fetchOptions;
+
+        let newCachedFields;
+        if (isCached) {
+            newCachedFields = !(fetchFields && fields)
+                ? null
+                : _.unique(fields.concat(fetchFields));
+        } else {
+            newCachedFields = fetchFields;
+        }
+        
+        model.cachedFieldsAndRelations = { 
+            fields: newCachedFields, 
+            relations: mergeRelationLists(relations || [], fetchRelations || [])
+        };
+    }
+
+    if (fetchOptions.relations) {
+        _.each(model.attributes, (value, key) => {
+            if (value instanceof Backbone.Collection || 
+                value instanceof Backbone.RelationalModel
+            ) {
+                const relation = fetchOptions.relations.find((relation) => {
+                    return relation.key === key; 
+                });
+                if (relation) {
+                    updateCacheInformation(value, relation);
+                }
+            }
+        });
+    }
+}
+
+function mergeRelationLists(a, b) {
+    const result = a.slice(0);
+
+    b.forEach((relation) => {
+        const existingRelation = result.find((r) => {
+            return r.key === relation.key;
+        });
+
+        if (existingRelation) {
+            const newRelation = _.clone(existingRelation);
+
+            const { fields, relations } = relation;
+            const { fields: newFields, relations: newRelations } = newRelation;
+
+            if (newFields || fields) {
+                newRelation.fields = _.uniq(
+                    (newFields || []).concat(fields || [])
+                );
+            }
+
+            if (newRelations || relations) {
+                newRelation.relations = mergeRelationLists(
+                    newRelations || [],
+                    relations || []
+                );
+            }
+
+            result[result.indexOf(existingRelation)] = newRelation;
+        } else {
+            result.push(relation);
+        }
+    });
+
+    return result;
+}
+
+function isSubset(optionsA, optionsB) {
+    const hasMissingFields = (
+        optionsA.fields && 
+        (
+            _.difference(optionsB.fields || [], optionsA.fields || []).length || 
+            !optionsB.fields
+        )
+    );
+
+    if (hasMissingFields) {
+        return false;
+    }
+
+    const relationsA = optionsA.relations || [];
+
+    (optionsB.relations || []).forEach((relation) => {
+        const matchingRelation = relationsA.find((r) => {
+            return r.key === relation.key;
+        });
+        if (!matchingRelation) {
+            return false;
+        }
+        if (!isSubset(matchingRelation, relation)) {
+            return false;
+        }
+    });
+
+    return true;
+}
+
+function mergeFragments(options) {
+    (options.fragments || []).forEach((fragment) => {
+        if (fragment.fields) {
+            options.fields = (options.fields || []).concat(fragment.fields);
+        }
+
+        if (fragment.relations) {
+            options.relations = mergeRelationLists(
+                options.relations || [],
+                fragment.relations
+            );
+        }
+    });
+
+    if (options.relations) {
+        options.relations = options.relations.map(mergeFragments);
+    }
+
+    options.fields = _.uniq(options.fields);
+
+    return options;
+}
 
 function getUrl(model, fetchOptions) {
     fetchOptions = fetchOptions || {};
@@ -232,29 +371,21 @@ function getUrl(model, fetchOptions) {
 }
 
 const processRelation = (model, relation, path, include, fields) => {
-    const fragments = relation.fragments || [];
-    let relationRelations = relation.relations || [];
-    let relationFields = relation.fields || [];
-    fragments.forEach((fragment) => {
-        relationRelations = relationRelations.concat(fragment.relations || []);
-        relationFields = relationFields.concat(fragment.fields || []);
-    });
-    relationRelations = _.uniq(relationRelations, (r) => r.key)
+    relation = mergeFragments(_.clone(relation));
 
-    if (relationFields.length) {
+    if (relation.fields.length) {
         const type = model.prototype.defaults.type;
-        fields[type] = (fields[type] || []).concat(relationFields)
+        fields[type] = (fields[type] || []).concat(relation.fields)
     }
 
-    relationRelations.forEach((relation) => {
-        const newPath = path.concat(relation.key);
+    (relation.relations || []).forEach((r) => {
+        const newPath = path.concat(r.key);
         include.push(newPath);
-        const relatedModel = _.find(model.prototype.relations, (r) => {
+        const relatedModel = _.find(model.prototype.relations, (relation) => {
             return r.key === relation.key;
         }).relatedModel;
-        processRelation(relatedModel, relation, newPath, include, fields)
+        processRelation(relatedModel, r, newPath, include, fields)
     });
-
 };
 
 export function withJsonApi(options, WrappedComponent) {
@@ -278,7 +409,7 @@ export function withJsonApi(options, WrappedComponent) {
     const firstQuery = _.first(_.values(componentQueries));
     const isStandalone = firstQuery && 
         getArgs(firstQuery).indexOf("props") !== -1;
-    const innerDisplayNameType = isStandalone ? 'withJsonApi' : 'withJsonApiInner';
+    const innerDisplayNameType = isStandalone ? 'withJsonApiInner' : 'withJsonApi';
 
     const ApiComponent = createReactClass({
         displayName: displayName 
@@ -391,7 +522,13 @@ export function withJsonApi(options, WrappedComponent) {
                 this.componentWillReceiveProps(this.props);
             },
 
-            componentWillReceiveProps(nextProps) {
+            componentWillReceiveProps(nextProps, nextContext) {
+                if (_.isEqual(this.props, nextProps) &&
+                    _.isEqual(this.context, nextContext)
+                ) {
+                    return;
+                }
+
                 ApiComponent.loadProps({ props: nextProps }, (error, props) => {
                     this.initialQueries = props.initialQueries;
                     this.forceUpdate();
@@ -572,9 +709,24 @@ Object.assign(Queries.prototype, {
                 let loadedFromCache = false;
 
                 if (this.getCacheOption(options, 'loadFromCache')) {
-                    if (model.prototype.model && !isNew) {
-                        loadedFromCache = true;
-                        resolve();
+                    if (instance instanceof Backbone.Collection) {
+                        if (!isNew) {
+                            loadedFromCache = true;
+                            resolve();
+                        }
+                    } else {
+                        const cachedFieldsAndRelations = 
+                            instance.cachedFieldsAndRelations;
+
+                        if (cachedFieldsAndRelations && 
+                            isSubset(
+                                cachedFieldsAndRelations, 
+                                mergeFragments(options)
+                            )
+                        ) {
+                            loadedFromCache = true;
+                            resolve();
+                        }
                     }
                 }
 
@@ -587,9 +739,9 @@ Object.assign(Queries.prototype, {
                         resolve();
                     });
                 } else {
-                    if (loadedFromCache && !this.getCacheOption(
-                        options, 'alwaysFetch'
-                    )) {
+                    if (loadedFromCache && 
+                        !this.getCacheOption(options, 'alwaysFetch')
+                    ) {
                         return;
                     }
 

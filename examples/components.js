@@ -51,8 +51,7 @@ export const ArticleList = withJsonApi({
                 filter: vars.filter ? 'id != 11' : null,
                 fragments: [
                     ArticleListItem.fragments.article
-                ],
-                loadExistingData: true
+                ]
             };
         }
     }
@@ -235,7 +234,6 @@ export const ArticleItem = withJsonApi({
                                         })
                                     })
                                     article.get('comments').add(comment);
-                                    comment.save();
                                 }}>
                                     Submit
                                 </button>
