@@ -58,7 +58,7 @@ export const ArticleList = withJsonApi({
 }, function ArticleList({ articles, loading, queries, children }) {
     return (
         <div>
-            <div className="panel" style={{width: "120px"}}>
+            <div className="panel list-panel">
                 <h3>Articles</h3>
                 <input type="checkbox" checked={(queries.pendingVars || queries.vars).filter} onChange={(e) => {
                     queries.setVars({filter: e.target.checked});
@@ -94,7 +94,7 @@ const CommentItem = withJsonApi({
 }, function CommentItem({ comment }) {
     return (
         <div>
-            <u>{comment.get('title')}</u>
+            <h4>{comment.get('title')}</h4>
             {comment.error ? <p>{`Error Saving: ${comment.error}`}</p> : ''}
             <p>
                 {comment.get('content')}
@@ -177,12 +177,12 @@ export const ArticleItem = withJsonApi({
                                 <br/>
                             </React.Fragment>
                             : null}
-                        <u>Content</u>
+                        <h4>Content</h4>
                         <p>
                             {article.get('content')}
                         </p>
                     </div>
-                    <u>More by this author</u>
+                    <h4>More by this author</h4>
                     <ul>
                         {author.get('articles').map((article) => {
                             if (!article.get) {

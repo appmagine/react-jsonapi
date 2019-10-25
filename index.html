@@ -15,7 +15,7 @@
     body {
       max-width: 780px;
       margin: auto;
-      background-color: rgb(247, 247, 247);
+      background-color: #f2f2f2;
     }
     #container {
       background-color: white;
@@ -26,7 +26,7 @@
       margin: 30px auto;
     }
     #main {
-      background-color: #fbfbfb;
+      background-color: #f8f8f8;
       border: 1px solid #DDD;
       border-radius: 5px;
       padding: 10px 15px;
@@ -52,13 +52,22 @@
       float: left;
       border: 1px solid #DDD;
       padding: 1em;
-      width: 180px;
+      width: 210px;
       margin-left: 1em;
       border-radius: 5px;
+      margin-bottom: 1em;
     }
 
-    .article-panel {
-      width: 210px;
+    @media (min-width: 832px) {
+      .panel {
+        margin-bottom: 0;
+      }
+      .list-panel {
+        width: 120px;
+      }
+      .article-panel {
+        min-height: 380px;
+      }
     }
 
     h4 {
@@ -66,12 +75,7 @@
     }
     .panel h4 {
       margin-top: initial;
-    }
-
-    @media (min-width: 832px) {
-      .article-panel {
-        min-height: 380px;
-      }
+      text-decoration: underline;
     }
   </style>
 </head>

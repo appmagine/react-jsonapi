@@ -26423,7 +26423,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
                     queries = _ref2.queries,
                     children = _ref2.children;
 
-                return React.createElement('div', null, React.createElement('div', { className: 'panel', style: { width: "120px" } }, React.createElement('h3', null, 'Articles'), React.createElement('input', { type: 'checkbox', checked: (queries.pendingVars || queries.vars).filter, onChange: function onChange(e) {
+                return React.createElement('div', null, React.createElement('div', { className: 'panel list-panel' }, React.createElement('h3', null, 'Articles'), React.createElement('input', { type: 'checkbox', checked: (queries.pendingVars || queries.vars).filter, onChange: function onChange(e) {
                         queries.setVars({ filter: e.target.checked });
                     } }), ' Filter', React.createElement('br', null), React.createElement('br', null), articles.map(function (article) {
                     return React.createElement(ArticleListItem, { key: article.get('id'), article: article });
@@ -26447,7 +26447,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
             }, function CommentItem(_ref3) {
                 var comment = _ref3.comment;
 
-                return React.createElement('div', null, React.createElement('u', null, comment.get('title')), comment.error ? React.createElement('p', null, 'Error Saving: ' + comment.error) : '', React.createElement('p', null, comment.get('content')), 'by ', comment.get('author').get('username'), ' at ', comment.get('date'), React.createElement('br', null));
+                return React.createElement('div', null, React.createElement('h4', null, comment.get('title')), comment.error ? React.createElement('p', null, 'Error Saving: ' + comment.error) : '', React.createElement('p', null, comment.get('content')), 'by ', comment.get('author').get('username'), ' at ', comment.get('date'), React.createElement('br', null));
             });
 
             _export('ArticleItem', ArticleItem = withJsonApi({
@@ -26493,7 +26493,7 @@ System.register('examples/components.js', ['react', 'create-react-class', 'react
 
                     var author = article.get('author');
 
-                    return React.createElement('div', { style: { width: '100%' } }, React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, article.get('title')), 'by ', author.get('name'), React.createElement('br', null), React.createElement('br', null), React.createElement('div', null, loading ? React.createElement(React.Fragment, null, React.createElement('span', null, 'Loading...'), React.createElement('br', null), React.createElement('br', null)) : null, React.createElement('u', null, 'Content'), React.createElement('p', null, article.get('content'))), React.createElement('u', null, 'More by this author'), React.createElement('ul', null, author.get('articles').map(function (article) {
+                    return React.createElement('div', { style: { width: '100%' } }, React.createElement('div', { className: 'panel article-panel' }, React.createElement('h3', null, article.get('title')), 'by ', author.get('name'), React.createElement('br', null), React.createElement('br', null), React.createElement('div', null, loading ? React.createElement(React.Fragment, null, React.createElement('span', null, 'Loading...'), React.createElement('br', null), React.createElement('br', null)) : null, React.createElement('h4', null, 'Content'), React.createElement('p', null, article.get('content'))), React.createElement('h4', null, 'More by this author'), React.createElement('ul', null, author.get('articles').map(function (article) {
                         if (!article.get) {
                             return React.createElement('li', null);
                         }
