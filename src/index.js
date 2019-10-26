@@ -9,329 +9,6 @@ import './backbone-relational-jsonapi';
 
 export { default as AsyncProps } from './AsyncProps';
 
-const modelEvents = 'change invalid error request sync';
-const collectionEvents = 'update reset sort error request sync';
-
-Backbone.Collection.prototype.bindRelationEvents = function (callback, context, options) {
-    this.on(collectionEvents, callback, context);
-    this.models.forEach((model) => {
-        model.bindRelationEvents(callback, context, options);
-    });
-    
-    this.on('add', (model) => {
-        model.bindRelationEvents(callback, context, options);
-    }, context);
-
-    this.on('remove', (model) => {
-        model.unbindRelationEvents(context, options);
-    }, context);
-};
-
-Backbone.RelationalModel.prototype.bindRelationEvents = function (callback, context, options) {
-    const relations = getRelations(options);
-
-    this.on(modelEvents, callback, context);
-    
-    relations.forEach((relation) => {
-        const related = getRelated(this, relation);
-        related.bindRelationEvents(callback, context, relation);
-    });
-};
-
-Backbone.Collection.prototype.unbindRelationEvents = function (context, options) {
-    this.models.forEach((model) => {
-        model.unbindRelationEvents(context, options);
-    });
-
-    this.off(null, null, context);
-};
-
-Backbone.RelationalModel.prototype.unbindRelationEvents = function (context, options) {
-    this.off(null, null, context);
-
-    const relations = getRelations(options);
-
-    relations.forEach((relation) => {
-        const related = getRelated(this, relation);
-        related.unbindRelationEvents(context, relation);
-    });
-};
-
-const getRelations = (options) => {
-    let relations = options.relations || [];
-    (options.fragments || []).forEach((fragment) => {
-        relations = relations.concat(fragment.relations || []);
-    });
-    return _.uniq(relations, (r) => r.key)
-};
-
-const getRelated = (model, relation) => {
-    let r = model.getRelation(relation.key);
-    return r.related;
-};
-
-const BackboneSync = Backbone.sync;
-
-Backbone.sync = function (method, model, options) {
-    const fetchOptions = model.fetchOptions;
-
-    if (!options.url) {
-        options.url = getUrl(model, fetchOptions);
-    }
-
-    return new Promise((resolve, reject) => {
-        model.syncing = true;
-
-        model.pendingFetchOptions = fetchOptions;
-
-        BackboneSync(method, model, options).done((data, textStatus) => {
-            model.error = null;
-
-            model.lastFetchOptions = fetchOptions;
-            model.pendingFetchOptions = null;
-
-            updateCacheInformation(model, mergeFragments(fetchOptions));
-
-            resolve(model);
-        }).fail((jqXhr, textStatus, errorThrown) => {
-            model.error = errorThrown;
-
-            if (options.allowFail) {
-                reject(model);
-            } else {
-                resolve(model);
-            }
-        }).always(() => {
-            model.syncing = false;
-            // Required to ensure handlers see attributes set above.
-            model.trigger('change');
-        });
-    });
-};
-
-function updateCacheInformation(model, fetchOptions) {
-    if (model instanceof Backbone.Collection) {
-        model.forEach((model) => {
-            updateCacheInformation(model, fetchOptions);
-        });
-        return;
-    } else {
-        const cachedFieldsAndRelations = model.cachedFieldsAndRelations;
-        const { fields, relations } = cachedFieldsAndRelations || {};
-        const { fields: fetchFields, relations: fetchRelations } = fetchOptions;
-
-        let newCachedFields;
-        if (cachedFieldsAndRelations) {
-            newCachedFields = !(fetchFields && fields)
-                ? null
-                : _.unique(fields.concat(fetchFields));
-        } else {
-            newCachedFields = fetchFields;
-        }
-        
-        model.cachedFieldsAndRelations = { 
-            fields: newCachedFields, 
-            relations: mergeRelationLists(relations || [], fetchRelations || [])
-        };
-    }
-
-    if (fetchOptions.relations) {
-        _.each(model.attributes, (value, key) => {
-            if (value instanceof Backbone.Collection || 
-                value instanceof Backbone.RelationalModel
-            ) {
-                const relation = fetchOptions.relations.find((relation) => {
-                    return relation.key === key; 
-                });
-                if (relation) {
-                    updateCacheInformation(value, relation);
-                }
-            }
-        });
-    }
-}
-
-function mergeRelationLists(a, b) {
-    const result = a.slice(0);
-
-    b.forEach((relation) => {
-        const existingRelation = result.find((r) => {
-            return r.key === relation.key;
-        });
-
-        if (existingRelation) {
-            const newRelation = _.clone(existingRelation);
-
-            const { fields, relations } = relation;
-            const { fields: newFields, relations: newRelations } = newRelation;
-
-            if (newFields || fields) {
-                newRelation.fields = _.uniq(
-                    (newFields || []).concat(fields || [])
-                );
-            }
-
-            if (newRelations || relations) {
-                newRelation.relations = mergeRelationLists(
-                    newRelations || [],
-                    relations || []
-                );
-            }
-
-            result[result.indexOf(existingRelation)] = newRelation;
-        } else {
-            result.push(relation);
-        }
-    });
-
-    return result;
-}
-
-function isSubset(optionsA, optionsB) {
-    const hasMissingFields = (
-        optionsA.fields && 
-        (
-            _.difference(optionsB.fields || [], optionsA.fields || []).length || 
-            !optionsB.fields
-        )
-    );
-
-    if (hasMissingFields) {
-        return false;
-    }
-
-    const relationsA = optionsA.relations || [];
-
-    (optionsB.relations || []).forEach((relation) => {
-        const matchingRelation = relationsA.find((r) => {
-            return r.key === relation.key;
-        });
-        if (!matchingRelation) {
-            return false;
-        }
-        if (!isSubset(matchingRelation, relation)) {
-            return false;
-        }
-    });
-
-    return true;
-}
-
-function mergeFragments(options) {
-    (options.fragments || []).forEach((fragment) => {
-        if (fragment.fields) {
-            options.fields = (options.fields || []).concat(fragment.fields);
-        }
-
-        if (fragment.relations) {
-            options.relations = mergeRelationLists(
-                options.relations || [],
-                fragment.relations
-            );
-        }
-    });
-
-    if (options.relations) {
-        options.relations = options.relations.map(mergeFragments);
-    }
-
-    options.fields = _.uniq(options.fields);
-
-    return options;
-}
-
-function getUrl(model, fetchOptions) {
-    fetchOptions = fetchOptions || {};
-    const urlRoot = model.urlRoot;
-
-    if (!urlRoot) {
-        throw new Error("Missing urlRoot", model);
-    }
-    let url = urlRoot;
-    if (model instanceof Backbone.Model) {
-        const id = fetchOptions.id || model.get(model.idAttribute);
-        if (id) {
-            url += `/${id}`;
-        }
-    }
-
-    const include = [];
-    const fields = {};
-
-    processRelation(
-        model.model ? model.model : model.constructor, 
-        fetchOptions,
-        [],
-        include,
-        fields
-    );
-
-    const { sort, filter, page } = fetchOptions;
-    const params = [];
-
-    if (include.length) {
-        const includes = _.sortBy(_.uniq(include.map((include) => {
-            return include.join('.');
-        })), _.identity);
-        params.push(`include=${includes.join(',')}`);
-    }
-
-    _.each(_.sortBy(_.keys(fields), _.identity), (type) => {
-        const typeFields = _.sortBy(_.uniq(fields[type]), _.identity);
-        params.push(`fields[${type}]=${typeFields.join(',')}`);
-    });
-
-    if (sort) {
-        params.push(`sort=${sort}`);
-    }
-
-    if (filter) {
-        if (typeof filter === "object") {
-            _.each(_.sortBy(_.keys(filter), _.identity), (key) => {
-                const keyVal = filter[key];
-                params.push(`filter[${key}]=${keyVal}`);
-            });
-        } else {
-            params.push(`filter=${filter}`);
-        }
-    }
-
-    if (page) {
-        if (typeof page === "object") {
-            _.each(_.sortBy(_.keys(page), _.identity), (key) => {
-                const keyVal = page[key];
-                params.push(`page[${key}]=${keyVal}`);
-            });
-        } else {
-            params.push(`page=${page}`);
-        }
-    }
-
-    if (params.length) {
-        url += '?' + params.join('&');
-    }
-
-    return url;
-}
-
-const processRelation = (model, relation, path, include, fields) => {
-    relation = mergeFragments(_.clone(relation));
-
-    if (relation.fields.length) {
-        const type = model.prototype.defaults.type;
-        fields[type] = (fields[type] || []).concat(relation.fields)
-    }
-
-    (relation.relations || []).forEach((r) => {
-        const newPath = path.concat(r.key);
-        include.push(newPath);
-        const relatedModel = _.find(model.prototype.relations, (relation) => {
-            return r.key === relation.key;
-        }).relatedModel;
-        processRelation(relatedModel, r, newPath, include, fields)
-    });
-};
-
 export function withJsonApi(options, WrappedComponent) {
     const componentQueries = options.queries || {};
     const componentFragments = options.fragments || {};
@@ -489,41 +166,18 @@ export function withJsonApi(options, WrappedComponent) {
     }
 }
 
-function Events(props, propOptions, element) {
-    this.props = props;
-    this.propOptions = propOptions;
-    this.element = element;
-}
+function getArgs(func) {
+    // First match everything inside the function argument parens.
+    var args = func.toString().match(/\(([^)]*)\)/)[1];
 
-Object.assign(Events.prototype, {
-    _addHandlers() {
-        Object.keys(this.props).forEach((key) => {
-            const options = this.propOptions[key];
-
-            this.props[key].bindRelationEvents(this.forceUpdate, this.element, options)
-        });
-    },
-
-    _removeHandlers() {
-        Object.keys(this.props).forEach((key) => {
-            this.props[key].unbindRelationEvents(this.element, this.propOptions[key]);
-        });
-    },
-
-    forceUpdate() {
-        if (this.element) {
-            this.element.forceUpdate(); 
-        } 
-    }
-});
-
-function QueryFragments({ element, props, propTypes }) {
-    this._events = new Events(props, propTypes, element);
-
-    this._element = element;
-
-    this._props = props;
-    this._propTypes = propTypes;
+    // Split the arguments string into an array comma delimited.
+    return args.split(',').map(function(arg) {
+        // Ensure no inline comments are parsed and trim the whitespace.
+        return arg.replace(/\/\*.*\*\//, '').trim();
+    }).filter(function(arg) {
+        // Ensure no undefined values are added.
+        return arg;
+    });
 }
 
 function Queries({ 
@@ -542,34 +196,6 @@ function Queries({
     this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
     this.alwaysFetch = !_.isUndefined(alwaysFetch) ? alwaysFetch : true;
     this.updateCache = !_.isUndefined(updateCache) ? updateCache : true;
-}
-
-const collectionCache = {};
-
-function findOrCreateCollection(model, fetchOptions) {
-    const url = getUrl(model.prototype, fetchOptions);
-    let isNew = false;
-
-    if (!collectionCache[url]) {
-        collectionCache[url] = new model();
-        isNew = true;
-    }
-
-    return { isNew, collection: collectionCache[url] };
-}
-
-function getArgs(func) {
-    // First match everything inside the function argument parens.
-    var args = func.toString().match(/\(([^)]*)\)/)[1];
-
-    // Split the arguments string into an array comma delimited.
-    return args.split(',').map(function(arg) {
-        // Ensure no inline comments are parsed and trim the whitespace.
-        return arg.replace(/\/\*.*\*\//, '').trim();
-    }).filter(function(arg) {
-        // Ensure no undefined values are added.
-        return arg;
-    });
 }
 
 Object.assign(Queries.prototype, {
@@ -718,4 +344,376 @@ Object.assign(Queries.prototype, {
     }
 });
 
+const collectionCache = {};
 
+function findOrCreateCollection(model, fetchOptions) {
+    const url = getUrl(model.prototype, fetchOptions);
+    let isNew = false;
+
+    if (!collectionCache[url]) {
+        collectionCache[url] = new model();
+        isNew = true;
+    }
+
+    return { isNew, collection: collectionCache[url] };
+}
+
+function QueryFragments({ element, props, propTypes }) {
+    this._events = new Events(props, propTypes, element);
+
+    this._element = element;
+
+    this._props = props;
+    this._propTypes = propTypes;
+}
+
+function Events(props, propOptions, element) {
+    this.props = props;
+    this.propOptions = propOptions;
+    this.element = element;
+}
+
+Object.assign(Events.prototype, {
+    _addHandlers() {
+        Object.keys(this.props).forEach((key) => {
+            const options = this.propOptions[key];
+
+            this.props[key].bindRelationEvents(this.forceUpdate, this.element, options)
+        });
+    },
+
+    _removeHandlers() {
+        Object.keys(this.props).forEach((key) => {
+            this.props[key].unbindRelationEvents(this.element, this.propOptions[key]);
+        });
+    },
+
+    forceUpdate() {
+        if (this.element) {
+            this.element.forceUpdate(); 
+        } 
+    }
+});
+
+const modelEvents = 'change invalid error request sync';
+const collectionEvents = 'update reset sort error request sync';
+
+Backbone.Collection.prototype.bindRelationEvents = function (callback, context, options) {
+    this.on(collectionEvents, callback, context);
+    this.models.forEach((model) => {
+        model.bindRelationEvents(callback, context, options);
+    });
+    
+    this.on('add', (model) => {
+        model.bindRelationEvents(callback, context, options);
+    }, context);
+
+    this.on('remove', (model) => {
+        model.unbindRelationEvents(context, options);
+    }, context);
+};
+
+Backbone.RelationalModel.prototype.bindRelationEvents = function (callback, context, options) {
+    const relations = getRelations(options);
+
+    this.on(modelEvents, callback, context);
+    
+    relations.forEach((relation) => {
+        const related = getRelated(this, relation);
+        related.bindRelationEvents(callback, context, relation);
+    });
+};
+
+Backbone.Collection.prototype.unbindRelationEvents = function (context, options) {
+    this.models.forEach((model) => {
+        model.unbindRelationEvents(context, options);
+    });
+
+    this.off(null, null, context);
+};
+
+Backbone.RelationalModel.prototype.unbindRelationEvents = function (context, options) {
+    this.off(null, null, context);
+
+    const relations = getRelations(options);
+
+    relations.forEach((relation) => {
+        const related = getRelated(this, relation);
+        related.unbindRelationEvents(context, relation);
+    });
+};
+
+function getRelations(options) {
+    let relations = options.relations || [];
+    (options.fragments || []).forEach((fragment) => {
+        relations = relations.concat(fragment.relations || []);
+    });
+    return _.uniq(relations, (r) => r.key)
+}
+
+function getRelated(model, relation) {
+    let r = model.getRelation(relation.key);
+    return r.related;
+}
+
+const BackboneSync = Backbone.sync;
+
+Backbone.sync = function (method, model, options) {
+    const fetchOptions = model.fetchOptions;
+
+    if (!options.url) {
+        options.url = getUrl(model, fetchOptions);
+    }
+
+    return new Promise((resolve, reject) => {
+        model.syncing = true;
+
+        model.pendingFetchOptions = fetchOptions;
+
+        BackboneSync(method, model, options).done((data, textStatus) => {
+            model.error = null;
+
+            model.lastFetchOptions = fetchOptions;
+            model.pendingFetchOptions = null;
+
+            updateCacheInformation(model, mergeFragments(fetchOptions));
+
+            resolve(model);
+        }).fail((jqXhr, textStatus, errorThrown) => {
+            model.error = errorThrown;
+
+            if (options.allowFail) {
+                reject(model);
+            } else {
+                resolve(model);
+            }
+        }).always(() => {
+            model.syncing = false;
+            // Required to ensure handlers see attributes set above.
+            model.trigger('change');
+        });
+    });
+};
+
+function getUrl(model, fetchOptions) {
+    fetchOptions = fetchOptions || {};
+    const urlRoot = model.urlRoot;
+
+    if (!urlRoot) {
+        throw new Error("Missing urlRoot", model);
+    }
+    let url = urlRoot;
+    if (model instanceof Backbone.Model) {
+        const id = fetchOptions.id || model.get(model.idAttribute);
+        if (id) {
+            url += `/${id}`;
+        }
+    }
+
+    const include = [];
+    const fields = {};
+
+    processRelation(
+        model.model ? model.model : model.constructor, 
+        fetchOptions,
+        [],
+        include,
+        fields
+    );
+
+    const { sort, filter, page } = fetchOptions;
+    const params = [];
+
+    if (include.length) {
+        const includes = _.sortBy(_.uniq(include.map((include) => {
+            return include.join('.');
+        })), _.identity);
+        params.push(`include=${includes.join(',')}`);
+    }
+
+    _.each(_.sortBy(_.keys(fields), _.identity), (type) => {
+        const typeFields = _.sortBy(_.uniq(fields[type]), _.identity);
+        params.push(`fields[${type}]=${typeFields.join(',')}`);
+    });
+
+    if (sort) {
+        params.push(`sort=${sort}`);
+    }
+
+    if (filter) {
+        if (typeof filter === "object") {
+            _.each(_.sortBy(_.keys(filter), _.identity), (key) => {
+                const keyVal = filter[key];
+                params.push(`filter[${key}]=${keyVal}`);
+            });
+        } else {
+            params.push(`filter=${filter}`);
+        }
+    }
+
+    if (page) {
+        if (typeof page === "object") {
+            _.each(_.sortBy(_.keys(page), _.identity), (key) => {
+                const keyVal = page[key];
+                params.push(`page[${key}]=${keyVal}`);
+            });
+        } else {
+            params.push(`page=${page}`);
+        }
+    }
+
+    if (params.length) {
+        url += '?' + params.join('&');
+    }
+
+    return url;
+}
+
+function updateCacheInformation(model, fetchOptions) {
+    if (model instanceof Backbone.Collection) {
+        model.forEach((model) => {
+            updateCacheInformation(model, fetchOptions);
+        });
+        return;
+    } else {
+        const cachedFieldsAndRelations = model.cachedFieldsAndRelations;
+        const { fields, relations } = cachedFieldsAndRelations || {};
+        const { fields: fetchFields, relations: fetchRelations } = fetchOptions;
+
+        let newCachedFields;
+        if (cachedFieldsAndRelations) {
+            newCachedFields = !(fetchFields && fields)
+                ? null
+                : _.unique(fields.concat(fetchFields));
+        } else {
+            newCachedFields = fetchFields;
+        }
+        
+        model.cachedFieldsAndRelations = { 
+            fields: newCachedFields, 
+            relations: mergeRelationLists(relations || [], fetchRelations || [])
+        };
+    }
+
+    if (fetchOptions.relations) {
+        _.each(model.attributes, (value, key) => {
+            if (value instanceof Backbone.Collection || 
+                value instanceof Backbone.RelationalModel
+            ) {
+                const relation = fetchOptions.relations.find((relation) => {
+                    return relation.key === key; 
+                });
+                if (relation) {
+                    updateCacheInformation(value, relation);
+                }
+            }
+        });
+    }
+}
+
+function mergeRelationLists(a, b) {
+    const result = a.slice(0);
+
+    b.forEach((relation) => {
+        const existingRelation = result.find((r) => {
+            return r.key === relation.key;
+        });
+
+        if (existingRelation) {
+            const newRelation = _.clone(existingRelation);
+
+            const { fields, relations } = relation;
+            const { fields: newFields, relations: newRelations } = newRelation;
+
+            if (newFields || fields) {
+                newRelation.fields = _.uniq(
+                    (newFields || []).concat(fields || [])
+                );
+            }
+
+            if (newRelations || relations) {
+                newRelation.relations = mergeRelationLists(
+                    newRelations || [],
+                    relations || []
+                );
+            }
+
+            result[result.indexOf(existingRelation)] = newRelation;
+        } else {
+            result.push(relation);
+        }
+    });
+
+    return result;
+}
+
+function isSubset(optionsA, optionsB) {
+    const hasMissingFields = (
+        optionsA.fields && 
+        (
+            _.difference(optionsB.fields || [], optionsA.fields || []).length || 
+            !optionsB.fields
+        )
+    );
+
+    if (hasMissingFields) {
+        return false;
+    }
+
+    const relationsA = optionsA.relations || [];
+
+    (optionsB.relations || []).forEach((relation) => {
+        const matchingRelation = relationsA.find((r) => {
+            return r.key === relation.key;
+        });
+        if (!matchingRelation) {
+            return false;
+        }
+        if (!isSubset(matchingRelation, relation)) {
+            return false;
+        }
+    });
+
+    return true;
+}
+
+function mergeFragments(options) {
+    (options.fragments || []).forEach((fragment) => {
+        if (fragment.fields) {
+            options.fields = (options.fields || []).concat(fragment.fields);
+        }
+
+        if (fragment.relations) {
+            options.relations = mergeRelationLists(
+                options.relations || [],
+                fragment.relations
+            );
+        }
+    });
+
+    if (options.relations) {
+        options.relations = options.relations.map(mergeFragments);
+    }
+
+    options.fields = _.uniq(options.fields);
+
+    return options;
+}
+
+function processRelation(model, relation, path, include, fields) {
+    relation = mergeFragments(_.clone(relation));
+
+    if (relation.fields.length) {
+        const type = model.prototype.defaults.type;
+        fields[type] = (fields[type] || []).concat(relation.fields)
+    }
+
+    (relation.relations || []).forEach((r) => {
+        const newPath = path.concat(r.key);
+        include.push(newPath);
+        const relatedModel = _.find(model.prototype.relations, (relation) => {
+            return r.key === relation.key;
+        }).relatedModel;
+        processRelation(relatedModel, r, newPath, include, fields)
+    });
+}
