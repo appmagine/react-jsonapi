@@ -22,7 +22,7 @@ to per-component state known as [variables](#variables).
 * [Variables](#variables)
 * [API](#api)
   * [`AsyncProps`](#asyncprops)
-  * [`withJsonApi`](#withjsonapi)
+  * [`withJsonApi`](#withjsonapi-default)
     * [Query definition objects](#query-definition-objects)
     * [The `queries` prop](#the-queries-prop)
   * [Added Backbone attributes](#added-backbone-attributes)
@@ -41,7 +41,7 @@ import Backbone from 'backbone';
 import 'backbone-relational';
 
 import ReactDOM from 'react-dom';
-import { withJsonApi } from 'react-jsonapi';
+import withJsonApi from 'react-jsonapi';
 
 const Filling = Backbone.Model.extend({});
 
@@ -105,7 +105,7 @@ import 'backbone-relational';
 
 import ReactDOM from 'react-dom';
 import { Router, Route, browserHistory } from 'react-router';
-import { withJsonApi, AsyncProps } from 'react-jsonapi';
+import withJsonApi, { AsyncProps } from 'react-jsonapi';
 
 const Taco = Backbone.RelationalModel.extend({
     urlRoot: '/tacos',
@@ -291,7 +291,7 @@ React Router version 3 introduced asynchronous route definition via
 `getChildRoutes()` and `getComponents()`, which is incompatible with co-located
 data loading.  Avoid using these features when using React JSON API.
 
-#### `withJsonApi`
+#### `withJsonApi` (default)
 
 \- `withJsonApi(options, Component)`
 
