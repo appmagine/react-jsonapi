@@ -26589,6 +26589,52 @@ System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.j
     }
   };
 });
+System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/slicedToArray.js", [], function (_export, _context) {
+  "use strict";
+
+  return {
+    setters: [],
+    execute: function () {
+      _export("default", function () {
+        function sliceIterator(arr, i) {
+          var _arr = [];
+          var _n = true;
+          var _d = false;
+          var _e = undefined;
+
+          try {
+            for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+              _arr.push(_s.value);
+
+              if (i && _arr.length === i) break;
+            }
+          } catch (err) {
+            _d = true;
+            _e = err;
+          } finally {
+            try {
+              if (!_n && _i["return"]) _i["return"]();
+            } finally {
+              if (_d) throw _e;
+            }
+          }
+
+          return _arr;
+        }
+
+        return function (arr, i) {
+          if (Array.isArray(arr)) {
+            return arr;
+          } else if (Symbol.iterator in Object(arr)) {
+            return sliceIterator(arr, i);
+          } else {
+            throw new TypeError("Invalid attempt to destructure non-iterable instance");
+          }
+        };
+      }());
+    }
+  };
+});
 System.registerDynamic("npm:jquery@3.4.1.json", [], true, function() {
   return {
     "main": "dist/jquery.js",
@@ -42631,90 +42677,206 @@ System.registerDynamic('npm:underscore@1.9.1/underscore.js', [], false, function
 
   return _retrieveGlobal();
 });
-System.register('react-jsonapi/backbone-relational-jsonapi.js', ['backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
-	"use strict";
+System.register('react-jsonapi/backbone-relational-jsonapi.js', ['npm:systemjs-plugin-babel@0.0.21/babel-helpers/defineProperty.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/slicedToArray.js', 'npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js', 'backbone', 'backbone-relational', 'underscore'], function (_export, _context) {
+    "use strict";
 
-	var Backbone, _, _extend, ModelFactory;
+    var _defineProperty, _slicedToArray, _extends, Backbone, _, _extend, ModelFactory;
 
-	return {
-		setters: [function (_backbone) {
-			Backbone = _backbone.default;
-		}, function (_backboneRelational) {}, function (_underscore) {
-			_ = _underscore.default;
-		}],
-		execute: function () {
-			_extend = Backbone.RelationalModel.extend;
+    function mergeRelations(existingRelations, newRelations, fetchOptions) {
+        _.each(newRelations, function (relation, key) {
+            var existingRelation = existingRelations[key];
 
-			Backbone.RelationalModel.extend = function (protoProps, classProps) {
-				var ret = _extend.call(this, protoProps, classProps);
+            if (existingRelation) {
+                var relationFetchOptions = fetchOptions.relations.find(function (relation) {
+                    return relation.key === key;
+                });
 
-				if (protoProps.defaults && protoProps.defaults.type) {
-					Backbone.modelFactory.registerModel(ret);
-				}
+                if (existingRelation instanceof Backbone.Collection) {
+                    existingRelation.set(relation, {
+                        parse: true,
+                        silent: true,
+                        fetchOptions: relationFetchOptions
+                    });
+                } else {
 
-				return ret;
-			};
+                    var attributes = existingRelation.parse(relation, {
+                        fetchOptions: relationFetchOptions
+                    });
+                    var idAttribute = existingRelation.idAttribute;
+                    var id = existingRelation.get(idAttribute);
 
-			ModelFactory = function ModelFactory() {
-				this.registeredModels = {};
-			};
+                    if (!id) {
+                        existingRelations[key] = existingRelation.constructor.findOrCreate(_defineProperty({}, idAttribute, attributes[idAttribute]));
+                    }
+                    existingRelations[key].set(attributes, { silent: true });
+                }
+            } else {
+                existingRelations[key] = relation;
+            }
+        });
 
-			ModelFactory.prototype.registerModel = function (model) {
-				this.registeredModels[model.prototype.defaults.type] = model;
-			};
+        return existingRelations;
+    }
 
-			ModelFactory.prototype.findOrCreate = function (data) {
-				if (this.registeredModels[data.type]) return this.registeredModels[data.type].findOrCreate(data, { parse: true });
-			};
+    // Monkey-patch to fix an apparent bug.
+    return {
+        setters: [function (_npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs) {
+            _defineProperty = _npmSystemjsPluginBabel0021BabelHelpersDefinePropertyJs.default;
+        }, function (_npmSystemjsPluginBabel0021BabelHelpersSlicedToArrayJs) {
+            _slicedToArray = _npmSystemjsPluginBabel0021BabelHelpersSlicedToArrayJs.default;
+        }, function (_npmSystemjsPluginBabel0021BabelHelpersExtendsJs) {
+            _extends = _npmSystemjsPluginBabel0021BabelHelpersExtendsJs.default;
+        }, function (_backbone) {
+            Backbone = _backbone.default;
+        }, function (_backboneRelational) {}, function (_underscore) {
+            _ = _underscore.default;
+        }],
+        execute: function () {
+            _extend = Backbone.RelationalModel.extend;
 
-			ModelFactory.prototype.createFromArray = function (items) {
-				_.each(items, function (item) {
-					this.findOrCreate(item);
-				}, this);
-			};
+            Backbone.RelationalModel.extend = function (protoProps, classProps) {
+                var ret = _extend.call(this, protoProps, classProps);
 
-			Backbone.modelFactory = new ModelFactory();
+                if (protoProps.defaults && protoProps.defaults.type) {
+                    Backbone.modelFactory.registerModel(ret);
+                }
 
-			Backbone.Collection.prototype.parse = function (response) {
-				if (!response) return;
+                return ret;
+            };
 
-				if (response.included) Backbone.modelFactory.createFromArray(response.included);
+            ModelFactory = function ModelFactory() {
+                this.registeredModels = {};
+            };
 
-				if (response.meta && this.handleMeta) this.handleMeta(response.meta);
+            ModelFactory.prototype.registerModel = function (model) {
+                this.registeredModels[model.prototype.defaults.type] = model;
+            };
 
-				if (!response.data) {
-					return response;
-				}
+            ModelFactory.prototype.findOrCreate = function (data, options) {
+                if (this.registeredModels[data.type]) {
+                    var model = this.registeredModels[data.type].findOrCreate(data, _extends({
+                        parse: true
+                    }, options));
 
-				return response.data;
-			};
+                    return model;
+                }
+            };
 
-			Backbone.RelationalModel.prototype.parse = function (response) {
-				if (!response) return;
+            ModelFactory.prototype.createFromArray = function (items, options) {
+                _.each(items, function (item) {
+                    this.findOrCreate(item, options);
+                }, this);
+            };
 
-				if (response.included) Backbone.modelFactory.createFromArray(response.included);
+            Backbone.modelFactory = new ModelFactory();
 
-				if (response.data) {
-					response = response.data;
-				}
+            Backbone.Collection.prototype.parse = function (response, options) {
+                if (!response) return;
 
-				if (response.meta && this.handleMeta) this.handleMeta(response.meta);
+                if (response.included) Backbone.modelFactory.createFromArray(response.included, options);
 
-				var data = response.attributes || {};
-				data.id = response.id;
+                if (response.meta && this.handleMeta) this.handleMeta(response.meta);
 
-				if (response.relationships) {
-					var simplifiedRelations = _.mapObject(response.relationships, function (value) {
-						return value.data;
-					});
+                if (!response.data) {
+                    return response;
+                }
 
-					_.extend(data, simplifiedRelations);
-				}
+                return response.data;
+            };
 
-				return data;
-			};
-		}
-	};
+            Backbone.RelationalModel.prototype.parse = function (response, options) {
+                if (!response) return;
+
+                if (response.included) Backbone.modelFactory.createFromArray(response.included);
+
+                if (response.data) {
+                    response = response.data;
+                }
+
+                if (response.meta && this.handleMeta) this.handleMeta(response.meta);
+
+                var data = response.attributes || {};
+                data.id = response.id;
+
+                var simplifiedRelations = void 0;
+                if (response.relationships) {
+                    simplifiedRelations = _.mapObject(response.relationships, function (value) {
+                        return value.data;
+                    });
+                }
+
+                var _$chain$pairs$partiti = _.chain(this.attributes).pairs().partition(function (_ref) {
+                    var _ref2 = _slicedToArray(_ref, 2),
+                        key = _ref2[0],
+                        value = _ref2[1];
+
+                    return value instanceof Backbone.Model || value instanceof Backbone.Collection;
+                }).map(function (val) {
+                    return _.object(val);
+                }).value(),
+                    _$chain$pairs$partiti2 = _slicedToArray(_$chain$pairs$partiti, 2),
+                    existingRelations = _$chain$pairs$partiti2[0],
+                    existingFields = _$chain$pairs$partiti2[1];
+
+                var newFields = _.extend({}, existingFields, data);
+                var fetchOptions = options.fetchOptions || this.fetchOptions;
+
+                var relations = mergeRelations(existingRelations, simplifiedRelations, fetchOptions);
+
+                return _.extend({}, newFields, relations);
+            };Backbone.RelationalModel.prototype.set = function (key, value, options) {
+                Backbone.Relational.eventQueue.block();
+
+                // Duplicate backbone's behavior to allow separate key/value parameters, instead of a single 'attributes' object
+                var attributes, result;
+
+                if (_.isObject(key) || key == null) {
+                    attributes = key;
+                    options = value;
+                } else {
+                    attributes = {};
+                    attributes[key] = value;
+                }
+
+                try {
+                    var id = this.id,
+                        newId = attributes && this.idAttribute in attributes && attributes[this.idAttribute];
+
+                    // Check if we're not setting a duplicate id before actually calling `set`.
+                    Backbone.Relational.store.checkId(this, newId);
+
+                    result = Backbone.Model.prototype.set.apply(this, arguments);
+
+                    // Ideal place to set up relations, if this is the first time we're here for this model
+                    // Change required to work.
+                    if (true) {
+                        //if ( !this._isInitialized && !this.isLocked() ) {
+                        this.constructor.initializeModelHierarchy();
+
+                        // Only register models that have an id. A model will be registered when/if it gets an id later on.
+                        if (newId || newId === 0) {
+                            Backbone.Relational.store.register(this);
+                        }
+
+                        this.initializeRelations(options);
+                    }
+                    // The store should know about an `id` update asap
+                    else if (newId && newId !== id) {
+                            Backbone.Relational.store.update(this);
+                        }
+
+                    if (attributes) {
+                        this.updateRelations(attributes, options);
+                    }
+                } finally {
+                    // Try to run the global queue holding external events
+                    Backbone.Relational.eventQueue.unblock();
+                }
+
+                return result;
+            };
+        }
+    };
 });
 System.register("npm:systemjs-plugin-babel@0.0.21/babel-helpers/extends.js", [], function (_export, _context) {
   "use strict";
@@ -43120,7 +43282,6 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
             return;
         } else {
             var cachedFieldsAndRelations = model.cachedFieldsAndRelations;
-            var isCached = cachedFieldsAndRelations;
 
             var _ref = cachedFieldsAndRelations || {},
                 fields = _ref.fields,
@@ -43130,7 +43291,7 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                 fetchRelations = fetchOptions.relations;
 
             var newCachedFields = void 0;
-            if (isCached) {
+            if (cachedFieldsAndRelations) {
                 newCachedFields = !(fetchFields && fields) ? null : _.unique(fields.concat(fetchFields));
             } else {
                 newCachedFields = fetchFields;
@@ -43325,10 +43486,9 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
 
         var firstQuery = _.first(_.values(componentQueries));
         var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
-        var innerDisplayNameType = isStandalone ? 'withJsonApiInner' : 'withJsonApi';
 
         var ApiComponent = createReactClass({
-            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
+            displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
 
             propTypes: Object.assign({}, WrappedComponent.propTypes, {
                 initialQueries: PropTypes.object
@@ -43411,7 +43571,7 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
 
         if (isStandalone) {
             return createReactClass({
-                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+                displayName: 'withJsonApiOuter',
 
                 componentWillMount: function componentWillMount() {
                     this.initialQueries = null;
@@ -43481,8 +43641,6 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
         this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
         this.alwaysFetch = !_.isUndefined(alwaysFetch) ? alwaysFetch : true;
         this.updateCache = !_.isUndefined(updateCache) ? updateCache : true;
-
-        this._addedHandlers = false;
     }
 
     function findOrCreateCollection(model, fetchOptions) {
@@ -43533,60 +43691,6 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
             _export(_exportObj);
         }],
         execute: function () {
-
-            // Monkey-patch to fix an apparent bug.
-            Backbone.RelationalModel.prototype.set = function (key, value, options) {
-                Backbone.Relational.eventQueue.block();
-
-                // Duplicate backbone's behavior to allow separate key/value parameters, instead of a single 'attributes' object
-                var attributes, result;
-
-                if (_.isObject(key) || key == null) {
-                    attributes = key;
-                    options = value;
-                } else {
-                    attributes = {};
-                    attributes[key] = value;
-                }
-
-                try {
-                    var id = this.id,
-                        newId = attributes && this.idAttribute in attributes && attributes[this.idAttribute];
-
-                    // Check if we're not setting a duplicate id before actually calling `set`.
-                    Backbone.Relational.store.checkId(this, newId);
-
-                    result = Backbone.Model.prototype.set.apply(this, arguments);
-
-                    // Ideal place to set up relations, if this is the first time we're here for this model
-                    // Change required to work.
-                    if (true) {
-                        //if ( !this._isInitialized && !this.isLocked() ) {
-                        this.constructor.initializeModelHierarchy();
-
-                        // Only register models that have an id. A model will be registered when/if it gets an id later on.
-                        if (newId || newId === 0) {
-                            Backbone.Relational.store.register(this);
-                        }
-
-                        this.initializeRelations(options);
-                    }
-                    // The store should know about an `id` update asap
-                    else if (newId && newId !== id) {
-                            Backbone.Relational.store.update(this);
-                        }
-
-                    if (attributes) {
-                        this.updateRelations(attributes, options);
-                    }
-                } finally {
-                    // Try to run the global queue holding external events
-                    Backbone.Relational.eventQueue.unblock();
-                }
-
-                return result;
-            };
-
             modelEvents = 'change invalid error request sync';
             collectionEvents = 'update reset sort error request sync';
 
@@ -43716,19 +43820,11 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                 _addHandlers: function _addHandlers() {
                     var _this4 = this;
 
-                    var forceUpdate = function forceUpdate() {
-                        if (_this4.element) {
-                            _this4.element.forceUpdate();
-                        }
-                    };
-
                     Object.keys(this.props).forEach(function (key) {
                         var options = _this4.propOptions[key];
 
-                        _this4.props[key].bindRelationEvents(forceUpdate, _this4.element, options);
+                        _this4.props[key].bindRelationEvents(_this4.forceUpdate, _this4.element, options);
                     });
-
-                    this._addedHandlers = true;
                 },
                 _removeHandlers: function _removeHandlers() {
                     var _this5 = this;
@@ -43736,6 +43832,11 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                     Object.keys(this.props).forEach(function (key) {
                         _this5.props[key].unbindRelationEvents(_this5.element, _this5.propOptions[key]);
                     });
+                },
+                forceUpdate: function forceUpdate() {
+                    if (this.element) {
+                        this.element.forceUpdate();
+                    }
                 }
             });collectionCache = {};
             Object.assign(Queries.prototype, {
@@ -43783,7 +43884,7 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
                             var query = _this6._queryPropTypes[key];
-                            var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
+                            var options = propOptions[key] = mergeFragments(getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars));
 
                             var model = options.model;
                             var instance = void 0,
@@ -43818,7 +43919,7 @@ System.register('react-jsonapi/index.js', ['npm:systemjs-plugin-babel@0.0.21/bab
                                 } else {
                                     var cachedFieldsAndRelations = instance.cachedFieldsAndRelations;
 
-                                    if (cachedFieldsAndRelations && isSubset(cachedFieldsAndRelations, mergeFragments(options))) {
+                                    if (cachedFieldsAndRelations && isSubset(cachedFieldsAndRelations, options)) {
                                         loadedFromCache = true;
                                         resolve();
                                     }

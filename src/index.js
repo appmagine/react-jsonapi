@@ -4,65 +4,10 @@ import PropTypes from 'prop-types';
 import Backbone from 'backbone';
 import 'backbone-relational';
 import _ from 'underscore';
+
 import './backbone-relational-jsonapi';
 
 export { default as AsyncProps } from './AsyncProps';
-
-// Monkey-patch to fix an apparent bug.
-Backbone.RelationalModel.prototype.set = function( key, value, options ) {
-    Backbone.Relational.eventQueue.block();
-
-    // Duplicate backbone's behavior to allow separate key/value parameters, instead of a single 'attributes' object
-    var attributes,
-        result;
-
-    if ( _.isObject( key ) || key == null ) {
-        attributes = key;
-        options = value;
-    }
-    else {
-        attributes = {};
-        attributes[ key ] = value;
-    }
-
-    try {
-        var id = this.id,
-            newId = attributes && this.idAttribute in attributes && attributes[ this.idAttribute ];
-
-        // Check if we're not setting a duplicate id before actually calling `set`.
-        Backbone.Relational.store.checkId( this, newId );
-
-        result = Backbone.Model.prototype.set.apply( this, arguments );
-
-        // Ideal place to set up relations, if this is the first time we're here for this model
-        // Change required to work.
-        if ( true ) {
-        //if ( !this._isInitialized && !this.isLocked() ) {
-            this.constructor.initializeModelHierarchy();
-
-            // Only register models that have an id. A model will be registered when/if it gets an id later on.
-            if ( newId || newId === 0 ) {
-                Backbone.Relational.store.register( this );
-            }
-
-            this.initializeRelations( options );
-        }
-        // The store should know about an `id` update asap
-        else if ( newId && newId !== id ) {
-            Backbone.Relational.store.update( this );
-        }
-
-        if ( attributes ) {
-            this.updateRelations( attributes, options );
-        }
-    }
-    finally {
-        // Try to run the global queue holding external events
-        Backbone.Relational.eventQueue.unblock();
-    }
-
-    return result;
-};
 
 const modelEvents = 'change invalid error request sync';
 const collectionEvents = 'update reset sort error request sync';
@@ -172,12 +117,11 @@ function updateCacheInformation(model, fetchOptions) {
         return;
     } else {
         const cachedFieldsAndRelations = model.cachedFieldsAndRelations;
-        const isCached = cachedFieldsAndRelations;
         const { fields, relations } = cachedFieldsAndRelations || {};
         const { fields: fetchFields, relations: fetchRelations } = fetchOptions;
 
         let newCachedFields;
-        if (isCached) {
+        if (cachedFieldsAndRelations) {
             newCachedFields = !(fetchFields && fields)
                 ? null
                 : _.unique(fields.concat(fetchFields));
@@ -409,11 +353,10 @@ export function withJsonApi(options, WrappedComponent) {
     const firstQuery = _.first(_.values(componentQueries));
     const isStandalone = firstQuery && 
         getArgs(firstQuery).indexOf("props") !== -1;
-    const innerDisplayNameType = isStandalone ? 'withJsonApiInner' : 'withJsonApi';
 
     const ApiComponent = createReactClass({
         displayName: displayName 
-            ? `${innerDisplayNameType}(${displayName})`
+            ? `withJsonApi(${displayName})`
             : undefined,
 
         propTypes: Object.assign(
@@ -513,9 +456,7 @@ export function withJsonApi(options, WrappedComponent) {
     
     if (isStandalone) {
         return createReactClass({
-            displayName: displayName 
-                ? `withJsonApi(${displayName})` 
-                : undefined,
+            displayName: 'withJsonApiOuter',
 
             componentWillMount() {
                 this.initialQueries = null;
@@ -546,7 +487,6 @@ export function withJsonApi(options, WrappedComponent) {
     } else {
         return ApiComponent;
     }
-
 }
 
 function Events(props, propOptions, element) {
@@ -557,25 +497,23 @@ function Events(props, propOptions, element) {
 
 Object.assign(Events.prototype, {
     _addHandlers() {
-        const forceUpdate = () => {
-            if (this.element) {
-                this.element.forceUpdate(); 
-            } 
-        };
-
         Object.keys(this.props).forEach((key) => {
             const options = this.propOptions[key];
 
-            this.props[key].bindRelationEvents(forceUpdate, this.element, options)
+            this.props[key].bindRelationEvents(this.forceUpdate, this.element, options)
         });
-
-        this._addedHandlers = true;
     },
 
     _removeHandlers() {
         Object.keys(this.props).forEach((key) => {
             this.props[key].unbindRelationEvents(this.element, this.propOptions[key]);
         });
+    },
+
+    forceUpdate() {
+        if (this.element) {
+            this.element.forceUpdate(); 
+        } 
     }
 });
 
@@ -604,8 +542,6 @@ function Queries({
     this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
     this.alwaysFetch = !_.isUndefined(alwaysFetch) ? alwaysFetch : true;
     this.updateCache = !_.isUndefined(updateCache) ? updateCache : true;
-
-    this._addedHandlers = false;
 }
 
 const collectionCache = {};
@@ -679,9 +615,11 @@ Object.assign(Queries.prototype, {
         const promise = Promise.all(keys.map((key) => {
             return new Promise((resolve) => {
                 const query = this._queryPropTypes[key];
-                const options = propOptions[key] = getArgs(query).indexOf("props") !== -1
-                    ? query(props, this.pendingVars)
-                    : query(params, location.query, this.pendingVars);
+                const options = propOptions[key] = mergeFragments(
+                    getArgs(query).indexOf("props") !== -1
+                        ? query(props, this.pendingVars)
+                        : query(params, location.query, this.pendingVars)
+                );
 
                 const model = options.model;
                 let instance, isNew;
@@ -719,10 +657,7 @@ Object.assign(Queries.prototype, {
                             instance.cachedFieldsAndRelations;
 
                         if (cachedFieldsAndRelations && 
-                            isSubset(
-                                cachedFieldsAndRelations, 
-                                mergeFragments(options)
-                            )
+                            isSubset(cachedFieldsAndRelations, options)
                         ) {
                             loadedFromCache = true;
                             resolve();

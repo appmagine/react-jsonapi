@@ -2295,7 +2295,46 @@ $__System.registerDynamic('1b', ['16', '19', '1a', 'c'], true, function ($__requ
 $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], function (_export, _context) {
     "use strict";
 
-    var Backbone, _, React, RouterContext, computeChangedRoutes, createReactClass, PropTypes, _defineProperty, _extends, _extend, ModelFactory, _objectWithoutProperties, array, func, object, AsyncPropsContainer, AsyncProps, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation, collectionCache;
+    var Backbone, _, React, RouterContext, computeChangedRoutes, createReactClass, PropTypes, _defineProperty, _extends, _slicedToArray, _extend, ModelFactory, _objectWithoutProperties, array, func, object, AsyncPropsContainer, AsyncProps, modelEvents, collectionEvents, getRelations, getRelated, BackboneSync, processRelation, collectionCache;
+
+    function mergeRelations(existingRelations, newRelations, fetchOptions) {
+        _.each(newRelations, function (relation, key) {
+            var existingRelation = existingRelations[key];
+
+            if (existingRelation) {
+                var relationFetchOptions = fetchOptions.relations.find(function (relation) {
+                    return relation.key === key;
+                });
+
+                if (existingRelation instanceof Backbone.Collection) {
+                    existingRelation.set(relation, {
+                        parse: true,
+                        silent: true,
+                        fetchOptions: relationFetchOptions
+                    });
+                } else {
+
+                    var attributes = existingRelation.parse(relation, {
+                        fetchOptions: relationFetchOptions
+                    });
+                    var idAttribute = existingRelation.idAttribute;
+                    var id = existingRelation.get(idAttribute);
+
+                    if (!id) {
+                        existingRelations[key] = existingRelation.constructor.findOrCreate(_defineProperty({}, idAttribute, attributes[idAttribute]));
+                    }
+                    existingRelations[key].set(attributes, { silent: true });
+                }
+            } else {
+                existingRelations[key] = relation;
+            }
+        });
+
+        return existingRelations;
+    }
+
+    // Monkey-patch to fix an apparent bug.
+
 
     function eachComponents(components, iterator) {
         for (var i = 0, l = components.length; i < l; i++) {
@@ -2406,7 +2445,6 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
             return;
         } else {
             var cachedFieldsAndRelations = model.cachedFieldsAndRelations;
-            var isCached = cachedFieldsAndRelations;
 
             var _ref = cachedFieldsAndRelations || {},
                 fields = _ref.fields,
@@ -2416,7 +2454,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 fetchRelations = fetchOptions.relations;
 
             var newCachedFields = void 0;
-            if (isCached) {
+            if (cachedFieldsAndRelations) {
                 newCachedFields = !(fetchFields && fields) ? null : _.unique(fields.concat(fetchFields));
             } else {
                 newCachedFields = fetchFields;
@@ -2611,10 +2649,9 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
         var firstQuery = _.first(_.values(componentQueries));
         var isStandalone = firstQuery && getArgs(firstQuery).indexOf("props") !== -1;
-        var innerDisplayNameType = isStandalone ? 'withJsonApiInner' : 'withJsonApi';
 
         var ApiComponent = createReactClass({
-            displayName: displayName ? innerDisplayNameType + '(' + displayName + ')' : undefined,
+            displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
 
             propTypes: Object.assign({}, WrappedComponent.propTypes, {
                 initialQueries: PropTypes.object
@@ -2691,7 +2728,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
 
         if (isStandalone) {
             return createReactClass({
-                displayName: displayName ? 'withJsonApi(' + displayName + ')' : undefined,
+                displayName: 'withJsonApiOuter',
 
                 componentWillMount: function componentWillMount() {
                     this.initialQueries = null;
@@ -2759,8 +2796,6 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
         this.loadFromCache = !_.isUndefined(loadFromCache) ? loadFromCache : true;
         this.alwaysFetch = !_.isUndefined(alwaysFetch) ? alwaysFetch : true;
         this.updateCache = !_.isUndefined(updateCache) ? updateCache : true;
-
-        this._addedHandlers = false;
     }
 
     function findOrCreateCollection(model, fetchOptions) {
@@ -2792,8 +2827,8 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
     return {
         setters: [function (_c) {
             Backbone = _c.default;
-        }, function (_d) {}, function (_e) {
-            _ = _e.default;
+        }, function (_d2) {}, function (_e2) {
+            _ = _e2.default;
         }, function (_2) {
             React = _2.default;
         }, function (_f) {
@@ -2835,6 +2870,44 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 return target;
             };
 
+            _slicedToArray = function () {
+                function sliceIterator(arr, i) {
+                    var _arr = [];
+                    var _n = true;
+                    var _d = false;
+                    var _e = undefined;
+
+                    try {
+                        for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+                            _arr.push(_s.value);
+
+                            if (i && _arr.length === i) break;
+                        }
+                    } catch (err) {
+                        _d = true;
+                        _e = err;
+                    } finally {
+                        try {
+                            if (!_n && _i["return"]) _i["return"]();
+                        } finally {
+                            if (_d) throw _e;
+                        }
+                    }
+
+                    return _arr;
+                }
+
+                return function (arr, i) {
+                    if (Array.isArray(arr)) {
+                        return arr;
+                    } else if (Symbol.iterator in Object(arr)) {
+                        return sliceIterator(arr, i);
+                    } else {
+                        throw new TypeError("Invalid attempt to destructure non-iterable instance");
+                    }
+                };
+            }();
+
             _extend = Backbone.RelationalModel.extend;
 
             Backbone.RelationalModel.extend = function (protoProps, classProps) {
@@ -2855,22 +2928,28 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 this.registeredModels[model.prototype.defaults.type] = model;
             };
 
-            ModelFactory.prototype.findOrCreate = function (data) {
-                if (this.registeredModels[data.type]) return this.registeredModels[data.type].findOrCreate(data, { parse: true });
+            ModelFactory.prototype.findOrCreate = function (data, options) {
+                if (this.registeredModels[data.type]) {
+                    var model = this.registeredModels[data.type].findOrCreate(data, _extends({
+                        parse: true
+                    }, options));
+
+                    return model;
+                }
             };
 
-            ModelFactory.prototype.createFromArray = function (items) {
+            ModelFactory.prototype.createFromArray = function (items, options) {
                 _.each(items, function (item) {
-                    this.findOrCreate(item);
+                    this.findOrCreate(item, options);
                 }, this);
             };
 
             Backbone.modelFactory = new ModelFactory();
 
-            Backbone.Collection.prototype.parse = function (response) {
+            Backbone.Collection.prototype.parse = function (response, options) {
                 if (!response) return;
 
-                if (response.included) Backbone.modelFactory.createFromArray(response.included);
+                if (response.included) Backbone.modelFactory.createFromArray(response.included, options);
 
                 if (response.meta && this.handleMeta) this.handleMeta(response.meta);
 
@@ -2881,7 +2960,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 return response.data;
             };
 
-            Backbone.RelationalModel.prototype.parse = function (response) {
+            Backbone.RelationalModel.prototype.parse = function (response, options) {
                 if (!response) return;
 
                 if (response.included) Backbone.modelFactory.createFromArray(response.included);
@@ -2895,15 +2974,78 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 var data = response.attributes || {};
                 data.id = response.id;
 
+                var simplifiedRelations = void 0;
                 if (response.relationships) {
-                    var simplifiedRelations = _.mapObject(response.relationships, function (value) {
+                    simplifiedRelations = _.mapObject(response.relationships, function (value) {
                         return value.data;
                     });
-
-                    _.extend(data, simplifiedRelations);
                 }
 
-                return data;
+                var _$chain$pairs$partiti = _.chain(this.attributes).pairs().partition(function (_ref) {
+                    var _ref2 = _slicedToArray(_ref, 2),
+                        key = _ref2[0],
+                        value = _ref2[1];
+
+                    return value instanceof Backbone.Model || value instanceof Backbone.Collection;
+                }).map(function (val) {
+                    return _.object(val);
+                }).value(),
+                    _$chain$pairs$partiti2 = _slicedToArray(_$chain$pairs$partiti, 2),
+                    existingRelations = _$chain$pairs$partiti2[0],
+                    existingFields = _$chain$pairs$partiti2[1];
+
+                var newFields = _.extend({}, existingFields, data);
+                var fetchOptions = options.fetchOptions || this.fetchOptions;
+
+                var relations = mergeRelations(existingRelations, simplifiedRelations, fetchOptions);
+
+                return _.extend({}, newFields, relations);
+            };Backbone.RelationalModel.prototype.set = function (key, value, options) {
+                Backbone.Relational.eventQueue.block();
+
+                // Duplicate backbone's behavior to allow separate key/value parameters, instead of a single 'attributes' object
+                var attributes, result;
+
+                if (_.isObject(key) || key == null) {
+                    attributes = key;
+                    options = value;
+                } else {
+                    attributes = {};
+                    attributes[key] = value;
+                }
+
+                try {
+                    var id = this.id,
+                        newId = attributes && this.idAttribute in attributes && attributes[this.idAttribute];
+
+                    // Check if we're not setting a duplicate id before actually calling `set`.
+                    Backbone.Relational.store.checkId(this, newId);
+
+                    result = Backbone.Model.prototype.set.apply(this, arguments);
+
+                    // Ideal place to set up relations, if this is the first time we're here for this model
+                    // Change required to work.
+                    {
+                        //if ( !this._isInitialized && !this.isLocked() ) {
+                        this.constructor.initializeModelHierarchy();
+
+                        // Only register models that have an id. A model will be registered when/if it gets an id later on.
+                        if (newId || newId === 0) {
+                            Backbone.Relational.store.register(this);
+                        }
+
+                        this.initializeRelations(options);
+                    }
+
+                    if (attributes) {
+                        this.updateRelations(attributes, options);
+                    }
+                } finally {
+                    // Try to run the global queue holding external events
+                    Backbone.Relational.eventQueue.unblock();
+                }
+
+                return result;
             };
 
             _objectWithoutProperties = function (obj, keys) {
@@ -3103,55 +3245,6 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 }
             }));
 
-            // Monkey-patch to fix an apparent bug.
-            Backbone.RelationalModel.prototype.set = function (key, value, options) {
-                Backbone.Relational.eventQueue.block();
-
-                // Duplicate backbone's behavior to allow separate key/value parameters, instead of a single 'attributes' object
-                var attributes, result;
-
-                if (_.isObject(key) || key == null) {
-                    attributes = key;
-                    options = value;
-                } else {
-                    attributes = {};
-                    attributes[key] = value;
-                }
-
-                try {
-                    var id = this.id,
-                        newId = attributes && this.idAttribute in attributes && attributes[this.idAttribute];
-
-                    // Check if we're not setting a duplicate id before actually calling `set`.
-                    Backbone.Relational.store.checkId(this, newId);
-
-                    result = Backbone.Model.prototype.set.apply(this, arguments);
-
-                    // Ideal place to set up relations, if this is the first time we're here for this model
-                    // Change required to work.
-                    {
-                        //if ( !this._isInitialized && !this.isLocked() ) {
-                        this.constructor.initializeModelHierarchy();
-
-                        // Only register models that have an id. A model will be registered when/if it gets an id later on.
-                        if (newId || newId === 0) {
-                            Backbone.Relational.store.register(this);
-                        }
-
-                        this.initializeRelations(options);
-                    }
-
-                    if (attributes) {
-                        this.updateRelations(attributes, options);
-                    }
-                } finally {
-                    // Try to run the global queue holding external events
-                    Backbone.Relational.eventQueue.unblock();
-                }
-
-                return result;
-            };
-
             modelEvents = 'change invalid error request sync';
             collectionEvents = 'update reset sort error request sync';
 
@@ -3281,19 +3374,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                 _addHandlers: function _addHandlers() {
                     var _this4 = this;
 
-                    var forceUpdate = function forceUpdate() {
-                        if (_this4.element) {
-                            _this4.element.forceUpdate();
-                        }
-                    };
-
                     Object.keys(this.props).forEach(function (key) {
                         var options = _this4.propOptions[key];
 
-                        _this4.props[key].bindRelationEvents(forceUpdate, _this4.element, options);
+                        _this4.props[key].bindRelationEvents(_this4.forceUpdate, _this4.element, options);
                     });
-
-                    this._addedHandlers = true;
                 },
                 _removeHandlers: function _removeHandlers() {
                     var _this5 = this;
@@ -3301,6 +3386,11 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     Object.keys(this.props).forEach(function (key) {
                         _this5.props[key].unbindRelationEvents(_this5.element, _this5.propOptions[key]);
                     });
+                },
+                forceUpdate: function forceUpdate() {
+                    if (this.element) {
+                        this.element.forceUpdate();
+                    }
                 }
             });collectionCache = {};
             Object.assign(Queries.prototype, {
@@ -3348,7 +3438,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                     var promise = Promise.all(keys.map(function (key) {
                         return new Promise(function (resolve) {
                             var query = _this6._queryPropTypes[key];
-                            var options = propOptions[key] = getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars);
+                            var options = propOptions[key] = mergeFragments(getArgs(query).indexOf("props") !== -1 ? query(props, _this6.pendingVars) : query(params, location.query, _this6.pendingVars));
 
                             var model = options.model;
                             var instance = void 0,
@@ -3383,7 +3473,7 @@ $__System.register('a', ['1c', '1d', '1e', '13', '1f', '20', '12', '1b'], functi
                                 } else {
                                     var cachedFieldsAndRelations = instance.cachedFieldsAndRelations;
 
-                                    if (cachedFieldsAndRelations && isSubset(cachedFieldsAndRelations, mergeFragments(options))) {
+                                    if (cachedFieldsAndRelations && isSubset(cachedFieldsAndRelations, options)) {
                                         loadedFromCache = true;
                                         resolve();
                                     }
