@@ -2,7 +2,7 @@ import React from 'react';
 import createReactClass from 'create-react-class';
 import { Link } from 'react-router';
 import { createMemoryHistory } from 'history';
-import { withJsonApi } from 'react-jsonapi';
+import withJsonApi from 'react-jsonapi';
 import { ArticleCollection, Article, Comment, Tag, User } from './models';
 
 const ArticleListItem = withJsonApi({
