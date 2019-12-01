@@ -92,7 +92,7 @@ interface ApiComponent extends React.Component {
 }
 
 export default function withJsonApi(
-    options: QueryOptions | FragmentOptions, 
+    options: QueriesOptions | FragmentOptions, 
     Component: React.Component<{}, {}> | React.FunctionComponent
 ): ApiComponent;
 
