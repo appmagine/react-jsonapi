@@ -50,16 +50,26 @@ type StandaloneQueryDefinitionFunction = (
     vars: Variables
 ) => QueryDefinition;
 
-interface QueriesOptions extends CacheOptions {
-    initialVars?: Variables,
-    getInitialVars?(): Variables,
+interface BaseQueriesOptions extends CacheOptions {
+    initialVars?: Variables
+    getInitialVars?(): Variables
+}
+
+interface RouteQueriesOptions extends BaseQueriesOptions {
     queries: {
-        [key: string]: RouteQueryDefinitionFunction |
-            StandaloneQueryDefinitionFunction
+        [key: string]: RouteQueryDefinitionFunction
     }
 }
 
-interface FragmentsOptions {
+interface StandaloneQueriesOptions extends BaseQueriesOptions {
+    queries: {
+        [key: string]: StandaloneQueryDefinitionFunction
+    }
+}
+
+type QueriesOptions = RouteQueriesOptions | StandaloneQueriesOptions;
+
+interface FragmentOptions {
     fragments: {
         [key: string]: QueryShapeOptions
     }
@@ -70,11 +80,10 @@ interface Queries {
     pendingVars: Variables,
     setVars(vars: Variables): void,
     fetching: boolean,
-    hasErrors: boolean,
-    [key: string]: Backbone.Model | Backbone.Collection
+    hasErrors: boolean
 }
 
-interface APIComponent extends React.Component {
+interface ApiComponent extends React.Component {
     props: {
         queries: Queries,
         [key: string]: any
@@ -83,8 +92,8 @@ interface APIComponent extends React.Component {
 }
 
 export default function withJsonApi(
-    options: QueriesOptions | FragmentsOptions, 
+    options: QueriesOptions | FragmentOptions, 
     Component: React.Component<{}, {}> | React.FunctionComponent
-): APIComponent;
+): ApiComponent;
 
 export type AsyncProps = React.Component<{}, {}>;
