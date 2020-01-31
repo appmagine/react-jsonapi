@@ -28,9 +28,9 @@ ModelFactory.prototype.findOrCreate = function(data, options) {
         const model = this.registeredModels[data.type].findOrCreate(data, {
             parse: true,
             ...options
-		});
+        });
 
-		return model;
+        return model;
     }
 }
 
@@ -82,8 +82,8 @@ Backbone.RelationalModel.prototype.parse = function(response, options) {
             return value.data;
         });
     }
-	
-	const [existingRelations, existingFields] = _.chain(this.attributes)
+
+    const [existingRelations, existingFields] = _.chain(this.attributes)
         .pairs()
         .partition(([key, value]) => {
             return (
@@ -91,17 +91,17 @@ Backbone.RelationalModel.prototype.parse = function(response, options) {
                 value instanceof Backbone.Collection
             );
         })
-		.map((val) => _.object(val))
-		.value();
+        .map((val) => _.object(val))
+        .value();
 
     const newFields = _.extend({}, existingFields, data);
-	const fetchOptions = options.fetchOptions || this.fetchOptions;
+    const fetchOptions = options.fetchOptions || this.fetchOptions;
 
-	const relations = mergeRelations(
-		existingRelations, 
-		simplifiedRelations,
-		fetchOptions
-	);
+    const relations = mergeRelations(
+        existingRelations, 
+        simplifiedRelations,
+        fetchOptions
+    );
 
     return _.extend({}, newFields, relations);
 };
@@ -110,34 +110,34 @@ function mergeRelations(existingRelations, newRelations, fetchOptions) {
     _.each(newRelations, (relation, key) => {
         const existingRelation = existingRelations[key];
 
-		if (existingRelation) {
+        if (existingRelation) {
             const relationFetchOptions = fetchOptions.relations.find((relation) => {
                 return relation.key === key;
-			});
+            });
 
-			if (existingRelation instanceof Backbone.Collection) {
+            if (existingRelation instanceof Backbone.Collection) {
                 existingRelation.set(relation, { 
                     parse: true,
                     silent: true,
                     fetchOptions: relationFetchOptions
                 });
-			} else {
+            } else {
 
-				const attributes = existingRelation.parse(relation, { 
-					fetchOptions: relationFetchOptions
-				});
-				const idAttribute = existingRelation.idAttribute;
-				const id = existingRelation.get(idAttribute);
+                const attributes = existingRelation.parse(relation, { 
+                    fetchOptions: relationFetchOptions
+                });
+                const idAttribute = existingRelation.idAttribute;
+                const id = existingRelation.get(idAttribute);
 
-				if (!id) {
-					existingRelations[key] = existingRelation.constructor.findOrCreate({
-						[idAttribute]: attributes[idAttribute]
-					});
-				}
+                if (!id) {
+                    existingRelations[key] = existingRelation.constructor.findOrCreate({
+                        [idAttribute]: attributes[idAttribute]
+                    });
+                }
                 existingRelations[key].set(attributes, { silent: true });
             }
-		} else {
-			existingRelations[key] = relation;
+        } else {
+            existingRelations[key] = relation;
         }
     });
 
