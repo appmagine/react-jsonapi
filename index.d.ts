@@ -26,7 +26,7 @@ interface ModelQueryDefinition extends QueryOptions {
 }
 
 interface CollectionQueryDefinition extends QueryOptions {
-    model: Backbone.Collection
+    model: Backbone.Collection,
     filter?: string | { [key: string]: string },
     sort?: string,
     page?: string | { [key: string]: string}    
@@ -51,7 +51,7 @@ type StandaloneQueryDefinitionFunction = (
 ) => QueryDefinition;
 
 interface BaseQueriesOptions extends CacheOptions {
-    initialVars?: Variables
+    initialVars?: Variables,
     getInitialVars?(): Variables
 }
 
