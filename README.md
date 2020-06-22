@@ -1,4 +1,4 @@
-# React JSON API <a href="http://appmagine.github.io/react-jsonapi/"><img src="https://img.shields.io/badge/-Demo-brightgreen"></a>
+# React JSON API <a href="http://sabr.github.io/react-jsonapi/"><img src="https://img.shields.io/badge/-Demo-brightgreen"></a>
 
 React JSON API provides declarative co-located [JSON API](http://jsonapi.org)
 data loading for React components.
@@ -16,19 +16,19 @@ to per-component state known as [variables](#variables).
 
 ### Table of Contents
 
-* [Getting started](#getting-started)
-* [Using with a Router](#using-with-a-router)
+* [Getting Started](#getting-started)
+* [Using With a Router](#using-with-a-router)
 * [Fragments](#fragments)
 * [Variables](#variables)
 * [API](#api)
   * [`AsyncProps`](#asyncprops)
   * [`withJsonApi`](#withjsonapi-default)
-    * [Query definition objects](#query-definition-objects)
-    * [The `queries` prop](#the-queries-prop)
-  * [Added Backbone attributes](#added-backbone-attributes)
+    * [Query Definition Objects](#query-definition-objects)
+    * [The `queries` Prop](#the-queries-prop)
+  * [Added Backbone Attributes](#added-backbone-attributes)
 * [Testing](#testing)
 
-## Getting started
+## Getting Started
 
 This example demonstrates the simplest possible usage of React JSON API with a
 nested relation.
@@ -93,7 +93,7 @@ ReactDOM.render((
 This will make a request to the JSON API URL
 `/tacos/1?fields[tacos]=name&fields[fillings]=name&include=fillings`
 
-## Using with a Router
+## Using With a Router
 
 This example demonstrates the simplest possible usage of React JSON API
 with a React Router v3.x router, connecting a component that renders data from a
@@ -339,7 +339,7 @@ The query props are constructed based on the following options:
 These options are also added as static properties to the returned component so
 they can be referenced when defining other components.
 
-##### Query definition objects
+##### Query Definition Objects
 
 A query definition object defines either a model or collection query or
 fragment.  A model query instantiates a model class and requests a single model
@@ -423,7 +423,7 @@ following options for queries only control how the cache is used:
 
     Default: `true`.
 
-##### The `queries` prop
+##### The `queries` Prop
 
 In addition to the query props, the decorated component receives a prop named
 `queries` that has all query props for that component as attributes and
@@ -437,7 +437,7 @@ additional attributes:
 - `hasErrors` - whether any of this set of models and collections had an error
   response on the last request.
 
-### Added Backbone attributes
+### Added Backbone Attributes
 
 Some additional convenience attributes are added to each instance of `Backbone.Model` 
 and `Backbone.Collection`:
