@@ -1,7 +1,9 @@
-# React JSON API <a href="http://sabr.github.io/react-jsonapi/"><img src="https://img.shields.io/badge/-Demo-brightgreen"></a>
+# React JSON API
 
-React JSON API provides declarative co-located [JSON API](http://jsonapi.org)
-data loading for React components.
+React JSON API provides declarative co-located REST API
+data loading for React components based on [JSON API](http://jsonapi.org), a
+specification that standardizes JSON-based REST APIs with inline nested entities
+and a variety of additional features.
 
 Data is loaded into [Backbone](http://backbonejs.org) models. In order
 to keep the view in sync, each component is subscribed to relevant Backbone
@@ -14,17 +16,20 @@ Query URLs are generated based on query definitions specified as JavaScript
 objects in terms of component props or the matched route information in addition
 to per-component state known as [variables](#variables).
 
+By default, unnecessary requests are avoided using a comprehensive caching
+system for both models and collections.
+
 ### Table of Contents
 
 * [Getting Started](#getting-started)
-* [Using With a Router](#using-with-a-router)
+* [Using with a Router](#using-with-a-router)
 * [Fragments](#fragments)
 * [Variables](#variables)
 * [API](#api)
   * [`AsyncProps`](#asyncprops)
   * [`withJsonApi`](#withjsonapi-default)
-    * [Query Definition Objects](#query-definition-objects)
-    * [The `queries` Prop](#the-queries-prop)
+    * [`QueryDefinition`](#querydefinition)
+    * [`props.queries`](#propsqueries)
   * [Added Backbone Attributes](#added-backbone-attributes)
 * [Testing](#testing)
 
@@ -58,21 +63,17 @@ const Taco = Backbone.RelationalModel.extend({
 });
 
 const TacoItem = withJsonApi({
-    queries: {
-        taco: (props, vars) => {
-            return {
-                model: Taco,
-                id: props.tacoId,
+    taco: (props, vars) => ({
+        model: Taco,
+        id: props.tacoId,
+        fields: ['name']
+        relations: [
+            {
+                key: 'fillings',
                 fields: ['name']
-                relations: [
-                    {
-                        key: 'fillings',
-                        fields: ['name']
-                    }
-                ]
-            };
-        }
-    }
+            }
+        ]
+    })
 }, function ({ taco }) {
     return (
         <div>
@@ -91,9 +92,9 @@ ReactDOM.render((
 ```
 
 This will make a request to the JSON API URL
-`/tacos/1?fields[tacos]=name&fields[fillings]=name&include=fillings`
+`/tacos/1?fields[tacos]=name&fields[fillings]=name&include=fillings`.
 
-## Using With a Router
+## Using with a Router
 
 This example demonstrates the simplest possible usage of React JSON API
 with a React Router v3.x router, connecting a component that renders data from a
@@ -113,15 +114,11 @@ const Taco = Backbone.RelationalModel.extend({
 });
 
 const TacoItem = withJsonApi({
-    queries: {
-        taco: (params, query, vars) => {
-            return {
-                model: Taco,
-                id: params.tacoId,
-                fields: ['name']
-            };
-        }
-    }
+    taco: (urlParams, urlQuery, vars) => ({
+        model: Taco,
+        id: urlParams.tacoId,
+        fields: ['name']
+    })
 }, function ({ taco }) {
     return (
         <div>
@@ -147,23 +144,16 @@ A fragment is a partial query definition that can be referenced in a full query
 definition.  The fields and relations defined by a fragment are merged into the
 definition of the referencing query.
 
-Fragments enable components to be defined with queries that only specify the
-fields and relations that are directly used by the component, while fields and
-relations used only by child components are specified alongside the definition
-of the child components.
-
 ```javascript
 const TacoItem = withJsonApi({
-    fragments: {
-        taco: {
-            model: Taco,
-            relations: [
-                {
-                    key: 'fillings',
-                    fields: ['name']
-                }
-            ]
-        }
+    taco: {
+        model: Taco,
+        relations: [
+            {
+                key: 'fillings',
+                fields: ['name']
+            }
+        ]
     }
 }, function ({ taco }) {
     return (
@@ -183,17 +173,13 @@ const TacoItem = withJsonApi({
 });
 
 const TacoItemList = withJsonApi({
-    queries: {
-        tacos: (params, query, vars) => {
-            return {
-                model: TacoCollection,
-                fields: ['name'],
-                fragments: [
-                    TacoItem.fragments.taco
-                ]
-            };
-        }
-    }
+    tacos: (urlParams, urlQuery, vars) => ({
+        model: TacoCollection,
+        fields: ['name'],
+        fragments: [
+            TacoItem.taco
+        ]
+    })
 }, function ({ tacos }) {
     return (
         <div>
@@ -224,23 +210,27 @@ attributes of the `queries` prop:
   - `vars` - the variables for the currently loaded models
   - `pendingVars` - the variables used to fetch the pending models
   - `setVars(vars)` - merge `vars` with the current variables and trigger a
-    refetch, in the same manner as React's `setState()`
+    refetch, similarly to React's `setState()`
+
+Defining queries using variables instead of state enables better encapsulation
+of query definitions and makes it easier to display variable changes while a
+fetch is ongoing.
 
 Here is an example of variables in action:
 
 ```javascript
 const ItemSearch = withJsonApi({
-    initialVars: {
-        includeDescription: true,
-    },
     queries: {
-        items: (params, query, vars) => {
-            return {
-                model: ItemCollection,
-                fields: vars.includeDescription 
-                    ? ['name', 'description']
-                    : ['name']
-            };
+        items: (urlParams, urlQuery, vars) => ({
+            model: ItemCollection,
+            fields: vars.includeDescription 
+                ? ['name', 'description']
+                : ['name']
+        })
+    }, 
+    options: {
+        initialVars: {
+            includeDescription: true,
         }
     }
 }, function ({ items, queries }) {
@@ -273,10 +263,10 @@ const ItemSearch = withJsonApi({
     );
 });
 ```
- 
+
 ## API
 
-React JSON API has two exports:
+This documentation presents APIs using the TypeScript type definition format.
 
 #### `AsyncProps`
 
@@ -293,75 +283,162 @@ data loading.  Avoid using these features when using React JSON API.
 
 #### `withJsonApi` (default)
 
-\- `withJsonApi(options, Component)`
+`withJsonApi(queries, Component): React.Component`
 
 A [higher-order
 component](https://reactjs.org/docs/higher-order-components.html) that renders
 `Component` with query models passed as props and manages Backbone event
-handlers.
+handlers for the models.
 
-The query props are constructed based on the following options:
+Type definition:
 
-- `queries` - An object that defines query props in terms of functions that
-  return a **query definition object** for each prop.
+```typescript
+import { Shape, CacheOptions } from './QueryDefinition'; // see below
 
-  \- `{ [name]: (params, query, vars) => query definition object }` or
+interface Variables {
+    [key: string]: any
+}
 
-  \- `{ [name]: (props, vars) => query definition object }`
+type StandaloneQueryPropDefinition = (props, vars) => QueryDefinition;
+type RouteQueryPropDefinition = (urlParams, urlQuery, vars) => QueryDefinition;
+type FragmentPropDefinition = Shape;
+type QueryPropDefinition = StandaloneQueryPropDefinition 
+    | RouteQueryPropDefinition | FragmentPropDefinition;
 
-  The function arguments are:
-  
-    * `params` - the React Router route params object (/route/:param) from
-      `props.params`.
-    * `query` - the React Router route query object (?x=y) from
-      `props.location.query`.
-    * `props` - the component props.
-    * `vars` - the query [variables](#variables).
 
-- `fragments` - An object that defines query [fragment](#fragments) props in
-  terms of query definition objects.
+interface QueryPropTypes {
+    [name]: QueryPropDefinition
+}
 
-  \- `{ [name]: query definition object }`
+interface QueryPropTypesOptions extends CacheOptions {
+    initialVars?: Variables,
+    getInitialVars?(): Variables
+}
 
-- `initialVars` - An object of initial query variables.
+interface QueryPropTypesWithOptions {
+    queries: QueryPropTypes, 
+    options: QueryPropTypesOptions
+}
 
-- `getInitialVars` - A function that returns an object of initial query variables.
+interface QueriesProp {
+    vars: Variables,
+    pendingVars: Variables,
+    setVars(vars: Variables): void,
+    urlQuery?: {[key: string]: string},
+    urlParams?: {[key: string]: string},
+    fetching: boolean,
+    hasErrors: boolean
+}
 
-- `loadFromCache` - A value to use as the default value for the
-  `loadFromCache` option of all queries defined by `queries`.
+interface APIComponent extends React.Component {
+    props: {
+        queries: QueriesProp,
+    }
+}
 
-- `alwaysFetch` - A value to use as the default value for the `alwaysFetch`
-  option of all queries defined by `queries`.
+function withJsonApi(
+    queries: QueryPropTypes | QueryPropTypesWithOptions 
+    Component
+): APIComponent;
+```
 
-- `updateCache` - A value to use as the default value for the `updateCache`
-  option of all queries defined by `queries`.
+\- `queries: QueryPropTypes | QueryPropTypesWithOptions`
 
-These options are also added as static properties to the returned component so
-they can be referenced when defining other components.
+An object that satisfies the `QueryPropTypes` or `QueryPropTypesWithOptions`
+interfaces defined above that defines query props in terms of functions that
+return [`QueryDefinition`](#query-definition) objects and [fragment](#fragments)
+props in terms of `Shape` objects.
 
-##### Query Definition Objects
+    `QueryPropTypes: { [propName]: QueryPropDefinition }`
+    `QueryPropTypesWithOptions:
+        { queries: QueryPropTypes, options: QueryPropTypesOptions}`
 
-A query definition object defines either a model or collection query or
-fragment.  A model query instantiates a model class and requests a single model
+Arguments for standalone query props definition functions:
+
+  * `props` - the component props.
+  * `vars` - the query [variables](#variables).
+
+Arguments for route query props definition functions:
+
+  * `urlParams` - the React Router route params object (/route/:param) from
+    `props.params`.
+  * `urlQuery` - the React Router route query object (?x=y) from
+    `props.location.query`.
+  * `vars` - the query variables.
+
+`QueryPropTypesOptions`:
+
+  - `initialVars` - An object of initial query variables.
+
+  - `getInitialVars` - A function that returns an object of initial query variables.
+
+  - `loadFromCache` - A default `loadFromCache` value for all `QueryDefinition`
+      objects (see below).
+
+  - `alwaysFetch` - A default `alwaysFetch` value for all `QueryDefinition`
+      objects (see below).
+
+  - `updateCache` - A default `updateCache` value for all `QueryDefinition`
+      objects (see below).
+
+##### `QueryDefinition`
+
+A `QueryDefinition` is an object that specifies the definition of either a model
+or collection query or a fragment.  A model query loads data from a single model
 [resource](https://jsonapi.org/format/#document-resource-objects) like
-`/articles/1`.  A collection query instantiates a collection class and requests
-a collection of model resources like `/articles`.
+`/articles/1` into a Backbone Model instance.  A collection query loads data
+from a collection of model resources like `/articles` into a Backbone Collection
+instance.
 
-Model and collection queries share the same options related to the parts of
-the URL that specify what data to include for each model resource but have
-different options related to the parts of the URL that specify which top-level
-resource or resources to return.
+Model and collection queries and fragments share the same options related to the
+parts of the URL that specify what data to include for each model resource but
+have different options related to the parts of the URL that specify which
+top-level resource or resources to return.
 
-Options that specify the top-level resource to return for a **model query** or
-fragment:
+```typescript
+// QueryDefinition
 
-  * `model` - the model class to use.
+interface Relation {
+    key: string,
+    fields?: [string],
+    relations?: [Relation],
+    fragments?: [Relation] 
+}
+
+interface Shape extends Relation {
+    key: never
+}
+
+interface CacheOptions {
+    loadFromCache?: boolean,
+    alwaysFetch?: boolean,
+    updateCache?: boolean
+}
+
+interface ModelQueryDefinition extends Shape, CacheOptions {
+    id: string | number
+}
+
+interface CollectionQueryDefinition extends Shape, CacheOptions {
+    filter?: string | object,
+    sort?: string | object,
+    page?: string | object
+}
+
+type QueryDefinition = ModelQueryDefinition | CollectionDefinition;
+```
+
+###### Resource options
+
+Resource options specify the top-level HTTP resource or resources to
+return for a query or fragment.
+
+Model query options:
+
   * `id` (required) - the ID of the resource to fetch.
 
-Options that specify the top-level resources to return for a **collection
-query** or fragment:
+Collection query options:
 
-  * `model` - the collection class to use.
   * `filter` - a string or object to pass as the JSON API
     [`filter`](https://jsonapi.org/format/#fetching-filtering) parameter.
   * `sort` - a string to pass as the JSON API 
@@ -369,14 +446,17 @@ query** or fragment:
   * `page` - a string or object to pass as the JSON API
     [`page`](https://jsonapi.org/format/#fetching-pagination) parameter.
 
-Options that specify the data to include for each resource returned by the query:
+###### Shape options
+
+Shape options specify the data to include for each resource returned by the query.
 
   * `fields` - an array of names of fields of the subject model to include in
     the response, used as the JSON API 
     [`fields`](https://jsonapi.org/format/#fetching-sparse-fieldsets)
     parameter for the subject model's type.
     
-    If not specified, all fields will be included.
+    If not specified, the default behavior of a JSON API that complies with the
+    standard is to include all fields in the response.
 
   * `relations` - a nested array of objects that correspond to relations of the
     subject model to include in the response as related resources.  The full
@@ -392,38 +472,31 @@ Options that specify the data to include for each resource returned by the query
         the related model's type.
       - `relations` - an array of the same type of object corresponding to
         relations of this relation's related model to include in the response.
-      - `fragments` - an array of fragments to include for this relation.  The
-        `fields` and `relations` values from each fragment will be merged into
-        the `fields` and `relations` values for this relation.
+      - `fragments` - an array of fragments (shapes) to include for this
+        relation.  The `fields` and `relations` values from each fragment will
+        be merged into the `fields` and `relations` values for this relation.
 
     If not specified, no relations will be returned.
 
-  * `fragments` - an array of fragments to include in this query.  The
+  * `fragments` - an array of fragments (shapes) to include in this query.  The
     `fields` and `relations` values from each fragment will be merged into the
     `fields` and `relations` values of this query.
 
+###### Cache options
+
 React JSON API maintains a cache of previously loaded query results.  The
-following options for queries only control how the cache is used:
+following options control how the cache is used:
 
-  * `loadFromCache` - whether to load cached results for this query if complete
-    results for the query exist in the cache.  This overrides the default
-    `loadFromCache` value for this component if one was specified.
+  * `loadFromCache` - load cached results for this query if complete
+    results for the query exist in the cache. (Default: `true`)
 
-    Default: `true`.
+  * `alwaysFetch` - fetch new results for a query whose initial
+    results were loaded from the cache. (Default: `true`)
 
-  * `alwaysFetch` - whether to fetch new results for a query whose initial
-    results were loaded from the cache. This overrides the default `alwaysFetch`
-    value for this component if one was specified.
+  * `updateCache` - update the cache with the results returned for
+    this query. (Default: `true`)
 
-    Default: `true`.
-
-  * `updateCache` - whether to update the cache with the results returned for
-    this query. This overrides the default `updateCache` value for this
-    component if one was specified.
-
-    Default: `true`.
-
-##### The `queries` Prop
+##### `props.queries`
 
 In addition to the query props, the decorated component receives a prop named
 `queries` that has all query props for that component as attributes and
@@ -433,6 +506,10 @@ additional attributes:
 - `vars` - the variables for the currently loaded models.
 - `pendingVars` - the variables used to fetch the pending models.
 - `setVars(vars)` - merge `vars` with the current variables and trigger a refetch.
+- `urlQuery` - the matched route URL query used to fetch the currently loaded
+   models, if using with a router.
+- `urlParams` - the matched route URL params used to fetch the currently loaded
+   odels, if using with a router.
 - `fetching` - whether the queries are currently being fetched.
 - `hasErrors` - whether any of this set of models and collections had an error
   response on the last request.
@@ -448,13 +525,12 @@ and `Backbone.Collection`:
 The factory function `Backbone.RelationalModel.extend()` is monkey-patched 
 to add model classes to a global registry if `defaults.type` is defined 
 (see example).  The value of this property is used where a type is expected 
-in JSON-API URLs.
+in JSON API URLs.
 
 ## Testing
 
 ```
 $ npm install
-$ git checkout -- jspm.config.js
 $ npm install -g http-server
 $ http-server
 ```

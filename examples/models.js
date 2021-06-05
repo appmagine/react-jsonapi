@@ -1,7 +1,11 @@
 import Backbone from 'backbone';
 import 'backbone-relational';
 
+import 'react-jsonapi';
+
 import './data';
+
+console.error(Backbone.RelationalModel);
 
 export const Tag = Backbone.RelationalModel.extend({
     defaults: {
@@ -56,6 +60,8 @@ export const Article = Backbone.RelationalModel.extend({
         }
     ]
 });
+
+console.error(Article);
 
 
 export const ArticleCollection = Backbone.Collection.extend({

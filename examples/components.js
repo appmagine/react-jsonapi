@@ -6,17 +6,15 @@ import withJsonApi from 'react-jsonapi';
 import { ArticleCollection, Article, Comment, Tag, User } from './models';
 
 const ArticleListItem = withJsonApi({
-    fragments: {
-        article: {
-            model: Article,
-            fields: ['title'],
-            relations: [
-                {
-                    key: 'author',
-                    fields: ['username']
-                }
-            ]
-        }
+    article: {
+        model: Article,
+        fields: ['title'],
+        relations: [
+            {
+                key: 'author',
+                fields: ['username']
+            }
+        ]
     }
 }, function ArticleListItem({ article }) {
     const author = article.get('author');
@@ -39,19 +37,19 @@ const ArticleListItem = withJsonApi({
 });
 
 export const ArticleList = withJsonApi({
-    getInitialVars() {
-        return {
-            filter: false 
-        };
-    },
     queries: {
-        articles(params, query, vars) {
+        articles: (urlParams, urlQuery, vars) => ({
+            model: ArticleCollection,
+            filter: vars.filter ? 'id != 11' : null,
+            fragments: [
+                ArticleListItem.fragments.article
+            ]
+        })
+    },
+    options: {
+        getInitialVars() {
             return {
-                model: ArticleCollection,
-                filter: vars.filter ? 'id != 11' : null,
-                fragments: [
-                    ArticleListItem.fragments.article
-                ]
+                filter: false 
             };
         }
     }
@@ -78,18 +76,15 @@ export const ArticleList = withJsonApi({
 });
 
 const CommentItem = withJsonApi({
-    fragments: {
-        comment: {
-            model: Comment,
-            fields: ['title', 'content', 'date'],
-            relations: [
-                {
-                    key: 'author',
-                    fields: ['username']
-                }
-            ]
-        
-        }
+    comment: {
+        model: Comment,
+        fields: ['title', 'content', 'date'],
+        relations: [
+            {
+                key: 'author',
+                fields: ['username']
+            }
+        ]
     }
 }, function CommentItem({ comment }) {
     return (
@@ -106,33 +101,29 @@ const CommentItem = withJsonApi({
 });
 
 export const ArticleItem = withJsonApi({
-    queries: {
-        article(params, query, vars) {
-            return {
-                model: Article,
-                id: params.articleId,
-                fields: ['title', 'content'],
+    article: (urlParams, urlQuery, vars) => ({
+        model: Article,
+        id: urlParams.articleId,
+        fields: ['title', 'content'],
+        relations: [
+            {
+                key: 'author',
+                fields: ['name', 'username'],
                 relations: [
                     {
-                        key: 'author',
-                        fields: ['name', 'username'],
-                        relations: [
-                            {
-                                key: 'articles',
-                                fields: ['title']
-                            }
-                        ]
-                    },
-                    {
-                        key: 'comments',
-                        fragments: [
-                            CommentItem.fragments.comment
-                        ]
+                        key: 'articles',
+                        fields: ['title']
                     }
                 ]
-            };
-        }
-    }
+            },
+            {
+                key: 'comments',
+                fragments: [
+                    CommentItem.fragments.comment
+                ]
+            }
+        ]
+    })
 }, createReactClass({
     displayName: "ArticleItem",
     getInitialState() {
@@ -245,34 +236,30 @@ export const ArticleItem = withJsonApi({
 }));
 
 const ArticleSummary = withJsonApi({
-    queries: {
-        article(props, vars) {
-            return {
-                model: Article,
-                id: props.articleId,
-                fields: ['title', 'content'],
+    article: (props, vars) => ({
+        model: Article,
+        id: props.articleId,
+        fields: ['title', 'content'],
+        relations: [
+            {
+                key: 'author',
+                fields: ['name'],
                 relations: [
                     {
-                        key: 'author',
-                        fields: ['name', 'username'],
-                        relations: [
-                            {
-                                key: 'articles',
-                                model: Article,
-                                fields: ['title']
-                            }
-                        ]
-                    },
-                    {
-                        key: 'comments',
-                        fragments: [
-                            CommentItem.fragments.comment
-                        ]
+                        key: 'articles',
+                        model: Article,
+                        fields: ['title']
                     }
                 ]
-            };
-        }
-    }
+            },
+            {
+                key: 'comments',
+                fragments: [
+                    CommentItem.fragments.comment
+                ]
+            }
+        ]
+    })
 }, function ArticleSummary({ article }) {
     if (!article) {
         return (

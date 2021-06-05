@@ -95,23 +95,24 @@ Backbone.RelationalModel.prototype.parse = function(response, options) {
         .value();
 
     const newFields = _.extend({}, existingFields, data);
-    const fetchOptions = options.fetchOptions || this.fetchOptions;
+    const queryDefinition = options.queryDefinition || this.queryDefinition;
 
     const relations = mergeRelations(
         existingRelations, 
         simplifiedRelations,
-        fetchOptions
+        queryDefinition
     );
 
     return _.extend({}, newFields, relations);
 };
 
-function mergeRelations(existingRelations, newRelations, fetchOptions) {
+function mergeRelations(existingRelations, newRelations, queryDefinition) {
     _.each(newRelations, (relation, key) => {
         const existingRelation = existingRelations[key];
 
         if (existingRelation) {
-            const relationFetchOptions = fetchOptions.relations.find((relation) => {
+            const { relations } = queryDefinition || {};
+            const relationQueryDefinition = relations.find((relation) => {
                 return relation.key === key;
             });
 
@@ -119,12 +120,12 @@ function mergeRelations(existingRelations, newRelations, fetchOptions) {
                 existingRelation.set(relation, { 
                     parse: true,
                     silent: true,
-                    fetchOptions: relationFetchOptions
+                    queryDefinition: relationQueryDefinition
                 });
             } else {
 
                 const attributes = existingRelation.parse(relation, { 
-                    fetchOptions: relationFetchOptions
+                    queryDefinition: relationQueryDefinition
                 });
                 const idAttribute = existingRelation.idAttribute;
                 const id = existingRelation.get(idAttribute);

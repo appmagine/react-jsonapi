@@ -128,7 +128,7 @@ $.mockjax({
             id: '10',
             attributes: {
                 title: "Article 10",
-                content: "Lorem ipsum dolor sit amet"
+                content: "Article content"
             },
             relationships: {
                 author: {
@@ -184,7 +184,7 @@ $.mockjax({
                 id: '9',
                 attributes: {
                     title: 'Article 9',
-                    content: 'Lorem ipsum dolor sit amet'
+                    content: 'Article content'
                 }
             },
             {
@@ -192,7 +192,7 @@ $.mockjax({
                 id: '10',
                 attributes: {
                     title: 'Article 10',
-                    content: 'Lorem ipsum dolor sit amet'
+                    content: 'Article content'
                 }
             },
             {
@@ -200,15 +200,15 @@ $.mockjax({
                 id: '11',
                 attributes: {
                     title: 'Article 11',
-                    content: 'Lorem ipsum dolor sit amet'
+                    content: 'Article content'
                 }
             },
             {
                 type: 'comments',
                 id: '1',
                 attributes: {
-                    title: 'Comment 1',
-                    content: 'Lorem ipsum...',
+                    title: 'Comment title',
+                    content: 'Comment content',
                     date: 'some date'
                 },
                 relationships: {
@@ -235,7 +235,7 @@ $.mockjax({
             id: '11',
             attributes: {
                 title: "Article 11",
-                content: "Lorem ipsum dolor sit amet"
+                content: "Article content"
             },
             relationships: {
                 author: {
@@ -287,7 +287,7 @@ $.mockjax({
                 id: '9',
                 attributes: {
                     title: 'Article 9',
-                    content: 'Lorem ipsum dolor sit amet'
+                    content: 'Article content'
                 }
             },
             {
@@ -295,7 +295,7 @@ $.mockjax({
                 id: '10',
                 attributes: {
                     title: 'Article 10',
-                    content: 'Lorem ipsum dolor sit amet'
+                    content: 'Article content'
                 }
             },
             {
@@ -303,15 +303,15 @@ $.mockjax({
                 id: '11',
                 attributes: {
                     title: 'Article 11',
-                    content: 'Lorem ipsum dolor sit amet'
+                    content: 'Article content'
                 }
             },
             {
                 type: 'comments',
                 id: '2',
                 attributes: {
-                    title: 'Comment 1',
-                    content: 'Lorem ipsum...',
+                    title: 'Comment title',
+                    content: 'Comment content',
                     date: 'some date'
                 },
                 relationships: {
