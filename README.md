@@ -299,18 +299,27 @@ interface Variables {
     [key: string]: any
 }
 
-type StandaloneQueryPropDefinition = (props, vars) => QueryDefinition;
-type RouteQueryPropDefinition = (urlParams, urlQuery, vars) => QueryDefinition;
+type StandaloneQueryPropDefinition = (
+    props, // the component props
+    vars // the query variables
+) => QueryDefinition;
+
+type RouteQueryPropDefinition = (
+    urlParams, // the React Router route params object (/route/:param) from `props.params`
+    urlQuery, // the React Router route query object (?x=y) from `props.location.query`
+    vars // the query variables
+) => QueryDefinition;
+
 type FragmentPropDefinition = Shape;
 type QueryPropDefinition = StandaloneQueryPropDefinition 
     | RouteQueryPropDefinition | FragmentPropDefinition;
-
 
 interface QueryPropTypes {
     [name]: QueryPropDefinition
 }
 
 interface QueryPropTypesOptions extends CacheOptions {
+    // CacheOptions properties provide default values for all query props of a component
     initialVars?: Variables,
     getInitialVars?(): Variables
 }
@@ -340,46 +349,7 @@ function withJsonApi(
     queries: QueryPropTypes | QueryPropTypesWithOptions 
     Component
 ): APIComponent;
-```
-
-\- `queries: QueryPropTypes | QueryPropTypesWithOptions`
-
-An object that satisfies the `QueryPropTypes` or `QueryPropTypesWithOptions`
-interfaces defined above that defines query props in terms of functions that
-return [`QueryDefinition`](#query-definition) objects and [fragment](#fragments)
-props in terms of `Shape` objects.
-
-    `QueryPropTypes: { [propName]: QueryPropDefinition }`
-    `QueryPropTypesWithOptions:
-        { queries: QueryPropTypes, options: QueryPropTypesOptions}`
-
-Arguments for standalone query props definition functions:
-
-  * `props` - the component props.
-  * `vars` - the query [variables](#variables).
-
-Arguments for route query props definition functions:
-
-  * `urlParams` - the React Router route params object (/route/:param) from
-    `props.params`.
-  * `urlQuery` - the React Router route query object (?x=y) from
-    `props.location.query`.
-  * `vars` - the query variables.
-
-`QueryPropTypesOptions`:
-
-  - `initialVars` - An object of initial query variables.
-
-  - `getInitialVars` - A function that returns an object of initial query variables.
-
-  - `loadFromCache` - A default `loadFromCache` value for all `QueryDefinition`
-      objects (see below).
-
-  - `alwaysFetch` - A default `alwaysFetch` value for all `QueryDefinition`
-      objects (see below).
-
-  - `updateCache` - A default `updateCache` value for all `QueryDefinition`
-      objects (see below).
+``
 
 ##### `QueryDefinition`
 
@@ -395,9 +365,9 @@ parts of the URL that specify what data to include for each model resource but
 have different options related to the parts of the URL that specify which
 top-level resource or resources to return.
 
-```typescript
-// QueryDefinition
+Type definition:
 
+```typescript
 interface Relation {
     key: string,
     fields?: [string],
