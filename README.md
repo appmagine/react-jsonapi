@@ -349,7 +349,7 @@ function withJsonApi(
     queries: QueryPropTypes | QueryPropTypesWithOptions 
     Component
 ): APIComponent;
-``
+```
 
 ##### `QueryDefinition`
 
