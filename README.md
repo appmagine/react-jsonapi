@@ -365,39 +365,6 @@ parts of the URL that specify what data to include for each model resource but
 have different options related to the parts of the URL that specify which
 top-level resource or resources to return.
 
-Type definition:
-
-```typescript
-interface Relation {
-    key: string,
-    fields?: [string],
-    relations?: [Relation],
-    fragments?: [Relation] 
-}
-
-interface Shape extends Relation {
-    key: never
-}
-
-interface CacheOptions {
-    loadFromCache?: boolean,
-    alwaysFetch?: boolean,
-    updateCache?: boolean
-}
-
-interface ModelQueryDefinition extends Shape, CacheOptions {
-    id: string | number
-}
-
-interface CollectionQueryDefinition extends Shape, CacheOptions {
-    filter?: string | object,
-    sort?: string | object,
-    page?: string | object
-}
-
-type QueryDefinition = ModelQueryDefinition | CollectionDefinition;
-```
-
 ###### Resource options
 
 Resource options specify the top-level HTTP resource or resources to
@@ -465,6 +432,39 @@ following options control how the cache is used:
 
   * `updateCache` - update the cache with the results returned for
     this query. (Default: `true`)
+
+Type definition:
+
+```typescript
+interface Relation {
+    key: string,
+    fields?: [string],
+    relations?: [Relation],
+    fragments?: [Relation] 
+}
+
+interface Shape extends Relation {
+    key: never
+}
+
+interface CacheOptions {
+    loadFromCache?: boolean,
+    alwaysFetch?: boolean,
+    updateCache?: boolean
+}
+
+interface ModelQueryDefinition extends Shape, CacheOptions {
+    id: string | number
+}
+
+interface CollectionQueryDefinition extends Shape, CacheOptions {
+    filter?: string | object,
+    sort?: string | object,
+    page?: string | object
+}
+
+type QueryDefinition = ModelQueryDefinition | CollectionDefinition;
+```
 
 ##### `props.queries`
 
