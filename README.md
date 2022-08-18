@@ -463,7 +463,7 @@ interface CollectionQueryDefinition extends Shape, CacheOptions {
     page?: string | object
 }
 
-type QueryDefinition = ModelQueryDefinition | CollectionDefinition;
+type QueryDefinition = ModelQueryDefinition | CollectionQueryDefinition;
 ```
 
 ##### `props.queries`
