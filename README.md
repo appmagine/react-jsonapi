@@ -5,7 +5,7 @@ data loading for React components based on [JSON API](http://jsonapi.org), a
 specification that standardizes JSON-based REST APIs with inline nested entities
 and a variety of additional features.
 
-Data is loaded into [Backbone](http://backbonejs.org) models. In order
+Data is loaded into [Backbone-relational](http://backbonerelational.org) models. In order
 to keep the view in sync, each component is subscribed to relevant Backbone
 events for the models and collections from which it renders data.
 
@@ -37,9 +37,6 @@ system for both models and collections.
 
 This example demonstrates the simplest possible usage of React JSON API with a
 nested relation.
-
-React JSON API relies on [Backbone-relational](http://backbonerelational.org), a
-comprehensive solution for managing nested Backbone models.
 
 ```javascript
 import Backbone from 'backbone';
