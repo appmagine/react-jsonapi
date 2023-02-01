@@ -2,22 +2,27 @@
 
 React JSON API provides declarative co-located REST API
 data loading for React components based on [JSON API](http://jsonapi.org), a
-specification that standardizes JSON-based REST APIs with inline nested entities
+specification that standardizes JSON-based REST APIs with inline nested entities, pagination
 and a variety of additional features.
 
-Data is loaded into [Backbone-relational](http://backbonerelational.org) models. In order
-to keep the view in sync, each component is subscribed to relevant Backbone
-events for the models and collections from which it renders data.
+Data is loaded into [Backbone-relational](http://backbonerelational.org) models
+(an extension to [Backbone](http://backbonejs.org)) that
+are synced with the view using events, enabling encapsulation of application logic
+in the model layer.
 
 React JSON API supports optional integration with [React
-Router](https://github.com/ReactTraining/react-router/tree/v3) v3.x. 
+Router](https://github.com/ReactTraining/react-router/tree/v3) v3.x for data loading based
+on the page URL, including multi-view data loading for isomorphic view-route hierarchies. 
 
-Query URLs are generated based on query definitions specified as JavaScript
+API URLs are generated based on query definitions specified as JavaScript
 objects in terms of component props or the matched route information in addition
 to per-component state known as [variables](#variables).
 
-By default, unnecessary requests are avoided using a comprehensive caching
-system for both models and collections.
+By default, a comprehensive caching system is used that avoids unnecessary requests and 
+displays cached data immediately while optional refetches are executing.
+
+The goal of React JSON API is to completely eliminate boilerplate from data-oriented 
+frontend development.
 
 ### Table of Contents
 
@@ -200,7 +205,7 @@ but also other values that change over time.  This is possible using the third
 argument to a query definition function, named `vars` in the examples shown
 here. 
 
-These are called "variables".  One set of variables is shared between all
+These are called "variables."  One set of variables is shared between all
 queries belonging to a component, and can be accessed using the following
 attributes of the `queries` prop:
 
