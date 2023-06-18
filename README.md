@@ -7,7 +7,7 @@ and a variety of additional features.
 
 Data is loaded into [Backbone-relational](http://backbonerelational.org) models
 (an extension to [Backbone](http://backbonejs.org)) that
-are synced with the view using events, enabling encapsulation of application logic
+are synced with the view using events, enabling encapsulation of business logic
 in the model layer.
 
 React JSON API supports optional integration with [React
